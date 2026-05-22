@@ -43,7 +43,18 @@
         "recommendations_subtitle": "Based on your past preferences of <strong>Cohiba</strong> and <strong>Full Body</strong> profiles.",
         "join_title": "Join The <span class=\"text-accent\">Aficionado Club</span>",
         "join_text": "Earn points on every purchase, access exclusive humidors, and get invited to private tasting events.",
-        "join_btn": "Join Now - Free"
+        "join_btn": "Join Now - Free",
+        "try_now": "try them out right now",
+        "beloved_products": "OUR BELOVED PRODUCTS",
+        "who_we_are": "Who We Are",
+        "discover_art": "DISCOVER THE ART<br/>OF FINE CIGARS",
+        "who_we_are_text": "Welcome to our exclusive lounge, where heritage meets exceptional craftsmanship. We are dedicated to providing connoisseurs with an unparalleled selection of premium cigars, hand-rolled by master artisans using the finest aged tobaccos from around the world. Whether you are a seasoned aficionado or embarking on your very first smoke, our curated collections guarantee a profound experience in every puff.",
+        "discover_more_btn": "Discover more",
+        "shop_now": "shop now",
+        "new_arrivals": "NEW ARRIVALS",
+        "explore": "explore",
+        "all_products": "ALL PRODUCTS",
+        "sponsored_by": "SPONSORED BY"
     },
     "Shop": {
         "title": "Our Collection",
@@ -65,7 +76,19 @@
             "rating": "Highest Rated",
             "name": "Name (A-Z)"
         },
-        "no_products": "Our humidor doesn't seem to have that vitola currently. Would you like a personal recommendation from our curator?"
+        "no_products": "Our humidor doesn't seem to have that vitola currently. Would you like a personal recommendation from our curator?",
+        "top_brands": "Top Brands",
+        "filters_sidebar": "Filters",
+        "clear_all_filters": "Clear All Filters",
+        "show_similar_items": "Show Similar Items",
+        "curators_suggestions": "Curator's Suggestions",
+        "curators_suggestions_desc": "Based on your selected wrapper, strength, and flavor profiles.",
+        "no_close_matches": "We couldn't find any close matches. Please try different filters.",
+        "close_filters": "Close",
+        "refine": "Refine",
+        "showing": "Showing",
+        "of": "of",
+        "vitolas": "Vitolas"
     },
     "Product": {
         "out_of_stock": "Out of Stock",

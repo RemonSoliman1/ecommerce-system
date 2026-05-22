@@ -219,6 +219,14 @@
         max-width: 100%;
     }
 
+    .col h4 {
+        margin-top: 1.5rem;
+    }
+
+    .links li, .contact li {
+        margin-bottom: 0.8rem;
+    }
+
     .grid {
         grid-template-columns: 1fr;
         gap: 2.5rem;

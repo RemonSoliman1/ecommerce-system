@@ -17,10 +17,11 @@ export default function AgeGate() {
 
     const handleVerify = (locale) => {
         sessionStorage.setItem('age_verified', 'true');
-        setIsVisible(false);
-        // Navigate to the chosen locale
+        // Set cookie so server knows too
         document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
-        window.location.href = `/${locale}`;
+        
+        // Hide modal but stay on intended page
+        setIsVisible(false);
     };
 
     const handleReject = () => {

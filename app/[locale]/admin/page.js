@@ -7,14 +7,19 @@ import styles from './admin.module.css';
 import { useProducts } from '@/context/ProductContext';
 import { BRANDS } from '@/lib/data';
 import { supabase } from '@/lib/supabaseClient';
-import { Search } from 'lucide-react';
+import { Search, Eye, EyeOff } from 'lucide-react';
+import AdminPromotions from './AdminPromotions';
+import AdminManualOrder from './AdminManualOrder';
+import AdminMarketing from './AdminMarketing';
+import AdminPromoCodes from './AdminPromoCodes';
 
 export default function AdminPage() {
     const { user, loading: authLoading } = useAuth();
-    const { products, refreshProducts } = useProducts();
+    const { products, refreshProducts, autoHideStock: globalAutoHide, toggleProductVisibilityOptimistically } = useProducts();
     const router = useRouter();
 
-    const [activeTab, setActiveTab] = useState('products'); // products | orders
+    const [activeTab, setActiveTab] = useState('products'); // products | orders | users
+    const [adminUsers, setAdminUsers] = useState([]);
 
     const [persistentAttributes, setPersistentAttributes] = useState({
         brand: [],
@@ -41,6 +46,14 @@ export default function AdminPage() {
     const [adminFilterBrand, setAdminFilterBrand] = useState('all');
     const [adminFilterStock, setAdminFilterStock] = useState('all');
     const [adminFilterSize, setAdminFilterSize] = useState('all');
+
+    // Global Settings State
+    const [autoHideStock, setAutoHideStock] = useState(false);
+
+    useEffect(() => {
+        setAutoHideStock(globalAutoHide);
+    }, [globalAutoHide]);
+
 
     // Fetch Attributes on Mount
     useEffect(() => {
@@ -71,6 +84,11 @@ export default function AdminPage() {
                     setPersistentAttributes(grouped);
                     setHiddenAttributes(hidden);
                     setAttributeMetadata(meta);
+
+                    // Load global setting if exists
+                    if (grouped.setting && grouped.setting.includes('auto_hide_out_of_stock')) {
+                        setAutoHideStock(meta['auto_hide_out_of_stock']?.enabled === true);
+                    }
                 }
             } catch (err) {
                 console.error('Failed to load attributes', err);
@@ -90,6 +108,17 @@ export default function AdminPage() {
             }
         };
         fetchOrders();
+
+        const fetchUsers = async () => {
+            try {
+                const res = await fetch('/api/admin/users');
+                const json = await res.json();
+                if (json.success) {
+                    setAdminUsers(json.users || []);
+                }
+            } catch (err) { }
+        };
+        fetchUsers();
     }, []);
 
     // Form State
@@ -173,6 +202,8 @@ export default function AdminPage() {
     const [editingGiftId, setEditingGiftId] = useState(null);
     const [editingGiftOldName, setEditingGiftOldName] = useState(null);
 
+    // Editing Brand Modal State
+    const [editingBrand, setEditingBrand] = useState(null); // { category: 'brand', oldVal, value, image, isPersistent, id }
     const handleGiftImageUpload = async (e) => {
         let file = e.target.files?.[0];
         if (!file) return;
@@ -267,8 +298,8 @@ export default function AdminPage() {
             });
             const data = await res.json();
             if (data.success) {
-                setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Confirmed' } : o));
-                alert('Order confirmed and email sent successfully!');
+                alert('Order confirmed and email sent!');
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { ...o, status: 'Confirmed' } : o));
             } else {
                 alert('Failed to confirm order: ' + (data.error || 'Unknown error'));
             }
@@ -279,6 +310,30 @@ export default function AdminPage() {
         }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to cancel this order? This will revert the stock for all items.')) return;
+        setConfirmingOrder(orderId); // reuse loading state
+        try {
+            const res = await fetch('/api/admin/orders/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Order cancelled and stock reverted successfully!');
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+            } else {
+                alert('Failed to cancel order: ' + (data.error || 'Unknown error'));
+            }
+        } catch (e) {
+            alert('Error cancelling order: ' + e.message);
+        } finally {
+            setConfirmingOrder(null);
+        }
+    };
+
+
     // ... (useEffect for auth check is fine) ...
 
     const handleInputChange = (e) => {
@@ -286,9 +341,26 @@ export default function AdminPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const DIM_MAP = {
+        'Robusto': '5 x 50', 'Toro': '6 x 52', 'Churchill': '7 x 48', 'Gordo': '6 x 60', 'Gordito': '5.5 x 60',
+        'Double Toro': '6 x 60', 'Perfecto': '6 x 54', 'Torpedo': '6.1 x 52', 'Belicoso': '5.5 x 52',
+        'Corona': '5.5 x 42', 'Petit Robusto': '4.5 x 50', 'Double Corona': '7.5 x 50', 'Gran Robusto': '5.5 x 54',
+        'Lonsdale': '6.5 x 42', 'Lancero': '7.5 x 38', 'Panatela': '6 x 38', 'Figurado': '6 x 52'
+    };
+
     const handleModelChange = (e) => {
         const { name, value } = e.target;
-        setCurrentModel(prev => ({ ...prev, [name]: value }));
+        setCurrentModel(prev => {
+            const updated = { ...prev, [name]: value };
+            if (name === 'size' && !prev.dimensions) {
+                // Find a match case-insensitively
+                const key = Object.keys(DIM_MAP).find(k => k.toLowerCase() === value.trim().toLowerCase());
+                if (key) {
+                    updated.dimensions = DIM_MAP[key];
+                }
+            }
+            return updated;
+        });
     };
 
     const addModel = () => {
@@ -881,6 +953,7 @@ export default function AdminPage() {
     }, [products, dynamicOptions.customBrands, adminFilterType, persistentAttributes.brand, attributeMetadata]);
 
     if (authLoading || !user) return <div className="container" style={{ padding: '2rem' }}>Authenticating...</div>;
+    if (user.role !== 'admin') return <div className="container" style={{ padding: '2rem', textAlign: 'center' }}><h2>Access Denied</h2><p>You do not have permission to view this page.</p></div>;
 
     return (
         <div className={styles.container}>
@@ -910,6 +983,30 @@ export default function AdminPage() {
                     onClick={() => setActiveTab('attributes')}
                 >
                     Attributes
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'users' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('users')}
+                >
+                    Users / Roles
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'promotions' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('promotions')}
+                >
+                    Home Promotions
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'promos' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('promos')}
+                >
+                    Promo Codes
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === 'marketing' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('marketing')}
+                >
+                    Marketing
                 </button>
             </div>
 
@@ -1477,23 +1574,60 @@ export default function AdminPage() {
                     </div>
 
                     <div style={{ marginTop: '4rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h2>Product List ({filteredProductsList.length})</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'nowrap', gap: '0.5rem', width: '100%', overflowX: 'auto', paddingBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+                                <h2 style={{ margin: 0, whiteSpace: 'nowrap' }}>Product List ({filteredProductsList.length})</h2>
+                                <button
+                                    onClick={async () => {
+                                        const checked = !autoHideStock;
+                                        setAutoHideStock(checked);
+                                        try {
+                                            const res = await fetch('/api/admin/attributes', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ category: 'setting', value: 'auto_hide_out_of_stock', metadata: { enabled: checked } })
+                                            });
+                                            if (!res.ok) alert('Failed to save setting');
+                                        } catch (err) {
+                                            console.error(err);
+                                        }
+                                    }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        background: autoHideStock ? 'rgba(244, 67, 54, 0.1)' : 'transparent',
+                                        border: `1px solid ${autoHideStock ? '#f44336' : '#333'}`,
+                                        color: autoHideStock ? '#f44336' : '#888',
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.2s',
+                                        lineHeight: '1.2',
+                                        textAlign: 'left'
+                                    }}
+                                    title={autoHideStock ? 'Out of stock items are currently hidden globally' : 'Out of stock items are currently visible globally'}
+                                >
+                                    {autoHideStock ? <EyeOff size={16} style={{ flexShrink: 0 }} /> : <Eye size={16} style={{ flexShrink: 0 }} />}
+                                    <span style={{ display: 'inline-block' }}>Auto-Hide<br/>Out of Stock</span>
+                                </button>
+                            </div>
 
                             {/* Search & Filters */}
-                            <div style={{ display: 'flex', gap: '1rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', alignItems: 'center', flex: 1, justifyContent: 'flex-end', minWidth: 'min-content' }}>
                                 <input
                                     placeholder="Search products..."
                                     value={adminSearch}
                                     onChange={(e) => setAdminSearch(e.target.value)}
                                     className={styles.input}
-                                    style={{ padding: '0.5rem', width: '200px' }}
+                                    style={{ padding: '0.5rem', width: '100%', maxWidth: '250px', fontSize: '0.85rem' }}
                                 />
                                 <select
                                     value={adminFilterType}
                                     onChange={(e) => setAdminFilterType(e.target.value)}
                                     className={styles.select}
-                                    style={{ padding: '0.5rem', width: '150px' }}
+                                    style={{ padding: '0.5rem', width: 'auto', flex: '1 1 auto', fontSize: '0.85rem', maxWidth: '150px' }}
                                 >
                                     <option value="all">All Types</option>
                                     <option value="cigar">Cigar</option>
@@ -1506,7 +1640,7 @@ export default function AdminPage() {
                                     value={adminFilterBrand}
                                     onChange={(e) => setAdminFilterBrand(e.target.value)}
                                     className={styles.select}
-                                    style={{ padding: '0.5rem', width: '150px' }}
+                                    style={{ padding: '0.5rem', width: 'auto', flex: '1 1 auto', fontSize: '0.85rem', maxWidth: '160px' }}
                                 >
                                     <option value="all">All Brands</option>
                                     {availableBrands.map(b => (
@@ -1517,7 +1651,7 @@ export default function AdminPage() {
                                     value={adminFilterStock}
                                     onChange={(e) => setAdminFilterStock(e.target.value)}
                                     className={styles.select}
-                                    style={{ padding: '0.5rem', width: '130px' }}
+                                    style={{ padding: '0.5rem', width: 'auto', flex: '1 1 auto', fontSize: '0.85rem', maxWidth: '140px' }}
                                 >
                                     <option value="all">All Stock</option>
                                     <option value="in_stock">In Stock</option>
@@ -1527,7 +1661,7 @@ export default function AdminPage() {
                                     value={adminFilterSize}
                                     onChange={(e) => setAdminFilterSize(e.target.value)}
                                     className={styles.select}
-                                    style={{ padding: '0.5rem', width: '150px' }}
+                                    style={{ padding: '0.5rem', width: 'auto', flex: '1 1 auto', fontSize: '0.85rem', maxWidth: '150px' }}
                                 >
                                     <option value="all">All Sizes</option>
                                     {dynamicOptions.allSizes.map(size => (
@@ -1540,10 +1674,10 @@ export default function AdminPage() {
                             </div>
                         </div>
 
-                        <div className={styles.tableContainer}>
-                            <table className={styles.table}>
+                        <div className="max-h-[600px] overflow-y-auto border border-gray-800 rounded-lg custom-scrollbar" style={{ maxHeight: '600px', overflowY: 'auto', border: '1px solid #1f2937', borderRadius: '0.5rem' }}>
+                            <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
-                                    <tr>
+                                    <tr style={{ position: 'sticky', top: 0, background: '#120C0A', zIndex: 10 }}>
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>ID</th>
@@ -1555,8 +1689,11 @@ export default function AdminPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredProductsList.map(p => (
-                                        <tr key={p.id}>
+                                    {filteredProductsList.map(p => {
+                                        const productStock = p.models?.reduce((acc, m) => acc + parseInt(m.stock || 0), 0) || 0;
+                                        const isCurrentlyHidden = p.is_visible === false || (autoHideStock && productStock === 0 && p.is_visible !== null);
+                                        return (
+                                        <tr key={p.id} style={{ opacity: isCurrentlyHidden ? 0.5 : 1, filter: isCurrentlyHidden ? 'grayscale(100%)' : 'none', transition: 'all 0.3s' }}>
                                             <td>
                                                 <img src={p.image} alt="" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
                                             </td>
@@ -1576,7 +1713,37 @@ export default function AdminPage() {
                                                 )) : <span style={{ color: '#666' }}>N/A</span>}
                                             </td>
                                             <td>
-                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    <button
+                                                        onClick={async () => {
+                                                            // If currently hidden, clicking will force it visible (null). If visible, it forces it hidden (false).
+                                                            const newVisible = isCurrentlyHidden ? null : false;
+                                                            // Optimistic update
+                                                            toggleProductVisibilityOptimistically(p.id, newVisible);
+                                                            
+                                                            // Async API call in background
+                                                            fetch('/api/products/visibility', {
+                                                                method: 'PUT',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible, admin_secret: 'admin@129' })
+                                                            }).then(async res => {
+                                                                if (!res.ok) {
+                                                                    const data = await res.json();
+                                                                    alert('Failed to update visibility: ' + (data.error || 'Unknown error'));
+                                                                    // Revert if explicitly failed
+                                                                    toggleProductVisibilityOptimistically(p.id, p.is_visible);
+                                                                }
+                                                            }).catch(err => {
+                                                                alert('Error updating visibility: ' + err.message);
+                                                                // Revert on network error
+                                                                toggleProductVisibilityOptimistically(p.id, p.is_visible);
+                                                            });
+                                                        }}
+                                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' }}
+                                                        title={isCurrentlyHidden ? 'Force Show on Storefront' : 'Hide from Storefront'}
+                                                    >
+                                                        {isCurrentlyHidden ? <EyeOff size={20} color="#f44336" /> : <Eye size={20} color="#4caf50" />}
+                                                    </button>
                                                     <button
                                                         onClick={() => {
                                                             setFormData({
@@ -1588,7 +1755,7 @@ export default function AdminPage() {
                                                                 category: p.category || '',
                                                                 description: p.description || '',
                                                                 image: p.image || '',
-                                                                images: p.images || (p.image ? [p.image] : []),
+                                                                images: Array.from(new Set([p.image, ...(p.images || [])])).filter(Boolean),
                                                                 strength: p.strength || 'Medium',
                                                                 rating: p.rating || '',
                                                                 flavor_profile: p.flavor_profile || [],
@@ -1645,7 +1812,7 @@ export default function AdminPage() {
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )})}
                                 </tbody>
                             </table>
                         </div>
@@ -1674,6 +1841,14 @@ export default function AdminPage() {
                     return (
                         <div className={styles.content}>
                             <div style={{ width: '100%', margin: '0 auto', overflowX: 'auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                                <h2>Manual POS / Telegram Orders</h2>
+                                <AdminManualOrder onOrderCreated={(newOrder) => {
+                                    setAdminOrders([newOrder, ...adminOrders]);
+                                    alert('Manual Order created successfully!');
+                                }} />
+                                
+                                <hr style={{ margin: '3rem 0', borderColor: '#333' }} />
+
                                 <h2>Platform Orders ({filteredAdminOrders.length})</h2>
 
                                 {/* Filters UI */}
@@ -1807,6 +1982,14 @@ export default function AdminPage() {
                                                                                     ))}
                                                                                 </div>
                                                                                 <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}><strong style={{ color: '#888' }}>Items Subtotal:</strong> <span>EGP {sub.toLocaleString()}</span></p>
+                                                                                
+                                                                                {order.promoCode && (
+                                                                                    <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}>
+                                                                                        <strong style={{ color: '#888' }}>Promo Used ({order.promoCode}):</strong> 
+                                                                                        <span style={{ color: '#4CAF50' }}>- EGP {Number(order.discount || 0).toLocaleString()}</span>
+                                                                                    </p>
+                                                                                )}
+
                                                                                 {ship > 0 && <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}><strong style={{ color: '#888' }}>Shipping/Fees:</strong> <span>EGP {ship.toLocaleString()}</span></p>}
                                                                                 <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #444', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                                                                                     <span style={{ color: 'var(--color-accent)' }}>Total Paid:</span>
@@ -1817,15 +2000,26 @@ export default function AdminPage() {
                                                                     })()}
                                                                 </div>
                                                                 <div style={{ marginTop: '20px', borderTop: '1px solid #333', paddingTop: '15px' }}>
+                                                                <div style={{ display: 'flex', gap: '10px' }}>
                                                                     {order.status === 'Pending' && (
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); handleConfirmOrder(order.id); }}
                                                                             disabled={confirmingOrder === order.id}
                                                                             style={{ background: 'var(--color-accent)', color: '#000', padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                                                                         >
-                                                                            {confirmingOrder === order.id ? 'Confirming...' : 'Confirm Order'}
+                                                                            {confirmingOrder === order.id ? 'Loading...' : 'Confirm Order'}
                                                                         </button>
                                                                     )}
+                                                                    {order.status !== 'cancelled' && (
+                                                                        <button
+                                                                            onClick={(e) => { e.stopPropagation(); handleCancelOrder(order.id); }}
+                                                                            disabled={confirmingOrder === order.id}
+                                                                            style={{ background: '#333', color: '#ff4d4d', padding: '8px 16px', border: '1px solid #ff4d4d', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                                                                        >
+                                                                            {confirmingOrder === order.id ? 'Loading...' : 'Cancel & Revert Stock'}
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -1965,7 +2159,7 @@ export default function AdminPage() {
                                             {(!values || values.length === 0) ? (
                                                 <p style={{ color: '#888', fontSize: '0.9rem' }}>No {category}s found.</p>
                                             ) : (
-                                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '0.5rem', maxHeight: '250px', overflowY: 'auto', alignContent: 'flex-start' }}>
                                                     {values.map(val => {
                                                         const isPersistent = persistentAttributes[category]?.includes(val);
                                                         return (
@@ -1973,6 +2167,17 @@ export default function AdminPage() {
                                                                 {val}
                                                                 <button
                                                                     onClick={async () => {
+                                                                        if (category === 'brand') {
+                                                                            setEditingBrand({
+                                                                                category, 
+                                                                                oldVal: val, 
+                                                                                value: val, 
+                                                                                image: attributeMetadata[val]?.image || '',
+                                                                                isPersistent: isPersistent, 
+                                                                                id: attributeMetadata[val]?.id
+                                                                            });
+                                                                            return;
+                                                                        }
                                                                         const newVal = prompt(`Edit ${category} "${val}":`, val);
                                                                         if (!newVal || newVal.trim() === '' || newVal === val) return;
                                                                         const cleanedVal = newVal.trim();
@@ -2244,6 +2449,212 @@ export default function AdminPage() {
                     </div>
                 )
             }
+            {
+                activeTab === 'users' && (
+                    <div className={styles.content}>
+                        <div style={{ width: '100%', margin: '0 auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                            <h2>Manage Users & Admins</h2>
+                            <p style={{ color: '#888', marginBottom: '2rem' }}>Promote users to Admins to give them access to this dashboard.</p>
+
+                            {adminUsers.length === 0 ? (
+                                <p style={{ color: '#888' }}>No users found.</p>
+                            ) : (
+                                <div className={styles.tableContainer}>
+                                    <table className={styles.table}>
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Current Role</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {adminUsers.map(u => (
+                                                <tr key={u.id}>
+                                                    <td>{u.name || 'N/A'}</td>
+                                                    <td>{u.email}</td>
+                                                    <td style={{ color: u.role === 'admin' ? 'var(--color-accent)' : '#fff', fontWeight: u.role === 'admin' ? 'bold' : 'normal' }}>
+                                                        {u.role === 'admin' ? 'Admin' : 'User'}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            onClick={async () => {
+                                                                const newRole = u.role === 'admin' ? 'user' : 'admin';
+                                                                if (!confirm(`Are you sure you want to change ${u.email} to ${newRole}?`)) return;
+                                                                try {
+                                                                    const res = await fetch('/api/admin/users', {
+                                                                        method: 'PUT',
+                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        body: JSON.stringify({ userId: u.id, role: newRole })
+                                                                    });
+                                                                    const data = await res.json();
+                                                                    if (data.success) {
+                                                                        setAdminUsers(prev => prev.map(user => user.id === u.id ? { ...user, role: newRole } : user));
+                                                                    } else {
+                                                                        alert('Failed to update role');
+                                                                    }
+                                                                } catch (e) {
+                                                                    alert('Error updating role: ' + e.message);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                background: u.role === 'admin' ? '#333' : 'var(--color-accent)',
+                                                                color: u.role === 'admin' ? '#fff' : '#000',
+                                                                border: 'none',
+                                                                padding: '6px 12px',
+                                                                borderRadius: '4px',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 'bold',
+                                                                fontSize: '0.8rem'
+                                                            }}
+                                                        >
+                                                            {u.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
+            {
+                activeTab === 'promotions' && (
+                    <AdminPromotions products={products} brands={BRANDS} />
+                )
+            }
+            {
+                activeTab === 'promos' && (
+                    <AdminPromoCodes />
+                )
+            }
+            {
+                activeTab === 'marketing' && (
+                    <AdminMarketing />
+                )
+            }
+            {/* BRAND EDITING MODAL */}
+            {editingBrand && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100000 }}>
+                    <div style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
+                        <h2 style={{ color: 'var(--color-accent)', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Edit Brand: {editingBrand.oldVal}</h2>
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Brand Name</label>
+                            <input 
+                                type="text" 
+                                value={editingBrand.value} 
+                                onChange={(e) => setEditingBrand({...editingBrand, value: e.target.value})} 
+                                style={{ width: '100%', padding: '0.8rem', background: '#333', border: '1px solid #444', color: '#fff', borderRadius: '4px' }} 
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc' }}>Brand Logo (SVG or Image)</label>
+                            {editingBrand.image && (
+                                <div style={{ marginBottom: '1rem', background: '#222', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                                    <img src={editingBrand.image} alt="Logo Preview" style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain' }} />
+                                </div>
+                            )}
+                            <input 
+                                type="file" 
+                                accept="image/*,.svg"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    try {
+                                        const uploadData = new FormData();
+                                        uploadData.append('file', file);
+                                        const res = await fetch('/api/admin/upload-image', { method: 'POST', body: uploadData });
+                                        if (!res.ok) throw new Error('Upload failed');
+                                        const data = await res.json();
+                                        setEditingBrand({...editingBrand, image: data.url});
+                                    } catch (err) {
+                                        alert('Error uploading logo: ' + err.message);
+                                    }
+                                }}
+                                style={{ width: '100%', padding: '0.5rem', border: '1px dashed #555', borderRadius: '4px', cursor: 'pointer' }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                            <button 
+                                onClick={() => setEditingBrand(null)} 
+                                style={{ padding: '0.8rem 1.5rem', background: 'transparent', border: '1px solid #555', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={async () => {
+                                    if (!editingBrand.value.trim()) return alert("Name cannot be empty");
+                                    const cleanedVal = editingBrand.value.trim();
+                                    const oldVal = editingBrand.oldVal;
+                                    const category = 'brand';
+                                    try {
+                                        if (editingBrand.isPersistent && editingBrand.id) {
+                                            // Update Persistent
+                                            const res = await fetch('/api/admin/attributes', {
+                                                method: 'PUT',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ id: editingBrand.id, category, value: cleanedVal, metadata: { image: editingBrand.image } })
+                                            });
+                                            if (!res.ok) throw new Error('Failed to update brand');
+                                            
+                                            setPersistentAttributes(prev => ({
+                                                ...prev, [category]: prev[category].map(v => v === oldVal ? cleanedVal : v)
+                                            }));
+                                            setAttributeMetadata(prev => {
+                                                const next = { ...prev };
+                                                next[cleanedVal] = { ...next[oldVal], id: editingBrand.id, image: editingBrand.image };
+                                                delete next[oldVal];
+                                                return next;
+                                            });
+                                        } else {
+                                            // It was a dynamically created one or new 
+                                            const resAdd = await fetch('/api/admin/attributes', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ category, value: cleanedVal, metadata: { image: editingBrand.image } })
+                                            });
+                                            if (!resAdd.ok) throw new Error('Failed to save new brand');
+                                            
+                                            const resHide = await fetch('/api/admin/attributes', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ category, value: oldVal, metadata: { hidden: true } })
+                                            });
+                                            if (!resHide.ok) throw new Error('Failed to hide old brand');
+
+                                            setPersistentAttributes(prev => ({
+                                                ...prev, [category]: [...(prev[category] || []), cleanedVal]
+                                            }));
+                                            setHiddenAttributes(prev => ({
+                                                ...prev, [category]: [...(prev[category] || []), oldVal]
+                                            }));
+                                            setAttributeMetadata(prev => {
+                                                const next = { ...prev };
+                                                next[cleanedVal] = { image: editingBrand.image };
+                                                return next;
+                                            });
+                                        }
+                                        setEditingBrand(null);
+                                        alert("Brand updated successfully! (Refresh shop to see changes if using static fallback)");
+                                    } catch (err) {
+                                        alert("Error: " + err.message);
+                                    }
+                                }} 
+                                style={{ padding: '0.8rem 1.5rem', background: 'var(--color-accent)', border: 'none', color: '#111', fontWeight: 'bold', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

@@ -9,9 +9,11 @@ import OrderCard from './OrderCard';
 import { useTranslations } from 'next-intl';
 import { useLoyalty } from '@/context/LoyaltyContext';
 import { LayoutDashboard, ShoppingBag, MapPin, Settings, LogOut, Heart } from 'lucide-react';
+import { usePWA } from '@/context/PWAContext';
 
 export default function AccountPage() {
     const { user, logout, loading } = useAuth();
+    const pwa = usePWA();
     const router = useRouter();
     const t = useTranslations('Account');
     const { points, tier } = useLoyalty();
@@ -24,6 +26,18 @@ export default function AccountPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [updateStatus, setUpdateStatus] = useState({ loading: false, error: '', success: '' });
+    
+    // Automation Settings
+    const [bdaySettings, setBdaySettings] = useState({
+        title: 'Happy Birthday from CigarLounge! 🎉',
+        body: 'We are thrilled to celebrate you today. As a token of our appreciation, please enjoy a special birthday promotion added to your account. Treat yourself to a fine smoke!',
+        url: '/shop'
+    });
+    const [upcomingSettings, setUpcomingSettings] = useState({
+        title: 'Your Birthday is almost here! 🎂',
+        body: 'Stock up now so you have the perfect smoke ready to celebrate your special day.',
+        url: '/shop'
+    });
 
     const handleUpdatePassword = async (e) => {
         e.preventDefault();
@@ -71,15 +85,13 @@ export default function AccountPage() {
                 .then(data => {
                     if (data.orders) {
                         // Map DB structure to Frontend structure
-                        // Map DB structure to Frontend structure
                         const mappedOrders = data.orders.map(o => ({
                             id: o.id,
                             date: o.created_at,
                             status: o.status || 'Pending',
-                            // API now returns normalized 'total' and 'items'
                             total: o.total || o.total_price || 0,
                             items: Array.isArray(o.items) ? o.items.map(i => ({
-                                id: i.product_id || i.id, // Handle both structures
+                                id: i.product_id || i.id,
                                 name: i.name || 'Unknown Item',
                                 quantity: i.quantity || 1,
                                 price: i.price || 0,
@@ -90,6 +102,21 @@ export default function AccountPage() {
                     }
                 })
                 .catch(err => console.error("Failed to load orders", err));
+                
+            // Fetch Birthday Settings
+            fetch('/api/admin/settings')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.settings) {
+                        if (data.settings.birthday_automation) {
+                            setBdaySettings(data.settings.birthday_automation);
+                        }
+                        if (data.settings.upcoming_birthday_automation) {
+                            setUpcomingSettings(data.settings.upcoming_birthday_automation);
+                        }
+                    }
+                })
+                .catch(err => console.error("Failed to load settings", err));
         }
     }, [user, loading, router]);
 
@@ -178,14 +205,144 @@ export default function AccountPage() {
                                 <button className="btn" disabled={updateStatus.loading}>
                                     {updateStatus.loading ? 'Saving...' : 'Save Password'}
                                 </button>
+                                
+                                {pwa && (
+                                    <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #333' }}>
+                                        <h3 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>App Installation</h3>
+                                        <p style={{ color: '#ccc', marginBottom: '1rem', fontSize: '14px' }}>
+                                            Install the CigarLounge app for a better, faster experience.
+                                        </p>
+                                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                            <button 
+                                                type="button" 
+                                                className="btn" 
+                                                onClick={() => pwa.setShowAndroidModal ? pwa.setShowAndroidModal(true) : pwa.promptInstall()}
+                                                disabled={!pwa.isInstallable}
+                                                style={{ backgroundColor: 'var(--color-accent)', color: '#120C0A' }}
+                                            >
+                                                {pwa.isInstallable ? 'Install App (Automatic)' : 'Already Installed / Not Supported'}
+                                            </button>
+                                            
+                                            <button 
+                                                type="button" 
+                                                className="btn" 
+                                                onClick={() => pwa.setShowManualModal(true)}
+                                                style={{ backgroundColor: 'transparent', border: '1px solid var(--color-accent)', color: 'var(--color-accent)' }}
+                                            >
+                                                Show Manual Guide
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </form>
                     </div>
                 );
             case 'overview':
-            default:
+            default: {
+                const today = new Date();
+                const todayStr = today.toISOString().substring(5, 10);
+                
+                const reminderDate = new Date();
+                reminderDate.setDate(reminderDate.getDate() + 5);
+                const reminderStr = reminderDate.toISOString().substring(5, 10);
+
+                const userDobStr = user?.dob ? user.dob.substring(5, 10) : null;
+                const isBirthday = userDobStr === todayStr;
+                const isUpcomingBirthday = userDobStr === reminderStr;
+
                 return (
                     <div className={styles.section}>
+                        {isBirthday && bdaySettings.enabled !== false && (
+                            <div style={{
+                                background: `linear-gradient(rgba(18, 12, 10, 0.85), rgba(26, 22, 20, 0.95)), url('${bdaySettings.image}')`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                border: '1px solid #D4AF37',
+                                borderRadius: '12px',
+                                padding: '3rem 2rem',
+                                marginBottom: '2.5rem',
+                                textAlign: 'center',
+                                boxShadow: '0 10px 30px rgba(212, 175, 55, 0.15)',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}>
+                                {/* Decorative elements */}
+                                <div style={{ position: 'absolute', top: '-10px', left: '-10px', fontSize: '4rem', opacity: 0.1 }}>🎉</div>
+                                <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', fontSize: '4rem', opacity: 0.1 }}>🎂</div>
+                                
+                                <h2 style={{ 
+                                    color: '#D4AF37', 
+                                    fontFamily: 'var(--font-serif)', 
+                                    fontSize: '2.5rem', 
+                                    margin: '0 0 1rem 0' 
+                                }}>
+                                    {bdaySettings.title.replace('{name}', user.name.split(' ')[0])}
+                                </h2>
+                                <p style={{ 
+                                    color: '#fff', 
+                                    fontSize: '1.2rem', 
+                                    lineHeight: '1.6', 
+                                    maxWidth: '600px', 
+                                    margin: '0 auto 1.5rem auto' 
+                                }}>
+                                    {bdaySettings.body}
+                                </p>
+                                <button onClick={() => router.push(bdaySettings.url)} style={{
+                                    background: '#D4AF37',
+                                    color: '#120C0A',
+                                    border: 'none',
+                                    padding: '12px 30px',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 'bold',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase',
+                                    transition: 'all 0.3s ease'
+                                }}>
+                                    Claim Your Gift
+                                </button>
+                            </div>
+                        )}
+
+                        {isUpcomingBirthday && upcomingSettings.enabled !== false && (
+                            <div style={{
+                                background: `linear-gradient(rgba(26, 22, 20, 0.85), rgba(42, 34, 31, 0.95)), url('${upcomingSettings.image}')`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                border: '1px solid #888',
+                                borderRadius: '12px',
+                                padding: '2rem 1.5rem',
+                                marginBottom: '2.5rem',
+                                textAlign: 'center',
+                                position: 'relative',
+                            }}>
+                                <h2 style={{ 
+                                    color: '#fff', 
+                                    fontFamily: 'var(--font-sans)', 
+                                    fontSize: '1.5rem', 
+                                    margin: '0 0 0.5rem 0' 
+                                }}>
+                                    {upcomingSettings.title.replace('{name}', user.name.split(' ')[0])}
+                                </h2>
+                                <p style={{ color: '#ccc', fontSize: '1rem', margin: '0 0 1rem 0' }}>
+                                    {upcomingSettings.body}
+                                </p>
+                                <button onClick={() => router.push(upcomingSettings.url)} style={{
+                                    background: 'transparent',
+                                    color: '#D4AF37',
+                                    border: '1px solid #D4AF37',
+                                    padding: '8px 20px',
+                                    fontSize: '1rem',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}>
+                                    Shop Now
+                                </button>
+                            </div>
+                        )}
+
                         <h2>Dashboard Overview</h2>
                         <div className={styles.statsGrid}>
                             <div className={styles.statCard}>
@@ -211,6 +368,7 @@ export default function AccountPage() {
                         )}
                     </div>
                 );
+            }
         }
     };
 
@@ -226,13 +384,19 @@ export default function AccountPage() {
                     <nav className={styles.nav}>
                         <button
                             className={`${styles.navBtn} ${activeTab === 'overview' ? styles.activeBtn : ''}`}
-                            onClick={() => setActiveTab('overview')}
+                            onClick={() => {
+                                setActiveTab('overview');
+                                if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
                         >
                             <LayoutDashboard size={20} /> Overview
                         </button>
                         <button
                             className={`${styles.navBtn} ${activeTab === 'orders' ? styles.activeBtn : ''}`}
-                            onClick={() => setActiveTab('orders')}
+                            onClick={() => {
+                                setActiveTab('orders');
+                                if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
                         >
                             <ShoppingBag size={20} /> Orders
                         </button>
@@ -244,7 +408,10 @@ export default function AccountPage() {
                         </button>
                         <button
                             className={`${styles.navBtn} ${activeTab === 'settings' ? styles.activeBtn : ''}`}
-                            onClick={() => setActiveTab('settings')}
+                            onClick={() => {
+                                setActiveTab('settings');
+                                if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
                         >
                             <Settings size={20} /> Settings
                         </button>
@@ -270,7 +437,7 @@ export default function AccountPage() {
                 </aside>
 
                 {/* Main Content */}
-                <main className={styles.content}>
+                <main className={styles.content} id="account-content">
                     {renderContent()}
                 </main>
             </div>

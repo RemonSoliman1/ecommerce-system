@@ -17,7 +17,8 @@ export default function ShopSidebar({
     availableBrands,
     getSeriesForBrand,
     onUpdateParams,
-    onUpdateSeries
+    onUpdateSeries,
+    promoFilter
 }) {
     const searchParams = useSearchParams(); // Hook for reading URL
     const router = useRouter();
@@ -249,6 +250,18 @@ export default function ShopSidebar({
                     </li>
 
                     <li style={{ borderTop: '1px solid var(--color-border)', margin: '1rem 0', paddingTop: '1rem' }}></li>
+
+                    {/* Promotions Filter */}
+                    <li className={promoFilter ? styles.activeItem : ''}>
+                        <button 
+                            onClick={() => onUpdateParams('promo', promoFilter ? 'all' : 'true')} 
+                            className={styles.menuBtn}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
+                        >
+                            <span style={{ color: promoFilter ? '#ff4d4d' : 'inherit', fontWeight: promoFilter ? 'bold' : 'normal' }}>Special Offers & Promos</span>
+                            {promoFilter && <span style={{ fontSize: '0.7rem', background: '#ff4d4d', color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>Active</span>}
+                        </button>
+                    </li>
 
                     {/* Vibe Filter */}
                     <li className={`${styles.menuItem}`}>

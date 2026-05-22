@@ -25,11 +25,16 @@ const getSupabaseAdmin = () => {
 
 export async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const category = searchParams.get('category');
+
         const supabaseAdmin = getSupabaseAdmin();
-        const { data, error } = await supabaseAdmin
-            .from('product_attributes')
-            .select('*')
-            .order('value', { ascending: true });
+        let query = supabaseAdmin.from('product_attributes').select('*');
+        if (category) {
+            query = query.eq('category', category);
+        }
+        
+        const { data, error } = await query.order('value', { ascending: true });
 
         if (error) throw error;
 

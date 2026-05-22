@@ -12,17 +12,17 @@ export const LOYALTY_TIERS = [
     {
         name: 'Silver',
         minPoints: 0,
-        benefits: ['1 pt per $1 spent', 'Birthday Gift', 'Member-only Newsletter']
+        benefits: ['1 pt per EGP 1 spent', 'Birthday Gift', 'Member-only Newsletter']
     },
     {
         name: 'Gold',
         minPoints: 1000,
-        benefits: ['1.25 pts per $1 spent', 'Early Access to Limited Editions', 'Free Standard Shipping']
+        benefits: ['1.25 pts per EGP 1 spent', 'Early Access to Limited Editions', 'Free Standard Shipping']
     },
     {
         name: 'Platinum',
         minPoints: 5000,
-        benefits: ['1.5 pts per $1 spent', 'Priority Support', 'Free Express Shipping', 'Private Tasting Invitations']
+        benefits: ['1.5 pts per EGP 1 spent', 'Priority Support', 'Free Express Shipping', 'Private Tasting Invitations']
     }
 ];
 

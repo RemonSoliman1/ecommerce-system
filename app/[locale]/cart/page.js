@@ -4,10 +4,10 @@ import { useCart } from '@/context/CartContext';
 import styles from './cart.module.css';
 import { Link } from '@/lib/navigation';
 import { useTranslations } from 'next-intl';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Trash2 } from 'lucide-react';
 
 export default function CartPage() {
-    const { cart, removeFromCart, cartTotal } = useCart();
+    const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
     const t = useTranslations('Cart');
 
     if (cart.length === 0) {
@@ -36,12 +36,15 @@ export default function CartPage() {
                     {cart.map((item, index) => (
                         <div key={`${item.id}-${index}`} className={styles.cartItem}>
                             <div className={styles.imagePlaceholder}>
-                                {/* Using placeholder if image fails or string */}
-                                <img src={item.image} alt={item.name} className={styles.img} />
+                                <Link href={`/product/${item.id}`}>
+                                    <img src={item.image} alt={item.name} className={styles.img} style={{ cursor: 'pointer' }} />
+                                </Link>
                             </div>
                             <div className={styles.itemDetails}>
                                 <div className={styles.itemHeader}>
-                                    <h3 className={styles.itemName}>{item.name}</h3>
+                                    <Link href={`/product/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <h3 className={styles.itemName} style={{ cursor: 'pointer' }}>{item.name}</h3>
+                                    </Link>
                                     <span className={styles.itemPrice}>
                                         EGP {((item.price + (item.giftOption ? parseFloat(item.giftOption.price || 0) : 0)) * item.quantity).toFixed(2)}
                                     </span>
@@ -54,10 +57,20 @@ export default function CartPage() {
                                     </div>
                                 )}
 
-                                <div className={styles.controls}>
-                                    <span>Qty: {item.quantity}</span>
-                                    <button onClick={() => removeFromCart(item.id, item.selectedSize, item.giftOption?.name)} className={styles.removeBtn} aria-label="Remove Item">
-                                        ×
+                                <div className={styles.controls} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-bg)', padding: '0.2rem', border: '1px solid var(--color-border)', borderRadius: '4px' }}>
+                                        <button 
+                                            onClick={() => updateQuantity(item.id, item.selectedSize, -1, item.giftOption?.name)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >-</button>
+                                        <span style={{ minWidth: '20px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{item.quantity}</span>
+                                        <button 
+                                            onClick={() => updateQuantity(item.id, item.selectedSize, 1, item.giftOption?.name)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >+</button>
+                                    </div>
+                                    <button onClick={() => removeFromCart(item.id, item.selectedSize, item.giftOption?.name)} className={styles.removeBtn} aria-label="Remove Item" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>

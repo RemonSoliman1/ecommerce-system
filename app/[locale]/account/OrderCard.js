@@ -79,7 +79,19 @@ export default function OrderCard({ order }) {
                 </div>
                 <div>
                     <span style={{ fontSize: '0.85rem', color: '#888' }}>Status</span>
-                    <p style={{ margin: '0.25rem 0 0 0', color: order.status === 'Completed' ? '#4CAF50' : 'var(--color-accent)' }}>{order.status}</p>
+                    <div style={{ marginTop: '0.35rem' }}>
+                        <span style={{
+                            padding: '4px 10px',
+                            fontWeight: 'bold',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            display: 'inline-block',
+                            background: order.status === 'Confirmed' || order.status === 'Completed' ? 'rgba(76, 175, 80, 0.15)' : order.status === 'Pending' ? 'rgba(212, 175, 55, 0.15)' : 'rgba(244, 67, 54, 0.15)',
+                            color: order.status === 'Confirmed' || order.status === 'Completed' ? '#4CAF50' : order.status === 'Pending' ? '#d4af37' : '#f44336'
+                        }}>
+                            {order.status}
+                        </span>
+                    </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
                     <button

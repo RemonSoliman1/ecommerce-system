@@ -26,8 +26,11 @@ export default function ProductCard({ product }) {
                 </div>
             )}
             {product.rating && (
-                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(20, 15, 12, 0.8)', border: '2px solid var(--color-accent)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-                    {String(product.rating).match(/^\d+/) ? String(product.rating).match(/^\d+/)[0] : '90'}
+                <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: '50%', width: '46px', height: '46px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#1a1a1a', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                    <span style={{ fontSize: '0.45rem', fontWeight: 'bold', letterSpacing: '0.5px', marginBottom: '-2px' }}>RATED</span>
+                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: '900', lineHeight: '1' }}>
+                        {String(product.rating).match(/^\d+/) ? String(product.rating).match(/^\d+/)[0] : '90'}
+                    </span>
                 </div>
             )}
             <div className={styles.cardImage}>

@@ -1,0 +1,2706 @@
+[
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-15th-anniversary",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel 15th Anniversary",
+    "type": "cigar",
+    "description": "Savor a top-rated cornerstone from the legendary Rocky Patel. Their 15th Anniversary cigars have been ranked in the ‘Top 25 Cigars of the Year’ four times.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-15th-anniversary.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-a-l-r-",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel A.L.R.",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Rocky Patel A.L.R. from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-a-l-r-.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-decade",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Decade",
+    "type": "cigar",
+    "description": "The Decade Cigar is a Sumatra wrapper with a blend of aged long-filler tobaccos. This mysterious recipe has notes of earth, cedar and various spices. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-decade.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-disciple",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Disciple",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Rocky Patel Disciple from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-disciple.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-fifty-five",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Fifty Five",
+    "type": "cigar",
+    "description": "Created to celebrate Rocky’s 55th birthday. Light up any special occasion with the special blend and hand selected Rocky Patel Fifty-Five Cigar.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-fifty-five.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-gold-label",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Gold Label",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Rocky Patel Gold Label from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-gold-label.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-it-s-a-boy-it-s-a-girl",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel It's a Boy / It's a Girl",
+    "type": "cigar",
+    "description": "Celebrate the birth of a new boy or girl without sacrificing quality of your cigar. Rocky Patel It's a Boy and It's a Girl cigars are perfect for the occasion. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-it-s-a-boy-it-s-a-girl.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-ocean-club",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Ocean Club",
+    "type": "cigar",
+    "description": "This limited-production masterpiece is medium-bodied, boasting a rich, leathery flavor-core and a smooth finish. Try this boutique, best selling cigar today. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-ocean-club.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-ray-lewis",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Ray Lewis",
+    "type": "cigar",
+    "description": "Rocky Patel teamed up two-time NFL Super Bowl Champion, Ray Lewis, to release this medium-bodied limited edition cigar honoring the linebacker’s career. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-ray-lewis.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-sixty",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Sixty",
+    "type": "cigar",
+    "description": "Savor the highest-rated Rocky Patel cigar to date with tasting notes of coffee, nuts, and red pepper with robust foundation of leather, cedar, and hickory.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-sixty.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-sun-grown",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Sun Grown",
+    "type": "cigar",
+    "description": "Sun Grown offers a full-bodied profile with a hearty dose of spices, peppers, cedar and leathery finish. Add this full-bodied cigar to your collection here.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-sun-grown.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-sun-grown-maduro",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Sun Grown Maduro",
+    "type": "cigar",
+    "description": "Rocky Patel Sun Grown Maduro cigars feature a hearty, full-bodied profile of earth, coffee, spicy maple with a chocolaty- smooth finish. Order yours here.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-sun-grown-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge",
+    "type": "cigar",
+    "description": "Rocky Patel's best-selling cigar. The Edge features spice-bombs from Honduras & a Nicaraguan blend. Choose between two luxurious wrappers. Learn more.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-20th-anniversary",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge 20th Anniversary",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Rocky Patel The Edge 20th Anniversary from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-20th-anniversary.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-a-10",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge A-10",
+    "type": "cigar",
+    "description": "The Edge A-10 is a limited edition 10-year anniversary cigar perfect for connoisseurs looking for a distinct balance of spicy and sweet flavors. Order here. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-a-10.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-candela",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge Candela",
+    "type": "cigar",
+    "description": "Rocky Patel's new Candela-wrapped Edge blend: rare, toothy, with sweet spices, green tea, and a buttery finish. Perfect draw guaranteed.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-candela.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-habano",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge Habano",
+    "type": "cigar",
+    "description": "Rocky Patel's Edge Habano: Nicaragua's finest wrapper, binder, fillers. Full-bodied with black cherries, cocoa, peppers with a balanced & rewarding aftertaste.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-habano.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-lite",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge Lite",
+    "type": "cigar",
+    "description": "Discover The Edge Lite: a milder take on the original. Ecuador Connecticut wrapper, rich flavors—caramel, leather, cedar. Find this medium-bodied cigar here.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-lite.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-the-edge-sumatra",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel The Edge Sumatra",
+    "type": "cigar",
+    "description": "Explore Rocky Patel Edge Sumatra: Ecuador Sumatra wrapper, Nicaraguan blend—wood, pepper, earth, leather. Full-bodied, classic shapes, abundant flavor.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-the-edge-sumatra.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-velvet-edition",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Velvet Edition",
+    "type": "cigar",
+    "description": "Rocky Patel Velvet Edition is one of the smoothest cigars on the market. Perfect for cigar lovers looking for a delicious blend to enjoy any time of the day.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-velvet-edition.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-vintage-1990",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Vintage 1990",
+    "type": "cigar",
+    "description": "Rocky Patel Vintage 1990 is medium-bodied with cocoa, cedar, earth, sweet spices. A bedrock cigar with 90+ ratings, satisfying draws from start to finish.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-vintage-1990.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-vintage-1992",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Vintage 1992",
+    "type": "cigar",
+    "description": "Rocky Patel Vintage 1992 remains one of Rocky Patel’s original, bestselling blends. Aged Ecuador Sumatra wrapper offers almonds, cashews, & toasty spices.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-vintage-1992.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-vintage-1999",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Vintage 1999",
+    "type": "cigar",
+    "description": "The Rocky Patel Vintage 1999 is the mildest cigar in his collection. An approachable profile that offer hints of spice with a mild finish and supreme satisfaction.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-vintage-1999.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-vintage-2003",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Vintage 2003",
+    "type": "cigar",
+    "description": "Rocky Patel Vintage 2003: Rich Cameroon wrapper, aged Nicaraguan binder. Dominican & Nicaraguan fillers. Medium-full bodied with flavors of wood & spices.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-vintage-2003.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-vintage-2006",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel Vintage 2006",
+    "type": "cigar",
+    "description": "Rocky Patel Vintage 2006 delivers a classic, medium to full-bodied profile of dark chocolate, earth and sweet spices. Taste the evolution of the Vintage series.",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-vintage-2006.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-white-label",
+    "brandId": "rocky-patel",
+    "name": "Rocky Patel White Label",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Rocky Patel White Label from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/rocky-patel/rocky-patel-white-label.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "ashton",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton",
+    "brandId": "ashton",
+    "name": "Ashton",
+    "type": "cigar",
+    "description": "Ashton by Ashton Cigars is a classic handmade aged cigar with tasting notes of cedar, cashew, coffee bean, and almond in a Connecticut Shade wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-aged-maduro",
+    "brandId": "ashton",
+    "name": "Ashton Aged Maduro",
+    "type": "cigar",
+    "description": "Ashton Aged Maduro Cigars have a flavor profile of dark chocolate, almond, molasses, and maple balanced by hints of black pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-aged-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-cabinet-selection",
+    "brandId": "ashton",
+    "name": "Ashton Cabinet Selection",
+    "type": "cigar",
+    "description": "Ashton Cabinet Selection are mild to medium-bodied cigars with tasting notes of notes of cashew, almond, coffee bean, and white pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-cabinet-selection.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-esg",
+    "brandId": "ashton",
+    "name": "Ashton ESG",
+    "type": "cigar",
+    "description": "Ashton Estate Sun Grown (ESG) cigars have tasting notes of graham cracker, cedar, molasses, and black pepper in Sun Grown wrappers.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-esg.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-heritage",
+    "brandId": "ashton",
+    "name": "Ashton Heritage",
+    "type": "cigar",
+    "description": "Ashton Heritage Puro Sol cigars are medium-bodied and have a flavor profile of cocoa, cedar, leather, and spice in an aged Ecuador Habano wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-heritage.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-small-cigars-cameroon",
+    "brandId": "ashton",
+    "name": "Ashton Small Cigars Cameroon",
+    "type": "cigar",
+    "description": "Ashton Small Cigars Cameroon edition are named for their Cameroon wrappers and have notes of nutmeg, cedar, cocoa, and black pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-small-cigars-cameroon.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-small-cigars-connecticut",
+    "brandId": "ashton",
+    "name": "Ashton Small Cigars Connecticut",
+    "type": "cigar",
+    "description": "Ashton Small Cigars Connecticut edition have Connecticut Shade wrappers and flavors of almond, cashew, coffee bean, and cedar.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-small-cigars-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-symmetry",
+    "brandId": "ashton",
+    "name": "Ashton Symmetry",
+    "type": "cigar",
+    "description": "Ashton Symmetry cigars have tasting notes of cedar, cinnamon, coffee bean, and Turkish fig in a Habano Rosado wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-symmetry.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "ashton-vsg",
+    "brandId": "ashton",
+    "name": "Ashton VSG",
+    "type": "cigar",
+    "description": "Ashton Virgin Sun Grown (VSG) are full-bodied cigars in Ecuador Sumatra wrappers with flavors of cedar, espresso bean, earth, black pepper, and leather.",
+    "strength": "Medium",
+    "image": "/images/brands/ashton/ashton-vsg.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "punch",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch",
+    "brandId": "punch",
+    "name": "Punch",
+    "type": "cigar",
+    "description": "Discover the premium quality of Punch cigars, featuring a robust blend of Nicaraguan, Honduran, and Dominican fillers. Order yours today!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-deluxe",
+    "brandId": "punch",
+    "name": "Punch Deluxe",
+    "type": "cigar",
+    "description": "Enjoy the rich blend of Punch Deluxe cigars, perfect for those who appreciate deep, flavorful smokes. Buy yours today and experience quality!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-deluxe.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-diablo",
+    "brandId": "punch",
+    "name": "Punch Diablo",
+    "type": "cigar",
+    "description": "Unleash the fiery spirit of Punch Diablo cigars! Experience the zesty blend of Nicaraguan and Honduran long-fillers. Click to enjoy a robust smoke today.",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-diablo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-gran-puro",
+    "brandId": "punch",
+    "name": "Punch Gran Puro",
+    "type": "cigar",
+    "description": "Experience the celebrated Punch Gran Puro, crafted with premium Honduran tobaccos for a bold flavor. Order today and taste the excellence!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-gran-puro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-gran-puro-nicaragua",
+    "brandId": "punch",
+    "name": "Punch Gran Puro Nicaragua",
+    "type": "cigar",
+    "description": "Indulge in the medium-full strength of Punch Nicaragua cigars. Perfectly balanced with earthy spices. Get yours today and elevate your cigar experience!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-gran-puro-nicaragua.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-grand-cru",
+    "brandId": "punch",
+    "name": "Punch Grand Cru",
+    "type": "cigar",
+    "description": "Explore the rich, complex flavors of Punch Grand Cru cigars. Crafted with vintage tobaccos for a creamy and nutty profile. Get yours today!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-grand-cru.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-rare-corojo",
+    "brandId": "punch",
+    "name": "Punch Rare Corojo",
+    "type": "cigar",
+    "description": "Try the Punch Rare Corojo for a smoky, peppery flavor with a touch of sweetness. Perfect for aficionados seeking a complex smoke. Buy today!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-rare-corojo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-signature",
+    "brandId": "punch",
+    "name": "Punch Signature",
+    "type": "cigar",
+    "description": "Experience the full-bodied profile of Punch Signature cigars, handcrafted in Honduras. Enjoy layers of mesquite and leather. Shop today!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-signature.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "punch-vintage",
+    "brandId": "punch",
+    "name": "Punch Vintage",
+    "type": "cigar",
+    "description": "Discover the luxurious Punch Vintage, aged in cedar for superior flavor. Embrace its notes of coffee and wood. Shop now for premium cigars!",
+    "strength": "Medium",
+    "image": "/images/brands/punch/punch-vintage.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "san-cristobal",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "san-cristobal",
+    "brandId": "san-cristobal",
+    "name": "San Cristobal",
+    "type": "cigar",
+    "description": "San Cristobal cigars have tasting notes of dark chocolate, black pepper, espresso bean, black cherry, and walnut in a collection of popular shapes.",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/san-cristobal.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "san-cristobal-elegancia",
+    "brandId": "san-cristobal",
+    "name": "San Cristobal Elegancia",
+    "type": "cigar",
+    "description": "San Cristobal Elegancia have a golden-blond Ecuador Connecticut wrapper encasing notes of white pepper, cashew, almond, and coffee bean.",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/san-cristobal-elegancia.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "san-cristobal-ovation",
+    "brandId": "san-cristobal",
+    "name": "San Cristobal Ovation",
+    "type": "cigar",
+    "description": "Enjoy San Cristobal Ovation cigars for a full-bodied profile with notes of dark chocolate, hickory, cedar, maple, and black pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/san-cristobal-ovation.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "san-cristobal-quintessence",
+    "brandId": "san-cristobal",
+    "name": "San Cristobal Quintessence",
+    "type": "cigar",
+    "description": "San Cristobal Quintessence, ranked the ‘#3 Cigar of the Year’ in Cigar Aficionado in 2021 with its tasting notes of cedar, molasses, coffee bean, and cocoa.",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/san-cristobal-quintessence.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "san-cristobal-revelation",
+    "brandId": "san-cristobal",
+    "name": "San Cristobal Revelation",
+    "type": "cigar",
+    "description": "San Cristobal Revelation cigars have creamy and complex notes of smoked almond, cedar, cinnamon, and cocoa are with hints of black pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/san-cristobal/san-cristobal-revelation.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "avo",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/avo/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "avo-cigars",
+    "brandId": "avo",
+    "name": "Avo Cigars",
+    "type": "cigar",
+    "description": "Avo by Avo Cigars have a mild to medium profile in Ecuador Connecticut wrappers  with creamy flavors of nuts and toast and a buttery finish.",
+    "strength": "Medium",
+    "image": "/images/brands/avo/avo-cigars.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "avo-heritage",
+    "brandId": "avo",
+    "name": "Avo Heritage",
+    "type": "cigar",
+    "description": "Avo Heritage cigars are medium to full-bodied cigars with flavors of toasted cocoa with leather, cedar, dark coffee and sweet spices.",
+    "strength": "Medium",
+    "image": "/images/brands/avo/avo-heritage.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "avo-syncro",
+    "brandId": "avo",
+    "name": "Avo Syncro",
+    "type": "cigar",
+    "description": "Avo Syncro cigars have reddish-hued Ecuador Connecticut wrappers with tasting notes of leather, cedar and a creamy finish.",
+    "strength": "Medium",
+    "image": "/images/brands/avo/avo-syncro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "avo-xo",
+    "brandId": "avo",
+    "name": "Avo XO",
+    "type": "cigar",
+    "description": "Avo XO cigars have a medium-bodied profile with notes of nuts and sweet and peppery notes of dried fruit and grain in an Ecuador Connecticut wrapper.  ",
+    "strength": "Medium",
+    "image": "/images/brands/avo/avo-xo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "padilla",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/padilla/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "padilla-hybrid",
+    "brandId": "padilla",
+    "name": "Padilla Hybrid",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Padilla Hybrid from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/padilla/padilla-hybrid.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "h-upmann",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/h-upmann/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "h-upmann-1844-reserve",
+    "brandId": "h-upmann",
+    "name": "H. Upmann 1844 Reserve",
+    "type": "cigar",
+    "description": "H. Upmann 1844 Reserve: Spicier, fuller-bodied blend. Ecuadorian wrapper, Nicaraguan binder, aged Dominican fillers. One of the finest H. Upmann cigars!",
+    "strength": "Medium",
+    "image": "/images/brands/h-upmann/h-upmann-1844-reserve.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "h-upmann-aj-fernandez",
+    "brandId": "h-upmann",
+    "name": "H. Upmann AJ Fernandez",
+    "type": "cigar",
+    "description": "H. Upmann AJ Fernandez cigars are wrapped in Ecuador Sumatra wrapper leaves with Nicaraguan and Dominican long-filler tobaccos. ",
+    "strength": "Medium",
+    "image": "/images/brands/h-upmann/h-upmann-aj-fernandez.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "h-upmann-the-banker",
+    "brandId": "h-upmann",
+    "name": "H. Upmann The Banker",
+    "type": "cigar",
+    "description": "H. Upmann The Banker: A tribute to its Cuban roots. Ecuador Habano wrapper, Nicaraguan & Dominican fillers. Medium to full-bodied, earthy & creamy.",
+    "strength": "Medium",
+    "image": "/images/brands/h-upmann/h-upmann-the-banker.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "h-upmann-vintage-cameroon-cigars",
+    "brandId": "h-upmann",
+    "name": "H. Upmann Vintage Cameroon Cigars",
+    "type": "cigar",
+    "description": "H. Upmann Vintage Cameroon: Classic Cuban profile. Reddish-hued wrapper, Dominican, Nicaraguan, Peruvian fillers. Medium-bodied, woody, nutty, and spicy notes.",
+    "strength": "Medium",
+    "image": "/images/brands/h-upmann/h-upmann-vintage-cameroon-cigars.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "alec-bradley",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-american-classic",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley American Classic",
+    "type": "cigar",
+    "description": "Experience the excellence of Alec Bradley's American Classic cigars. Perfect construction, wonderful flavor, and a journey of strength and complexity. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-american-classic.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-american-sun-grown",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley American Sun Grown",
+    "type": "cigar",
+    "description": "Discover Alec Bradley's American Sun Grown cigars. Medium to full-bodied, handcrafted in Nicaragua, with cocoa, black pepper, and smooth nutty sweetness. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-american-sun-grown.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-black-market",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Black Market",
+    "type": "cigar",
+    "description": "Indulge in the exquisite flavors of Alec Bradley Black Market cigars. Handcrafted by the Plasencia family. Rated 94 points, Top 10 Cigars of the Year 2022.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-black-market.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-black-market-esteli",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Black Market Esteli",
+    "type": "cigar",
+    "description": "Experience rewarding flavor and rich complexity with Alec Bradley Black Market Estelí cigars. Full-bodied profile of cocoa, spices, and hints of white pepper.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-black-market-esteli.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-connecticut",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Connecticut",
+    "type": "cigar",
+    "description": "Indulge in Alec Bradley Connecticut cigars. Creamy spice, nutty undertones, and a golden Ecuador Connecticut wrapper. Handcrafted in Honduras.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-double-broadleaf",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Double Broadleaf",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Double Broadleaf cigars. Handcrafted in Honduras with malty notes of dark chocolate, cedar, espresso & black pepper. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-double-broadleaf.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-family-blend",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Family Blend",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Family Blend: a 94-rated gem. Handmade in Honduras, medium-bodied with rich, earthy flavors. Another winner from Alec Bradley. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-family-blend.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-gatekeeper",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Gatekeeper",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Gatekeeper cigars, a highly-rated, limited edition blend. Handmade by Ernesto Perez-Carrillo in the Dominican Republic.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-gatekeeper.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-it-s-a-boy-it-s-a-girl",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley It's a Boy / It's a Girl",
+    "type": "cigar",
+    "description": "Celebrate your newborn with Alec Bradley's It's a Boy/It's a Girl cigar. Premium quality and a box with a picture frame attached for cherished memories.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-it-s-a-boy-it-s-a-girl.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-kintsugi",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Kintsugi",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Kintsugi cigars, inspired by Japanese art. Complex blend, Ranked in Cigar Aficionado's Top 25 with 92 points. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-kintsugi.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-lineage",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Lineage",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Lineage cigars. Balanced, creamy cedar and oak complexity with caramel and spice notes. Medium-bodied smoke for a satisfying experience.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-lineage.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-magic-toast",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Magic Toast",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Magic Toast, a top-rated gem. Medium-bodied with cocoa, wood, and cinnamon notes. Nicaraguan and Honduran blend.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-magic-toast.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-maxx",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Maxx",
+    "type": "cigar",
+    "description": "Discover Alec Bradley Maxx cigars. Complex aromas, rich flavors. Nicaraguan wrappers, blend of tobaccos. Medium/full-bodied with earth, cedar, toasted spices.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-maxx.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-medalist",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Medalist",
+    "type": "cigar",
+    "description": "Alec Bradley Medalist: Mellow blend with shade-grown Honduran wrapper. Citrus hints, woody notes, creamy finish. Classic, timeless addition to your collection.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-medalist.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-nica-puro-rosado",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Nica Puro Rosado",
+    "type": "cigar",
+    "description": "Experience Alec Bradley Nica Puro Rosado. Top-rated blend. Medium/full-bodied with chestnut & cashew flavors. Shop bestselling Alec Bradley cigars at Holt's. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-nica-puro-rosado.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-prensado",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Prensado",
+    "type": "cigar",
+    "description": "Alec Bradley Prensado: #1 Cigar of the Year with a 96-point rating. Oily Honduran Corojo wrapper, Nicaraguan-Honduran blend. Sweet & spicy.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-prensado.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-prensado-lost-art",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Prensado Lost Art",
+    "type": "cigar",
+    "description": "Award-winning flavor and aroma continue with Alec Bradley Prensado Lost Art. Caramel wrapper, Nicaraguan & Honduran blend. Coffee, leather & cayenne notes.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-prensado-lost-art.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-tempus",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Tempus",
+    "type": "cigar",
+    "description": "Alec Bradley Tempus: Dark Honduran wrapper, aged Honduran-Nicaraguan blend. Medium to full-bodied, earthy, spicy, slightly sweet. 94-rated. ",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-tempus.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-tempus-nicaragua",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Tempus Nicaragua",
+    "type": "cigar",
+    "description": "Alec Bradley Tempus Nicaragua: Nicaraguan wrapper and long-fillers. Medium-bodied, pepper, cedar, leather, spices. A must-try for Nicaraguan cigar enthusiasts.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-tempus-nicaragua.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-texas-lancero",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley Texas Lancero",
+    "type": "cigar",
+    "description": "Alec Bradley Texas Lancero: Massive 7x70 size, Nicaraguan wrapper, medium-bodied. Nutty, leathery flavor. A unique experience for adventurous cigar enthusiasts.",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-texas-lancero.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "alec-bradley-white-gold",
+    "brandId": "alec-bradley",
+    "name": "Alec Bradley White Gold",
+    "type": "cigar",
+    "description": "Alec Bradley White Gold: Mixed filler, Ecuador Connecticut wrapper. Toasted nuts, creamy profile. Shop at Holt's today!",
+    "strength": "Medium",
+    "image": "/images/brands/alec-bradley/alec-bradley-white-gold.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "camacho",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "camacho-broadleaf",
+    "brandId": "camacho",
+    "name": "Camacho Broadleaf",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Camacho Broadleaf from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/camacho-broadleaf.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "camacho-connecticut",
+    "brandId": "camacho",
+    "name": "Camacho Connecticut",
+    "type": "cigar",
+    "description": "Explore Camacho Connecticut Cigars for flavors of cedar, almonds, and earth with a hint of peppery spices and a medium to full-bodied finish. ",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/camacho-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "camacho-corojo",
+    "brandId": "camacho",
+    "name": "Camacho Corojo",
+    "type": "cigar",
+    "description": "Camacho Corojo cigars are strong and spicy. Shop Camacho Corojos for flavors of earth, cayenne, and black pepper with a leathery finish.",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/camacho-corojo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "camacho-nicaragua",
+    "brandId": "camacho",
+    "name": "Camacho Nicaragua",
+    "type": "cigar",
+    "description": "Explore Camacho Nicaragua cigars for a medium to full-bodied finish and notes of espresso, black pepper, leather, and hay.",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/camacho-nicaragua.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "camacho-triple-maduro",
+    "brandId": "camacho",
+    "name": "Camacho Triple Maduro",
+    "type": "cigar",
+    "description": "Shop Camacho Triple Maduro cigars for notes of coffee, wood, dried fruit, and leather inside of an oily San Andrés wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/camacho/camacho-triple-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "oliva",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-oliva",
+    "brandId": "oliva",
+    "name": "Flor de Oliva",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Flor de Oliva from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/flor-de-oliva.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-oliva-corojo",
+    "brandId": "oliva",
+    "name": "Flor de Oliva Corojo",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Flor de Oliva Corojo from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/flor-de-oliva-corojo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-oliva-gold",
+    "brandId": "oliva",
+    "name": "Flor de Oliva Gold",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Flor de Oliva Gold Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/flor-de-oliva-gold.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-oliva-maduro",
+    "brandId": "oliva",
+    "name": "Flor de Oliva Maduro",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Flor de Oliva Maduro from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/flor-de-oliva-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-connecticut-reserve",
+    "brandId": "oliva",
+    "name": "Oliva Connecticut Reserve",
+    "type": "cigar",
+    "description": "Oliva Connecticut Reserve, wrapped in smooth Ecuadorian Connecticut-seed leaf, boasts an all-Nicaraguan blend. Featuring creamy, buttery, and nutty notes.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-connecticut-reserve.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-gilberto-oliva-reserva",
+    "brandId": "oliva",
+    "name": "Oliva Gilberto Oliva Reserva",
+    "type": "cigar",
+    "description": "Oliva Gilberto Oliva Reserva: Medium-bodied, creamy spices, hints of caramel, cocoa, and earth, Sumatra wrapper. Buy at Holt's today!",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-gilberto-oliva-reserva.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-gilberto-oliva-reserva-blanc",
+    "brandId": "oliva",
+    "name": "Oliva Gilberto Oliva Reserva Blanc",
+    "type": "cigar",
+    "description": "Gilberto Oliva Reserva Blanc: Medium-bodied, Ecuadorian-Nicaraguan blend, creamy notes of almonds, cashews, and buttery spices. Former #1 Cigar of the Year.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-gilberto-oliva-reserva-blanc.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-master-blends-3",
+    "brandId": "oliva",
+    "name": "Oliva Master Blends 3",
+    "type": "cigar",
+    "description": "Oliva Master Blends 3 is a rare, 92-rated gem with Connecticut Broadleaf wrapper, Cuban-seed Nicaraguan Ligero tobacco, rich flavors.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-master-blends-3.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-monticello",
+    "brandId": "oliva",
+    "name": "Oliva Monticello",
+    "type": "cigar",
+    "description": "Oliva Monticello is a rare medium to full-bodied blend with aged Nicaraguan tobaccos, Maduro wrapper, creamy cocoa, cashew, and spice notes.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-monticello.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-g",
+    "brandId": "oliva",
+    "name": "Oliva Serie G",
+    "type": "cigar",
+    "description": "Oliva Serie G is a 91-rated Cameroon-wrapped cigar with Nicaraguan fillers, notes of nuts, cedar, black pepper, and coffee. Great value.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-g.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-g-maduro",
+    "brandId": "oliva",
+    "name": "Oliva Serie G Maduro",
+    "type": "cigar",
+    "description": "Oliva Serie G Maduro features a dark San Andrés wrapper, Nicaraguan fillers, medium-bodied, notes of dark cocoa and anise. 93-point rating.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-g-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-o",
+    "brandId": "oliva",
+    "name": "Oliva Serie O",
+    "type": "cigar",
+    "description": "Oliva Serie O - handcrafted in Nicaragua, Ecuador Habano wrapper, notes of almond, cocoa, leather, and wood. 94-point score in Cigar Aficionado.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-o.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-o-maduro",
+    "brandId": "oliva",
+    "name": "Oliva Serie O Maduro",
+    "type": "cigar",
+    "description": "Oliva Serie O Maduro is a 90-rated Nicaraguan blend, Connecticut Broadleaf wrapper, notes of dark chocolate, espresso, and black pepper. Buy today at Holt's!",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-o-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v",
+    "brandId": "oliva",
+    "name": "Oliva Serie V",
+    "type": "cigar",
+    "description": "Oliva Serie V is a full-bodied, spicy delight with Nicaraguan fillers and Ecuador Habano wrappers, known for creamy, chocolaty flavors. Highly sought after.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v-135th-aniversario",
+    "brandId": "oliva",
+    "name": "Oliva Serie V 135th Aniversario",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Oliva Serie V 135th Aniversario from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v-135th-aniversario.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v-maduro",
+    "brandId": "oliva",
+    "name": "Oliva Serie V Maduro",
+    "type": "cigar",
+    "description": "Oliva Serie V Maduro: Year-round, San Andrés wrapper, notes of cocoa, coffee, black pepper, wood. Full-bodied. Sought-after Nicaraguan gem.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v-melanio",
+    "brandId": "oliva",
+    "name": "Oliva Serie V Melanio",
+    "type": "cigar",
+    "description": "Oliva Serie V Melanio is a 96-point, 2014 #1 Cigar of the Year. This cigar includes an Ecuador Sumatra wrapper, Nicaraguan medium to full-bodied blend.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v-melanio.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v-melanio-edici-n-a-o-2025",
+    "brandId": "oliva",
+    "name": "Oliva Serie V Melanio Edición Año 2025",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Oliva Serie V Melanio Edición Año 2025 from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v-melanio-edici-n-a-o-2025.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "oliva-serie-v-melanio-maduro",
+    "brandId": "oliva",
+    "name": "Oliva Serie V Melanio Maduro",
+    "type": "cigar",
+    "description": "Oliva Serie V Melanio Maduro is 95-rated. San Andrés wrapper, Nicaraguan long-fillers, box-pressed. Indulgent with chocolate, cedar, and more sweetness.",
+    "strength": "Medium",
+    "image": "/images/brands/oliva/oliva-serie-v-melanio-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "my-father",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-cuban-classic",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia Cuban Classic",
+    "type": "cigar",
+    "description": "Fill your humidor with our fine selection of Don Pepin Garcia Cuban Classic Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-cuban-classic.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-e-r-h-",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia E.R.H.",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Pepin Garcia E.R.H. from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-e-r-h-.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-original",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia Original",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Pepin Garcia Original Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-original.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-serie-jj",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia Serie JJ",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Pepin Garcia Serie JJ Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-serie-jj.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-vegas-cubanas",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia Vegas Cubanas",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Pepin Garcia Vegas Cubanas from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-vegas-cubanas.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-pepin-garcia-vintage",
+    "brandId": "my-father",
+    "name": "Don Pepin Garcia Vintage",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Pepin Garcia Vintage from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/don-pepin-garcia-vintage.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "el-centurion",
+    "brandId": "my-father",
+    "name": "El Centurion",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of El Centurion from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/el-centurion.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "el-centurion-h-2k-ct",
+    "brandId": "my-father",
+    "name": "El Centurion H-2K-CT",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of El Centurion H-2K-CT Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/el-centurion-h-2k-ct.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-las-antillas-cigars",
+    "brandId": "my-father",
+    "name": "Flor de las Antillas Cigars",
+    "type": "cigar",
+    "description": "Flor de las Antillas cigars are drafted entirely of premium, well-aged and impeccable medium-bodied tobacco. Shop the selection at Holt's Cigar Company - family owned and operated since 1898 - and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/flor-de-las-antillas-cigars.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "flor-de-las-antillas-maduro",
+    "brandId": "my-father",
+    "name": "Flor de las Antillas Maduro",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Flor de las Antillas Maduro from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/flor-de-las-antillas-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "jaime-garcia-reserva-especial",
+    "brandId": "my-father",
+    "name": "Jaime Garcia Reserva Especial",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Jaime Garcia Reserva Especial Cigars from Holt's Cigar Company - family owned and operated since 1898. Shop our selection and place your order today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/jaime-garcia-reserva-especial.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "jaime-garcia-reserva-especial-connecticut",
+    "brandId": "my-father",
+    "name": "Jaime Garcia Reserva Especial Connecticut",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Jaime Garcia Reserva Especial Connecticut from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/jaime-garcia-reserva-especial-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-antiguedad",
+    "brandId": "my-father",
+    "name": "La Antiguedad",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of La Antiguedad from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/la-antiguedad.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father",
+    "brandId": "my-father",
+    "name": "My Father",
+    "type": "cigar",
+    "description": "My Father Original cigars showcase an Ecuador Habano wrapper encasing a full-bodied profile of sweet cedar, nuts, and peppery spices. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-tatuaje-la-union-red",
+    "brandId": "my-father",
+    "name": "My Father & Tatuaje 'La Union' Red",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of My Father & Tatuaje 'La Union' Red from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-tatuaje-la-union-red.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-blue",
+    "brandId": "my-father",
+    "name": "My Father Blue",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of My Father Blue from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-blue.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-connecticut",
+    "brandId": "my-father",
+    "name": "My Father Connecticut",
+    "type": "cigar",
+    "description": "My Father Connecticut cigars have a well-aged selection of Nicaraguan binder and fillers to give it spice and earthy notes and a rich, creamy, nutty nuance.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-don-pepin-garcia-20th-anniversary-humidor",
+    "brandId": "my-father",
+    "name": "My Father Don Pepin Garcia 20th Anniversary Humidor",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of My Father Don Pepin Garcia 20th Anniversary Humidor from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-don-pepin-garcia-20th-anniversary-humidor.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-don-pepin-garcia-70th-birthday-humidor",
+    "brandId": "my-father",
+    "name": "My Father Don Pepin Garcia 70th Birthday Humidor",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of My Father Don Pepin Garcia 70th Birthday Humidor from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-don-pepin-garcia-70th-birthday-humidor.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-fonseca",
+    "brandId": "my-father",
+    "name": "My Father Fonseca",
+    "type": "cigar",
+    "description": "Fonseca Cigars by My Father have a medium to full-bodied profile with notes of coffee beans, leather, and cocoa and a nutty zest. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-fonseca.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-fonseca-mx",
+    "brandId": "my-father",
+    "name": "My Father Fonseca MX",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of My Father Fonseca MX from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-fonseca-mx.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-la-gran-oferta",
+    "brandId": "my-father",
+    "name": "My Father La Gran Oferta",
+    "type": "cigar",
+    "description": "La Gran Oferta by My Father Cigars have an oily Cuban-seed wrapper encasing balanced spices in conjunction with wood, leather, and molasses notes.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-la-gran-oferta.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-la-opulencia",
+    "brandId": "my-father",
+    "name": "My Father La Opulencia",
+    "type": "cigar",
+    "description": "My Father La Opulencia cigars have a full-bodied profile with notes of wood, black pepper, espresso beans, and Nicaraguan spices with a leathery texture.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-la-opulencia.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-la-promesa",
+    "brandId": "my-father",
+    "name": "My Father La Promesa",
+    "type": "cigar",
+    "description": "My Father La Promesa cigars have a nutty, woody, and zesty profile in a Cuban-seed wrapper that gives them a medium to full-bodied profile. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-la-promesa.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-le-bijou-1922",
+    "brandId": "my-father",
+    "name": "My Father Le Bijou 1922",
+    "type": "cigar",
+    "description": "My Father Le Bijou 1922 cigars pay homage to Pepin's father. The full-bodied cigar has notes notes of leather, earth, espresso beans, and dark cocoa.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-le-bijou-1922.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-limited-edition-pepin-mania",
+    "brandId": "my-father",
+    "name": "My Father Limited Edition Pepin Mania",
+    "type": "cigar",
+    "description": "Enjoy a small-batch exclusive with My Father Limited Edition Pepin Mania for notes of dark chocolate, black pepper, leather, and espresso beans. ",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-limited-edition-pepin-mania.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-limited-edition-pepin-mania-10th-anniversary",
+    "brandId": "my-father",
+    "name": "My Father Limited Edition Pepin Mania 10th Anniversary",
+    "type": "cigar",
+    "description": "My Father Limited Edition Pepin Mania 10th Anniversary cigars have a blend of premium Nicaraguan tobaccos in a San Andrés Oscuro wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-limited-edition-pepin-mania-10th-anniversary.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "my-father-the-judge",
+    "brandId": "my-father",
+    "name": "My Father The Judge",
+    "type": "cigar",
+    "description": "My Father The Judge Cigars have Cinnamon-hued Ecuador Sumatra wrappers encasing notes of leather, cedar, nuts and signature spices.",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/my-father-the-judge.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "tabacos-baez-serie-sf",
+    "brandId": "my-father",
+    "name": "Tabacos Baez Serie SF",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Tabacos Baez Serie SF from Holt's Cigar Company - family owned and operated since 1898. Shop our collection of cigars in a variety of sizes and bundles today!",
+    "strength": "Medium",
+    "image": "/images/brands/my-father/tabacos-baez-serie-sf.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "la-aroma-de-cuba",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba",
+    "type": "cigar",
+    "description": "La Aroma de Cuba cigars come in several sizes with a toothy Connecticut Broadleaf wrapper and notes of cocoa, cedar, molasses, and earth.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-connecticut",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Connecticut",
+    "type": "cigar",
+    "description": "La Aroma de Cuba Connecticut cigars provide a smooth & mellow cigar to satisfy even the most discerning tastes. Shop our collection of sizes today at Holt's.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-connecticut.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-edici-n-especial",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Edición Especial",
+    "type": "cigar",
+    "description": "Indulge in La Aroma de Cuba Edición Especial cigars for tasting notes of smoked almond, cocoa, leather, and coffee bean in an Ecuador Habano wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-edici-n-especial.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-habano-reserve",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Habano Reserve",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of La Aroma de Cuba Habano Reserve from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-habano-reserve.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-mi-amor",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Mi Amor",
+    "type": "cigar",
+    "description": "La Aroma de Cuba Mi Amor cigars have notes of dark chocolate, almond, espresso bean, and cracked black pepper available in several sizes. ",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-mi-amor.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-noblesse",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Noblesse",
+    "type": "cigar",
+    "description": "La Aroma de Cuba Noblesse are handcrafted in small batches in Estelí, Nicaragua and have a full-bodied profile with a creamy finish.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-noblesse.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-pasi-n",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Pasión",
+    "type": "cigar",
+    "description": "Enjoy La Aroma de Cuba Pasión cigars for a flavor profile of smoked cashew, leather, cedar, and molasses in a Shade Grown wrapper.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-pasi-n.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-reserva",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Reserva",
+    "type": "cigar",
+    "description": "La Aroma de Cuba Reserva have San Andrés Oscuro wrappers encasing notes of hickory, espresso bean, black pepper, leather, and dark chocolate.",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-reserva.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "la-aroma-de-cuba-small-batch",
+    "brandId": "la-aroma-de-cuba",
+    "name": "La Aroma de Cuba Small Batch",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of La Aroma de Cuba Small Batch from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/la-aroma-de-cuba/la-aroma-de-cuba-small-batch.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "rocky-patel-mulligans-groundhog",
+    "brandId": "arturo-fuente",
+    "name": "Rocky Patel Mulligans Groundhog",
+    "type": "cigar",
+    "description": "Savor the Rocky Patel Mulligans Groundhog cigars with notes of cedar and nuts. Buy now at Holt's. Elevate your cigar collection!",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/rocky-patel-mulligans-groundhog.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-anejo",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Anejo",
+    "type": "cigar",
+    "description": "Arturo Fuente Añejo cigars have Connecticut Broadleaf wrappers and are aged in Cognac barrels. Shop these hard to find cigars with Holt's!",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-anejo.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-chateau-fuente",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Chateau Fuente",
+    "type": "cigar",
+    "description": "Chateau Fuente cigars by Arturo Fuente come in variations of Natural, Maduro, and Sun Grown wrappers. Shop the Chateau Fuente varieties with Holt's!",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-chateau-fuente.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-claro",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Claro",
+    "type": "cigar",
+    "description": "Arturo Fuente Claro cigars are mellow in taste and have notes of grass, freshly brewed green tea, and buttered toast. Shop Arturo Fuente Claro cigars. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-claro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-don-carlos",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Don Carlos",
+    "type": "cigar",
+    "description": "Arturo Fuente Don Carlos cigars are medium-bodied and have Cameroon wrappers with tasting notes of oak, espresso beans, and chestnuts.",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-don-carlos.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-especiales",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Especiales",
+    "type": "cigar",
+    "description": "Arturo Fuente Especiales have Ecuador Habano wrappers and a flavor profile of  cedar, earth, wood, and black pepper for a perfect medium-bodied smoke. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-especiales.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-gran-reserva",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Gran Reserva",
+    "type": "cigar",
+    "description": "Arturo Fuente Gran Reserva are handmade in the Dominican Republic and come in variations of Natural and Maduro. Shop Arturo Fuente Gran Reserva.",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-gran-reserva.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-hemingway",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Hemingway",
+    "type": "cigar",
+    "description": "Arturo Fuente Hemingway cigars are medium in strength with Cameroon Wrappers and tasting notes of earth, spice and brown sugar.",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-hemingway.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-hemingway-maduro",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Hemingway Maduro",
+    "type": "cigar",
+    "description": "Arturo Fuente Hemingway Maduro have Connecticut Broadleaf wrappers and notes of dark chocolate, earth, freshly ground coffee, and buttery spices.",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-hemingway-maduro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-hemingway-sun-grown",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Hemingway Sun Grown",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Arturo Fuente Hemingway Sun Grown from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-hemingway-sun-grown.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-it-s-a-boy-it-s-a-girl",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente It's a Boy / It's a Girl",
+    "type": "cigar",
+    "description": "Arturo Fuente It's a Boy / It's a Girl are mellow cigars in Connecticut Shade wrappers with a flavor profile of  nuts, toast, and cedar perfect for celebrating.",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-it-s-a-boy-it-s-a-girl.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-rare-pink",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Rare Pink",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Arturo Fuente Rare Pink from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-rare-pink.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "arturo-fuente-seleccion-d-oro",
+    "brandId": "arturo-fuente",
+    "name": "Arturo Fuente Seleccion d'Oro",
+    "type": "cigar",
+    "description": "Arturo Fuente Seleccion d'Oro are creamy medium-bodied cigars with velvety notes of cedar, toasted almonds, and vanilla beans. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/arturo-fuente-seleccion-d-oro.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "don-carlos-edicion-de-aniversario",
+    "brandId": "arturo-fuente",
+    "name": "Don Carlos Edicion de Aniversario",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Don Carlos Edicion de Aniversario from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/don-carlos-edicion-de-aniversario.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "fuente-fuente-opus-x-lost-city",
+    "brandId": "arturo-fuente",
+    "name": "Fuente Fuente Opus X Lost City",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Fuente Fuente Opus X Lost City from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/fuente-fuente-opus-x-lost-city.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  },
+  {
+    "id": "fuente-y-padr-n-legends",
+    "brandId": "arturo-fuente",
+    "name": "Fuente y Padrón Legends",
+    "type": "cigar",
+    "description": "Stock your humidor with our fine selection of Fuente y Padrón Legends from Holt's! Family owned and operated since 1898. ",
+    "strength": "Medium",
+    "image": "/images/brands/arturo-fuente/fuente-y-padr-n-legends.jpg",
+    "models": [
+      {
+        "name": "Single",
+        "size": "Unknown",
+        "price": 15
+      }
+    ]
+  }
+]

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { sendTelegramMessage } from '@/lib/telegram';
+import { sendPushNotification } from '@/lib/push';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,7 +68,22 @@ export async function POST(request) {
             }
         }
 
-        // 3b. Email (If Resend is active)
+        // 3b. Push Notification
+        if (customerEmail) {
+            try {
+                await sendPushNotification({
+                    title: 'Order Confirmed! 🚚',
+                    body: `Your order #${orderId} is confirmed and being prepared for shipment.`,
+                    url: '/account',
+                    targetType: 'specific',
+                    targetEmails: [customerEmail]
+                });
+            } catch (pushErr) {
+                console.error("Push Notification failed:", pushErr);
+            }
+        }
+
+        // 3c. Email (If Resend is active)
         if (resend && customerEmail) {
             try {
                 await resend.emails.send({

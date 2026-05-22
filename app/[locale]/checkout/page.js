@@ -24,6 +24,80 @@ export default function CheckoutPage() {
     const t = useTranslations('Checkout');
     const tCart = useTranslations('Cart');
 
+    // Promo Code State
+    const [promoCode, setPromoCode] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [promoError, setPromoError] = useState('');
+    const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+
+    const handleApplyPromo = async () => {
+        if (!promoCode) return;
+        setIsValidatingPromo(true);
+        setPromoError('');
+        try {
+            const res = await fetch('/api/promotions/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    code: promoCode,
+                    cart: cart,
+                    cartTotal: cartTotal,
+                    email: address.email || user?.email,
+                    paymentMethod: paymentMethod
+                })
+            });
+            const data = await res.json();
+            if (data.success && data.promo) {
+                setAppliedPromo(data.promo);
+                setDiscountAmount(data.discountAmount);
+                showToast(`Promo ${data.promo.code} applied!`, 'success');
+            } else {
+                setPromoError(data.error || 'Invalid promo code');
+            }
+        } catch (e) {
+            setPromoError('Failed to validate promo');
+        }
+        setIsValidatingPromo(false);
+    };
+
+    // Auto-apply promo from Product Page
+    useEffect(() => {
+        const pendingPromo = localStorage.getItem('pending_promo_code');
+        if (pendingPromo && cartTotal > 0) {
+            setPromoCode(pendingPromo);
+            // We can't immediately call handleApplyPromo because it relies on state that might not be fully synced in the closure,
+            // but since cartTotal is a prop/context it should be fine. However, we need to pass the code directly.
+            const applyPending = async () => {
+                setIsValidatingPromo(true);
+                try {
+                    const res = await fetch('/api/promotions/validate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            code: pendingPromo,
+                            cart: cart,
+                            cartTotal: cartTotal,
+                            email: address.email || user?.email,
+                            paymentMethod: paymentMethod
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.promo) {
+                        setAppliedPromo(data.promo);
+                        setDiscountAmount(data.discountAmount);
+                        showToast(`Promo ${data.promo.code} applied!`, 'success');
+                        localStorage.removeItem('pending_promo_code');
+                    }
+                } catch (e) {
+                    // Ignore errors on auto-apply
+                }
+                setIsValidatingPromo(false);
+            };
+            applyPending();
+        }
+    }, [cartTotal, cart.length, user]);
+
     // Transfer States (InstaPay/Vodafone)
     const [transferRef, setTransferRef] = useState('');
     const [receiptUrl, setReceiptUrl] = useState('');
@@ -240,7 +314,9 @@ export default function CheckoutPage() {
             const refinedOrder = {
                 orderId: tempId,
                 items: cart,
-                total: cartTotal + shippingCost,
+                total: Math.max(0, cartTotal - discountAmount) + shippingCost,
+                discount: discountAmount,
+                promoCode: appliedPromo?.code || null,
                 customer: address,
                 paymentMethod: finalPaymentMethod,
                 telegramChatId: tgUser?.id || null
@@ -567,6 +643,22 @@ export default function CheckoutPage() {
                                 )}
                             </div>
 
+                            {/* Payment Restriction Warning */}
+                            {appliedPromo && appliedPromo.rule_payment_methods && (
+                                (() => {
+                                    const allowed = appliedPromo.rule_payment_methods.split(',').map(m => m.trim().toLowerCase());
+                                    const baseMethod = paymentMethod.split(' ')[0].toLowerCase().replace(' |', '');
+                                    if (!allowed.includes(baseMethod)) {
+                                        return (
+                                            <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(255,0,0,0.1)', border: '1px solid red', borderRadius: '4px', color: '#ffcccc', fontSize: '0.9rem' }}>
+                                                ⚠️ <strong>Promo Note:</strong> The applied promo code ({appliedPromo.code}) is intended for <strong>{appliedPromo.rule_payment_methods.toUpperCase()}</strong> payments.
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()
+                            )}
+
                             {/* Inline Mobile Place Order Button */}
                             <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
                                 <button
@@ -598,12 +690,47 @@ export default function CheckoutPage() {
                                     (address.city.toLowerCase().includes('cairo') ? 'EGP 50.00' : 'EGP 100.00')}
                             </span>
                         </div>
+                        
+                        {/* Promo Code Box */}
+                        <div style={{ marginTop: '1rem', marginBottom: '1rem', borderTop: '1px solid #333', paddingTop: '1rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input 
+                                    type="text" 
+                                    placeholder="Promo Code" 
+                                    value={promoCode}
+                                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                    style={{ flex: 1, padding: '0.5rem', background: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px', textTransform: 'uppercase' }}
+                                />
+                                <button 
+                                    onClick={handleApplyPromo}
+                                    disabled={isValidatingPromo || !promoCode}
+                                    style={{ padding: '0.5rem 1rem', background: 'var(--color-bg-secondary)', color: 'var(--color-accent)', border: '1px solid var(--color-accent)', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    {isValidatingPromo ? '...' : 'Apply'}
+                                </button>
+                            </div>
+                            {promoError && <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '0.5rem' }}>{promoError}</div>}
+                            {appliedPromo && (
+                                <div style={{ color: '#00ff00', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Applied: {appliedPromo.code}</span>
+                                    <button onClick={() => { setAppliedPromo(null); setDiscountAmount(0); setPromoCode(''); }} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
+                                </div>
+                            )}
+                        </div>
+
+                        {discountAmount > 0 && (
+                            <div className={styles.summaryRow} style={{ color: '#00ff00' }}>
+                                <span>Discount ({appliedPromo?.code})</span>
+                                <span>- EGP {discountAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+
                         <div className={styles.totalRow}>
                             <span>{t('total')}</span>
                             <span>
                                 {!address.city ?
-                                    `EGP ${cartTotal.toFixed(2)} + Ship` :
-                                    `EGP ${(cartTotal + (address.city.toLowerCase().includes('cairo') ? 50 : 100)).toFixed(2)}`}
+                                    `EGP ${Math.max(0, cartTotal - discountAmount).toFixed(2)} + Ship` :
+                                    `EGP ${(Math.max(0, cartTotal - discountAmount) + (address.city.toLowerCase().includes('cairo') ? 50 : 100)).toFixed(2)}`}
                             </span>
                         </div>
 

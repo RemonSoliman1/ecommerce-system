@@ -139,7 +139,7 @@ export default function Footer() {
                 </div>
 
                 <div className={styles.bottom}>
-                    <p>&copy; {new Date().getFullYear()} Cigar Lounge. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} Cigar Lounge. Created by <a href="https://github.com/RemonSoliman1" target="_blank" rel="noopener noreferrer" style={{color: 'var(--color-accent)', textDecoration: 'none'}}>Remon Soliman</a>. All rights reserved.</p>
                     <div className={styles.paymentIcons}>
                         <CreditCard size={24} color="#888888" />
                         <span className={styles.paymentText} style={{ color: '#888888' }}>Secure Payment</span>

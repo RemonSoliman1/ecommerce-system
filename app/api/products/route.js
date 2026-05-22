@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
+import { sendPushNotification } from '@/lib/push';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -99,6 +100,8 @@ export async function POST(request) {
             throw new Error('Server misconfiguration: Admin client not available');
         }
 
+        const isNew = !body.id;
+
         const { data, error } = await supabaseAdmin
             .from('products')
             .upsert(body)
@@ -106,6 +109,21 @@ export async function POST(request) {
             .single();
 
         if (error) throw error;
+
+        // Dispatch new arrival push
+        if (isNew && data) {
+            try {
+                await sendPushNotification({
+                    title: 'New Arrival! 🌟',
+                    body: `${data.name} has just been added to our humidor.`,
+                    url: `/product/${data.id}`,
+                    image: data.image,
+                    targetType: 'all'
+                });
+            } catch (pushErr) {
+                console.error("New Arrival push failed:", pushErr);
+            }
+        }
 
         return NextResponse.json({ success: true, data });
     } catch (error) {

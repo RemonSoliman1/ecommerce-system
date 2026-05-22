@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { createClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { sendPushNotification } from '@/lib/push';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,7 +12,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ... imports
+// Simple In-Memory Rate Limiting
+const rateLimitMap = new Map();
 
 export async function POST(request) {
     try {
@@ -26,14 +28,97 @@ export async function POST(request) {
             return NextResponse.json({ error: "No items in order" }, { status: 400 });
         }
 
-        const numericTotal = Number(total);
-        if (isNaN(numericTotal) || numericTotal <= 0) {
-            console.warn(`[API] Warning: Invalid total (${total}). Recalculating from items.`);
-            // Optional: Recalculate total from items if needed, or rely on client
+        // --- 0. RATE LIMITING ---
+        const ip = request.headers.get('x-forwarded-for') || 'unknown_ip';
+        const now = Date.now();
+        if (rateLimitMap.has(ip) && now - rateLimitMap.get(ip) < 10000) { // 10 second cooldown
+            return NextResponse.json({ error: "Too many requests. Please wait before trying again." }, { status: 429 });
+        }
+        rateLimitMap.set(ip, now);
+
+        // --- 0.5. PRE-FLIGHT INVENTORY & PRICE VALIDATION ---
+        let recalculatedTotal = 0;
+        const productIds = [...new Set(items.map(i => i.id))];
+        const { data: dbProducts } = await supabaseAdmin
+            .from('products')
+            .select('id, name, models')
+            .in('id', productIds);
+
+        if (!dbProducts || dbProducts.length === 0) {
+            return NextResponse.json({ error: "Products not found in database." }, { status: 400 });
         }
 
-        // Calculate Points (1 EGP = 1 Point)
-        const pointsEarned = Math.floor(numericTotal > 0 ? numericTotal : 0);
+        // Clone models to deduct stock in-memory during validation (catches duplicate items in cart)
+        const memoryProducts = dbProducts.map(p => ({
+            ...p,
+            models: p.models ? JSON.parse(JSON.stringify(p.models)) : []
+        }));
+
+        for (let i = 0; i < items.length; i++) {
+            let cItem = items[i];
+            let dbProd = memoryProducts.find(p => p.id === cItem.id);
+            if (!dbProd) {
+                return NextResponse.json({ error: `Product ${cItem.name} no longer exists.` }, { status: 400 });
+            }
+
+            let matchIdx = dbProd.models.findIndex(m => {
+                const mName = (m.name || '').trim().toLowerCase();
+                const mSize = (m.size || '').trim().toLowerCase();
+                const cartSize = (cItem.selectedSize || cItem.size || '').trim().toLowerCase();
+                const cartVariant = (cItem.variant || cItem.modelName || '').trim().toLowerCase();
+                const cartName = (cItem.name || '').trim().toLowerCase();
+
+                if (cartVariant && cartVariant === mName && cartSize === mSize) return true;
+                if (cartVariant && cartVariant === mName && !mSize) return true;
+                const cStr = (cartVariant + ' ' + cartSize + ' ' + cartName).trim();
+                if (cStr === mName || cStr === mSize) return true;
+                if (mName && cStr.includes(mName)) return true;
+                const cTokens = cStr.split(/[\s()]+/).filter(t => t.length > 2);
+                const mTokens = (mName + ' ' + mSize).split(/[\s()]+/).filter(t => t.length > 2);
+                return cTokens.some(t => mTokens.includes(t)) && mTokens.some(t => cTokens.includes(t));
+            });
+
+            if (matchIdx === -1 && dbProd.models.length === 1) matchIdx = 0;
+
+            if (matchIdx === -1) {
+                return NextResponse.json({ error: `Variant for ${cItem.name} not found.` }, { status: 400 });
+            }
+
+            let currentStock = parseInt(dbProd.models[matchIdx].stock);
+            let qty = parseInt(cItem.quantity) || 1;
+
+            if (isNaN(currentStock) || currentStock < qty) {
+                return NextResponse.json({ error: `Insufficient stock for ${cItem.name}. Only ${isNaN(currentStock) ? 0 : currentStock} available.` }, { status: 400 });
+            }
+
+            // Deduct in memory for subsequent loop iterations
+            dbProd.models[matchIdx].stock = currentStock - qty;
+
+            // Secure Price Recalculation (Overrides client payload)
+            const securePrice = parseFloat(dbProd.models[matchIdx].price) || 0;
+            const hasGift = !!cItem.giftOption;
+            const giftPrice = hasGift ? Number(cItem.giftOption.price) || 0 : 0;
+            
+            recalculatedTotal += (securePrice + giftPrice) * qty;
+
+            // Overwrite trusted price back into the item array for the DB Insert
+            items[i].price = securePrice;
+        }
+
+        let finalTotal = recalculatedTotal > 0 ? recalculatedTotal : Number(total);
+        if (recalculatedTotal > 0) {
+            if (body.discount) {
+                finalTotal = Math.max(0, finalTotal - Number(body.discount));
+            }
+            // Add Shipping
+            let shippingCost = 0;
+            if (customer && customer.city) {
+                shippingCost = customer.city.toLowerCase().includes('cairo') ? 50 : 100;
+            }
+            finalTotal += shippingCost;
+        }
+
+        const pointsEarned = Math.floor(finalTotal);
 
         let dbOrderId = orderId;
 
@@ -83,6 +168,10 @@ export async function POST(request) {
             } catch (customerError) {
                 console.error('[API] Customer DB synchronization failed gracefully:', customerError.message);
             }
+            if (body.promoCode) {
+                // Ignore errors here to not block order placement
+                supabaseAdmin.rpc('increment_promo_usage', { p_code: body.promoCode }).catch(console.error);
+            }
 
             // B. Create Order strictly targeting valid schema columns
             const { data: newOrder, error: orderError } = await supabase
@@ -90,9 +179,11 @@ export async function POST(request) {
                 .insert([{
                     customer_id: customerId,
                     user_email: customer.email,
-                    total_amount: numericTotal,
-                    total_price: numericTotal,
-                    status: 'Pending',
+                    total_amount: finalTotal,
+                    total_price: finalTotal,
+                    status: body.status || 'Pending',
+                    promo_code: body.promoCode || null,
+                    discount_amount: body.discount || null,
                     payment_method: [
                         paymentMethod || 'COD',
                         instapay_reference ? `REF:${instapay_reference}` : '',
@@ -222,11 +313,16 @@ export async function POST(request) {
         let telegramText = `<b>🏛️ CIGAR LOUNGE - NEW ORDER</b>\n`;
         telegramText += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
         telegramText += `<b>🧾 Order ID:</b> #${dbOrderId}\n`;
-        telegramText += `<b>💰 Total:</b> EGP ${numericTotal.toLocaleString()}\n`;
+        telegramText += `<b>👤 Customer:</b> ${customer.name}\n`;
+        telegramText += `<b>📞 Phone:</b> ${customer.phone}\n`;
+        telegramText += `<b>💰 Total:</b> EGP ${finalTotal.toLocaleString()}\n`;
+        if (body.promoCode) {
+            telegramText += `<b>🏷️ Promo Used:</b> ${body.promoCode} (- EGP ${body.discount})\n`;
+        }
         telegramText += `<b>💳 Payment:</b> ${paymentMethod}\n`;
         if (instapay_image_url) telegramText += `<b>🧾 Receipt URL:</b> ${instapay_image_url}\n`;
         if (instapay_reference) telegramText += `<b>🧾 Reference ID:</b> ${instapay_reference}\n`;
-        telegramText += `<b>🎁 Points Earned:</b> ${pointsEarned}\n\n`; // Added Points to Telegram
+        telegramText += `<b>🎁 Points Earned:</b> ${pointsEarned}\n\n`;
         telegramText += `<b>📦 Order Details:</b>\n`;
         items.forEach(item => {
             telegramText += `• ${item.name} (${item.quantity}x)\n`;
@@ -243,7 +339,7 @@ export async function POST(request) {
             let customerTgText = `<b>🎉 Thank You for Your Order, ${customer.name}!</b>\n`;
             customerTgText += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;
             customerTgText += `<b>🧾 Order ID:</b> #${dbOrderId}\n`;
-            customerTgText += `<b>💰 Total:</b> EGP ${numericTotal.toLocaleString()}\n`;
+            customerTgText += `<b>💰 Total:</b> EGP ${finalTotal.toLocaleString()}\n`;
             customerTgText += `<b>🎁 Points Earned:</b> ${pointsEarned}\n\n`;
             customerTgText += `We have received your order and will contact you shortly to confirm delivery.`;
 
@@ -288,7 +384,7 @@ export async function POST(request) {
                                     ${itemsHtml}
                                     <tr class="total-row">
                                         <td>Total</td>
-                                        <td colspan="2" style="text-align: right;">EGP ${numericTotal.toLocaleString()}</td>
+                                        <td colspan="2" style="text-align: right;">EGP ${finalTotal.toLocaleString()}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -332,6 +428,30 @@ export async function POST(request) {
             }
         } catch (emailError) {
             console.error("[API] Resend Error:", JSON.stringify(emailError));
+        }
+
+        // --- 4. SEND PUSH NOTIFICATION (If user has opted in) ---
+        if (customer.email) {
+            try {
+                await sendPushNotification({
+                    title: 'Order Confirmed! 🎉',
+                    body: `Your order #${dbOrderId} for EGP ${finalTotal.toLocaleString()} is being prepared.`,
+                    url: '/account',
+                    targetType: 'specific',
+                    targetEmails: [customer.email]
+                });
+                
+                // Admin Notification
+                await sendPushNotification({
+                    title: 'New Order Received',
+                    body: `Order #${dbOrderId} - EGP ${finalTotal.toLocaleString()}`,
+                    url: '/admin',
+                    targetType: 'specific',
+                    targetEmails: ['admin@cigarlounge.com', 'remonsabry44@gmail.com'] // Adjust to actual admin emails
+                });
+            } catch (pushErr) {
+                console.error("[API] Push Notification Error:", pushErr);
+            }
         }
 
         return NextResponse.json({ success: true, dbOrderId });

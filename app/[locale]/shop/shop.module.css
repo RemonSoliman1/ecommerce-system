@@ -367,14 +367,17 @@
     border: 1px dashed var(--color-border);
 }
 
-/* Default: Hide Filter Toggle */
+/* Default: Hide Filter Toggle and Sidebar Header */
 .mobileFilterToggle {
+    display: none;
+}
+
+.sidebarHeader {
     display: none;
 }
 
 @media (max-width: 768px) {
     .layout {
-        /* User requested seeing more than 1 product */
         grid-template-columns: 1fr;
     }
 
@@ -384,34 +387,83 @@
     }
 
     .sidebarWrapper {
-        display: none;
-        /* Default hidden on mobile */
-        border-bottom: 1px solid var(--color-border);
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-right: none;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        max-width: 320px;
+        height: 100vh;
+        background: #111;
+        z-index: 2200;
+        transition: left 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+        border: none;
+    }
+
+    .sidebarWrapper .sidebar {
+        padding: 20px;
+        border: none;
+        overflow-y: auto;
+        flex: 1;
     }
 
     .sidebarWrapper.showFilters {
-        display: block;
-        /* Show only when class added */
+        left: 0;
+        display: flex;
+    }
+
+    .sidebarHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: #000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebarHeader h3 {
+        margin: 0;
+        font-family: var(--font-serif);
+        color: var(--color-accent);
+        font-size: 1.2rem;
+        text-transform: uppercase;
+    }
+
+    .filterCloseBtn {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .controlsBar {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: flex-end;
     }
 
     .mobileFilterToggle {
         display: flex;
-        /* Make sure toggle is visible */
         align-items: center;
-        padding: 0.6rem 1rem;
+        padding: 0.4rem 0.8rem;
         border: 1px solid var(--color-border);
         background: transparent;
         color: var(--color-text-secondary);
         font-family: var(--font-sans);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         cursor: pointer;
         margin-bottom: 0;
-        /* Remove margin, alignment handled by flex */
-        height: 42px;
-        /* Match select height approx */
+        height: 36px;
+        order: 2;
+        margin-right: auto;
+        align-self: flex-end;
     }
 
     .mobileFilterToggle:hover {
@@ -419,9 +471,24 @@
         color: var(--color-accent);
     }
 
+    .inStockMobile {
+        order: 1;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .sortWrapper {
+        order: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .sortWrapper label {
-        display: none;
-        /* Hide 'Sort By' label text on mobile to save space */
+        display: block;
+        margin-bottom: 0.2rem;
+        margin-inline-end: 0;
+        font-size: 0.8rem;
     }
 }
 
@@ -430,7 +497,6 @@
         opacity: 0;
         transform: translateY(-10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -453,7 +519,6 @@
     color: var(--color-text-secondary);
     margin-bottom: 2rem;
     max-width: 800px;
-    /* Stretch out instead of 5 rows */
     line-height: 1.6;
 }
 
@@ -512,12 +577,9 @@
     padding: 0.5rem;
     scroll-behavior: smooth;
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
 }
 
-/* Hide scrollbar for Chrome, Safari, Opera */
 .brandCarousel::-webkit-scrollbar {
     display: none;
 }
@@ -532,8 +594,6 @@
     transition: transform 0.2s;
     width: 100px;
 }
-
-
 
 .brandLogo {
     width: 90px;
@@ -568,3 +628,128 @@
     text-overflow: ellipsis;
     width: 100%;
 }
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 2150;
+    cursor: pointer;
+}
+
+/* --- Modern Dashboard Controls --- */
+.modernDashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    width: 100%;
+}
+
+.modernTopBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    background-color: #120c0a;
+    border: 1px solid rgba(197, 163, 92, 0.4);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.modernFilterBtn {
+    background: transparent;
+    border: none;
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: var(--font-sans);
+}
+
+.modernSortWrapper {
+    display: flex;
+    align-items: center;
+    color: var(--color-accent);
+    font-size: 0.95rem;
+}
+
+.modernSortSelect {
+    background: transparent;
+    border: none;
+    color: var(--color-accent);
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    margin-inline-start: 0.5rem;
+    -webkit-appearance: none;
+    appearance: none;
+    padding-inline-end: 1.5rem;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C5A35C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 1rem;
+}
+
+.modernSortSelect option {
+    background-color: #120c0a;
+    color: #fff;
+}
+
+.segmentedPillWrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.segmentedPill {
+    display: flex;
+    background-color: #1a1412;
+    border-radius: 30px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+}
+
+.pillBtn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 26px;
+    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+    font-family: var(--font-sans);
+}
+
+.pillBtnInactive {
+    color: #888;
+}
+
+.pillBtnInactive:hover {
+    color: #bbb;
+}
+
+.pillBtnActive {
+    color: #000;
+    background: linear-gradient(135deg, #E6C875 0%, #C5A35C 100%);
+    box-shadow: 0 0 15px rgba(197, 163, 92, 0.4);
+}

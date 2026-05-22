@@ -34,14 +34,16 @@ export async function GET(request) {
         // Map data to ensure consistency on the frontend
         const mappedOrders = orders.map(o => ({
             id: o.id,
-            userId: o.customer_id || o.user_id || 'N/A',
+            userId: o.telegram_id ? `TG: ${o.telegram_id}` : (o.customer_id || o.user_id || 'N/A'),
             userEmail: o.email || o.user_email || '',
             date: o.created_at,
             status: o.status || 'Pending',
             total: o.total_price || o.total_amount || 0,
             items: Array.isArray(o.order_items) ? o.order_items : (Array.isArray(o.items) ? o.items : []),
             address: o.shipping_address || o.address || 'N/A',
-            paymentMethod: o.payment_method || 'N/A'
+            paymentMethod: o.payment_method || 'N/A',
+            promoCode: o.promo_code || null,
+            discount: o.discount_amount || 0
         }));
 
         return NextResponse.json({ success: true, orders: mappedOrders });

@@ -4,7 +4,6 @@ import { Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter, usePathname, Link } from '@/lib/navigation';
 import { useProducts } from '@/context/ProductContext'; // Context
-import { BRANDS } from '@/lib/data';
 import styles from './shop.module.css';
 import { useTranslations } from 'next-intl';
 import ShopSidebar from '@/components/ui/ShopSidebar';
@@ -23,7 +22,7 @@ const FLAVOR_CLUSTERS = {
 };
 
 function ShopContent() {
-    const { products, loading } = useProducts(); // context usage
+    const { visibleProducts, products, brands: BRANDS, loading, autoHideStock } = useProducts(); // context usage
     const t = useTranslations('Shop');
     const tProduct = useTranslations('Product');
 
@@ -32,13 +31,18 @@ function ShopContent() {
     const typeFilter = searchParams.get('type') || 'all';
     const brandFilter = searchParams.get('brand') || 'all';
     const seriesFilter = searchParams.get('series') || 'all';
-    const sortParam = searchParams.get('sort') || 'featured';
+    const sortParam = searchParams.get('sort') || 'name-asc';
 
     // New SideBar Filters
     const vibeFilter = searchParams.get('vibe');
     const strengthFilter = searchParams.get('strength');
     const wrapperFilter = searchParams.get('wrapper');
     const flavorFilter = searchParams.get('flavor');
+    
+    // Promotional Multi-Select Filters
+    const productsFilter = searchParams.get('products');
+    const brandsFilter = searchParams.get('brands');
+    const promoFilter = searchParams.get('promo') === 'true';
 
     const carouselRef = useRef(null);
 
@@ -61,6 +65,8 @@ function ShopContent() {
     const [currentPage, setCurrentPage] = useState(1);
     const [showingSimilar, setShowingSimilar] = useState(false);
     const ITEMS_PER_PAGE = 12;
+
+    // Settings now handled by ProductContext
 
     const router = useRouter();
     const pathname = usePathname();
@@ -153,20 +159,51 @@ function ShopContent() {
     // 1. Filter Products & 2. Sort Products
     const filteredProducts = useMemo(() => {
         if (loading) return []; // Handle loading
-        let filtered = products; // Use dynamic products
+        let filtered = visibleProducts; // Use dynamic visible products
         const categoryFilter = searchParams.get('category');
 
         // Search Filter - Enhanced with Fuzzy & Arabic Support
         if (searchQuery) {
-            filtered = searchProducts(searchQuery, products);
+            let processedQuery = searchQuery.toLowerCase().trim();
+            const arabicBrandMap = {
+                "اوليفا": "oliva",
+                "دافيدوف": "davidoff",
+                "كوهيبا": "cohiba",
+                "ارتورو فوينتي": "arturo fuente",
+                "مونتكريستو": "montecristo",
+                "روميو وجولييت": "romeo y julieta",
+                "روميو و جولييت": "romeo y julieta",
+                "بارتاغاس": "partagas",
+                "روكي باتيل": "rocky patel",
+                "باديس": "padron",
+                "كاماتشو": "camacho",
+                "اليك برادلي": "alec bradley",
+                "ماكانودو": "macanudo"
+            };
+            for (const [ar, en] of Object.entries(arabicBrandMap)) {
+                if (processedQuery.includes(ar)) {
+                    processedQuery = processedQuery.replace(ar, en);
+                }
+            }
+            filtered = searchProducts(processedQuery, products);
         }
 
         if (activeBrand !== 'all') filtered = filtered.filter(p => (p.brandId || p.brand_id) === activeBrand);
+        
+        // Promotional Multi-Select Filters (From Banners)
+        if (productsFilter) {
+            const productIds = productsFilter.split(',');
+            filtered = filtered.filter(p => productIds.includes(String(p.id)));
+        }
+        if (brandsFilter) {
+            const brandIds = brandsFilter.split(',');
+            filtered = filtered.filter(p => brandIds.includes(String(p.brandId || p.brand_id)));
+        }
         if (activeType !== 'all') {
             filtered = filtered.filter(p => {
                 if (activeType === 'cigar') {
-                    // If we are looking at Cigars, allow bundles and samplers as long as they match the brand natively
-                    return p.type === 'cigar' || p.type === 'bundle' || p.type === 'sampler';
+                    // Strictly isolate cigars without fetching bundles/samplers
+                    return p.type === 'cigar';
                 }
                 return p.type === activeType;
             });
@@ -215,6 +252,19 @@ function ShopContent() {
         if (inStockOnly) {
             filtered = filtered.filter(p => p.models?.some(m => parseInt(m.stock || 0) > 0));
         }
+        
+        if (promoFilter) {
+            filtered = filtered.filter(p => {
+                const isDiscounted = p.models && p.models.some(m => m.original_price && parseFloat(m.original_price) > parseFloat(m.price));
+                const isPromoted = activePromos.some(promo => {
+                    if (promo.target_type === 'all') return true;
+                    if (promo.target_type === 'product' && promo.target_id?.split(',').includes(p.id)) return true;
+                    if (promo.target_type === 'brand' && promo.target_id?.split(',').includes(p.brand_id || p.brandId)) return true;
+                    return false;
+                });
+                return isDiscounted || isPromoted;
+            });
+        }
 
         return filtered.sort((a, b) => { // ... existing sort logic
             // Ensure models exist
@@ -229,12 +279,12 @@ function ShopContent() {
                 default: return (b.new ? 1 : 0) - (a.new ? 1 : 0);
             }
         });
-    }, [activeBrand, activeType, activeSeries, sortOption, searchQuery, searchParams, products, loading, inStockOnly]);
+    }, [visibleProducts, searchParams, loading, typeFilter, brandFilter, seriesFilter, vibeFilter, strengthFilter, wrapperFilter, flavorFilter, inStockOnly, activeType, activeBrand, activeSeries, searchQuery, productsFilter, brandsFilter, promoFilter, sortOption, activePromos]);
 
     // Proximity Engine for Similar Items
     const similarProducts = useMemo(() => {
         if (!showingSimilar || filteredProducts.length > 0) return [];
-        let baseList = products.filter(p => !inStockOnly || p.models?.some(m => parseInt(m.stock || 0) > 0));
+        let baseList = visibleProducts.filter(p => !inStockOnly || p.models?.some(m => parseInt(m.stock || 0) > 0));
 
         let scored = baseList.map(p => {
             let score = 0;
@@ -292,55 +342,23 @@ function ShopContent() {
         // Return top 8 similar items
         return scored.filter(p => p.proximityScore > 0).sort((a, b) => b.proximityScore - a.proximityScore).slice(0, 8);
 
-    }, [showingSimilar, products, strengthFilter, wrapperFilter, flavorFilter, activeBrand, activeType, searchQuery, inStockOnly, filteredProducts.length]);
+    }, [showingSimilar, visibleProducts, strengthFilter, wrapperFilter, flavorFilter, activeBrand, activeType, searchQuery, inStockOnly, filteredProducts.length]);
 
     // 3. Independent Brand Lists (Dynamic + Static)
 
-    const [dynamicBrands, setDynamicBrands] = useState([]);
+    // dynamic brands removed in favor of ProductContext brands
 
-    useEffect(() => {
-        const fetchAttributes = async () => {
-            try {
-                const res = await fetch('/api/admin/attributes');
-                const json = await res.json();
-                if (json.success) {
-                    const brands = json.data
-                        .filter(attr => attr.category === 'brand')
-                        .map(attr => ({
-                            id: attr.value,
-                            name: attr.value,
-                            type: 'cigar',
-                            logo: attr.metadata?.logo || null
-                        })); // Default to cigar for now
-                    setDynamicBrands(brands);
-                }
-            } catch (err) {
-                console.error('Failed to load dynamic brands', err);
-            }
-        };
-        fetchAttributes();
-    }, []);
+    // dynamicBrands removed - now inherited from context
 
     const allBrands = useMemo(() => {
-        // Merge Static BRANDS with Dynamic Brands (dedup by ID/Name)
-        const combined = [...BRANDS, ...dynamicBrands];
-        const unique = [];
-        const seen = new Set();
-        for (const b of combined) {
-            // Normalize ID comparison
-            const bid = b.id || b.name;
-            if (!seen.has(bid)) {
-                seen.add(bid);
-                unique.push(b);
-            }
-        }
-        return unique;
-    }, [dynamicBrands]);
+        if (!BRANDS) return [];
+        return BRANDS;
+    }, [BRANDS]);
 
     const availableBrands = useMemo(() => {
         if (loading) return [];
         // Determine which products fit the current type filter
-        const typeProducts = products.filter(p => {
+        const typeProducts = visibleProducts.filter(p => {
             if (activeType === 'all') return true;
             return p.type === activeType;
         });
@@ -358,7 +376,7 @@ function ShopContent() {
             }
             return b;
         }).sort((a, b) => a.name.localeCompare(b.name));
-    }, [products, loading, allBrands, dynamicBrands, activeType]);
+    }, [products, loading, allBrands, activeType]);
 
     const allSeriesMap = useMemo(() => {
         if (loading) return {};
@@ -398,46 +416,29 @@ function ShopContent() {
                 <button
                     className={styles.mobileFilterToggle}
                     onClick={() => setShowFilters(!showFilters)}
+                    style={{ marginTop: '1.4rem', padding: '0.4rem 0.6rem', fontSize: '0.8rem', height: '34px' }}
                 >
-                    <SlidersHorizontal size={16} style={{ marginRight: '8px' }} />
-                    {showFilters ? 'Close' : 'Refine'}
+                    <SlidersHorizontal size={14} style={{ marginRight: '6px' }} />
+                    {showFilters ? t('close_filters') : 'Filter Categories'}
                 </button>
 
 
 
-                {/* In Stock Toggle */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '2rem', marginLeft: 'auto', marginTop: 'auto', marginBottom: 'auto' }}>
-                    <label style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-sans)', userSelect: 'none' }} onClick={() => setInStockOnly(!inStockOnly)}>
-                        {t('in_stock_only') || 'In Stock Only'}
-                    </label>
-                    <div
-                        onClick={() => setInStockOnly(!inStockOnly)}
-                        style={{
-                            width: '44px',
-                            height: '24px',
-                            background: inStockOnly ? 'var(--color-accent)' : '#444',
-                            borderRadius: '12px',
-                            position: 'relative',
-                            cursor: 'pointer',
-                            transition: 'background 0.3s ease'
-                        }}
-                    >
-                        <div style={{
-                            width: '18px',
-                            height: '18px',
-                            background: '#fff',
-                            borderRadius: '50%',
-                            position: 'absolute',
-                            top: '3px',
-                            left: inStockOnly ? '23px' : '3px',
-                            transition: 'left 0.3s ease',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }} />
-                    </div>
-                </div>
-
                 <div className={styles.sortWrapper}>
-                    <label>{t('sort.label')}</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '0.4rem' }}>
+                        <label style={{ margin: 0 }}>{t('sort.label')}</label>
+                        {!autoHideStock && (
+                            <div className={styles.segmentedPill} style={{ width: 'auto', padding: '2px', marginLeft: 'auto' }}>
+                                <button 
+                                    className={`${styles.pillBtn} ${inStockOnly ? styles.pillBtnActive : styles.pillBtnInactive}`}
+                                    style={{ padding: '2px 6px', fontSize: '0.65rem', flex: 'none', letterSpacing: '0' }}
+                                    onClick={() => setInStockOnly(!inStockOnly)}
+                                >
+                                    {t('in_stock_only')}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     <select
                         value={sortOption}
                         onChange={(e) => updateParams('sort', e.target.value)}
@@ -457,7 +458,7 @@ function ShopContent() {
             {(
                 <div className={styles.brandCarouselSection}>
                     <div className={styles.brandCarouselHeader}>
-                        <h2>Top Brands</h2>
+                        <h2>{t('top_brands')}</h2>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <button onClick={() => scrollCarousel('left')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#fff' }}>&#8249;</button>
                             <button onClick={() => scrollCarousel('right')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#fff' }}>&#8250;</button>
@@ -488,9 +489,16 @@ function ShopContent() {
             )}
 
             <div className={styles.layout}>
+                {showFilters && <div className={styles.backdrop} onClick={() => setShowFilters(false)} />}
 
                 {/* Sidebar Filters - Wrapped for Mobile Toggle control */}
                 <div className={`${styles.sidebarWrapper} ${showFilters ? styles.showFilters : ''}`}>
+                    <div className={styles.sidebarHeader}>
+                        <h3>{t('filters_sidebar')}</h3>
+                        <button className={styles.filterCloseBtn} onClick={() => setShowFilters(false)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
                     <ShopSidebar
                         styles={styles}
                         activeType={activeType}
@@ -500,6 +508,7 @@ function ShopContent() {
                         strengthFilter={strengthFilter}
                         wrapperFilter={wrapperFilter}
                         flavorFilter={flavorFilter}
+                        promoFilter={promoFilter}
                         availableBrands={availableBrands}
                         getSeriesForBrand={getSeriesForBrand}
                         onUpdateParams={updateParams}
@@ -514,32 +523,32 @@ function ShopContent() {
                             <div className={styles.emptyState}>
                                 <p>{t('no_products')}</p>
                                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
-                                    <button onClick={clearFilters} className="btn-outline">Clear All Filters</button>
+                                    <button onClick={clearFilters} className="btn-outline">{t('clear_all_filters')}</button>
                                     <button onClick={() => setShowingSimilar(true)} className="btn" style={{ borderColor: 'var(--color-accent)', background: 'rgba(197, 163, 92, 0.1)' }}>
-                                        Show Similar Items
+                                        {t('show_similar_items')}
                                     </button>
                                 </div>
                             </div>
                         ) : showingSimilar ? (
                             <>
                                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem' }}>
-                                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', fontStyle: 'italic' }}>Curator's Suggestions</h3>
-                                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Based on your selected wrapper, strength, and flavor profiles.</p>
+                                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', fontStyle: 'italic' }}>{t('curators_suggestions')}</h3>
+                                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>{t('curators_suggestions_desc')}</p>
                                 </div>
                                 {similarProducts.length > 0 ? (
                                     similarProducts.map(product => (
-                                        <ShopProductCard key={product.id} product={product} t={tProduct} />
+                                        <ShopProductCard key={product.id} product={product} t={tProduct} activePromos={activePromos} />
                                     ))
                                 ) : (
                                     <div className={styles.emptyState} style={{ gridColumn: '1 / -1' }}>
-                                        <p>We couldn't find any close matches. Please try different filters.</p>
-                                        <button onClick={clearFilters} className="btn-outline" style={{ marginTop: '1rem' }}>Clear All Filters</button>
+                                        <p>{t('no_close_matches')}</p>
+                                        <button onClick={clearFilters} className="btn-outline" style={{ marginTop: '1rem' }}>{t('clear_all_filters')}</button>
                                     </div>
                                 )}
                             </>
                         ) : (
                             filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map(product => (
-                                <ShopProductCard key={product.id} product={product} t={tProduct} />
+                                <ShopProductCard key={product.id} product={product} t={tProduct} activePromos={activePromos} />
                             ))
                         )}
                     </div>
@@ -548,7 +557,7 @@ function ShopContent() {
                     {Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) > 1 && (
                         <div className={styles.paginationWrapper} style={{ marginTop: '3rem', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--color-text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
-                                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} &mdash; {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} Vitolas
+                                {t('showing')} {((currentPage - 1) * ITEMS_PER_PAGE) + 1} &mdash; {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} {t('of')} {filteredProducts.length} {t('vitolas')}
                             </p>
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', fontSize: '1.2rem', flexWrap: 'nowrap', flexDirection: 'row' }}>
                                 {currentPage > 1 && (
@@ -594,13 +603,27 @@ function ShopContent() {
     );
 }
 
-function ShopProductCard({ product, t }) {
+function ShopProductCard({ product, t, activePromos = [] }) {
+    const { brands } = useProducts();
     const startPrice = product.models?.[0]?.price || 0;
     const originalPrice = product.models?.[0]?.original_price;
     const hasDiscount = originalPrice && originalPrice > startPrice;
     const discountPercent = hasDiscount ? Math.round(((originalPrice - startPrice) / originalPrice) * 100) : 0;
-    const brandName = BRANDS.find(b => b.id === (product.brandId || product.brand_id))?.name;
-    const isOut = product.models?.every(m => parseInt(m.stock || 0) <= 0) ?? false;
+    const brandName = brands.find(b => b.id === (product.brandId || product.brand_id))?.name;
+    const totalStock = product.models ? product.models.reduce((acc, m) => {
+        if (m.stock === undefined || m.stock === null || m.stock === '') return acc + Infinity;
+        const s = parseInt(m.stock);
+        return acc + (isNaN(s) ? 0 : s);
+    }, 0) : Infinity;
+    const isOut = totalStock <= 0;
+    const isLowStock = !isOut && totalStock <= 3;
+    
+    const hasPromo = activePromos.some(promo => {
+        if (promo.target_type === 'all') return true;
+        if (promo.target_type === 'product' && promo.target_id?.split(',').includes(product.id)) return true;
+        if (promo.target_type === 'brand' && promo.target_id?.split(',').includes(product.brand_id || product.brandId)) return true;
+        return false;
+    });
 
     return (
         <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative' }}>
@@ -610,13 +633,24 @@ function ShopProductCard({ product, t }) {
                         {t('sold_out') || 'Sold Out'}
                     </div>
                 )}
-                {product.new && !isOut && <span className={styles.newBadge}>New Arrival</span>}
-                <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, display: isOut ? 'none' : 'block' }}>
+                {isLowStock && (
+                    <div style={{ position: 'absolute', top: 10, left: 10, background: '#e09814', color: '#fff', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '2px', zIndex: 10, textTransform: 'uppercase', pointerEvents: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '1px' }}>
+                        Only {totalStock} Left
+                    </div>
+                )}
+                {product.new && !isOut && !isLowStock && <span className={styles.newBadge}>New Arrival</span>}
+                <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, display: (isOut || isLowStock) ? 'none' : 'block' }}>
                     <WishlistButton product={product} />
                 </div>
                 {product.rating && (
                     <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(20, 15, 12, 0.8)', border: '2px solid var(--color-accent)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
                         {String(product.rating).match(/^\d+/) ? String(product.rating).match(/^\d+/)[0] : '90'}
+                    </div>
+                )}
+                
+                {(hasDiscount || hasPromo) && (
+                    <div style={{ position: 'absolute', top: '60px', right: '10px', background: '#ff4d4d', color: 'white', padding: '4px 8px', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px', zIndex: 10 }}>
+                        {hasDiscount ? 'SALE' : 'PROMO'}
                     </div>
                 )}
                 <div className={styles.overlay}>

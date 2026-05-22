@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import WishlistButton from '@/components/ui/WishlistButton';
 import { Star, ShieldCheck, Leaf } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 
 export default function ProductPage({ params }) {
     const { id } = use(params);
@@ -17,6 +18,7 @@ export default function ProductPage({ params }) {
     const { products, loading } = useProducts();
     const { addToCart } = useCart();
     const { user } = useAuth(); // AuthContext to guard Wishlist
+    const { showToast } = useToast();
     const router = useRouter();
 
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -34,6 +36,10 @@ export default function ProductPage({ params }) {
     const [giftOptions, setGiftOptions] = useState([]);
     const [selectedGiftOption, setSelectedGiftOption] = useState(null);
     const [showBespokeDrawer, setShowBespokeDrawer] = useState(false);
+    
+    // Promos State
+    const [activePromos, setActivePromos] = useState([]);
+    const [showPromoTerms, setShowPromoTerms] = useState(null);
 
     const allImages = useMemo(() => {
         if (!product) return [];
@@ -114,6 +120,37 @@ export default function ProductPage({ params }) {
             }
         };
         fetchGiftOptions();
+    }, [product]);
+
+    // Fetch Public Promos
+    useEffect(() => {
+        const fetchPromos = async () => {
+            if (!product) return;
+            try {
+                const res = await fetch('/api/promotions/active');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.promos) {
+                        // Filter promos that apply to this product
+                        const applicablePromos = data.promos.filter(p => {
+                            if (p.target_type === 'all') return true;
+                            if (p.target_type === 'product' && p.target_id) {
+                                return p.target_id.split(',').map(s => s.trim()).includes(String(product.id));
+                            }
+                            if (p.target_type === 'brand' && p.target_id) {
+                                const bId = String(product.brandId || product.brand_id || '');
+                                return p.target_id.split(',').map(s => s.trim()).includes(bId);
+                            }
+                            return false;
+                        });
+                        setActivePromos(applicablePromos);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load promos', e);
+            }
+        };
+        fetchPromos();
     }, [product]);
 
     // 5. Conditional Rendering (NOW safe to return early)
@@ -343,6 +380,21 @@ export default function ProductPage({ params }) {
                                         </div>
                                     );
                                 })()}
+                                
+                                {/* Promo Badge */}
+                                {activePromos.length > 0 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
+                                        {activePromos.map(promo => (
+                                            <div key={promo.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(197, 163, 92, 0.1)', border: '1px solid var(--color-accent)', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.3s ease' }} onClick={() => setShowPromoTerms(promo)}>
+                                                <span style={{ fontSize: '1.2rem' }}>🏷️</span>
+                                                <span style={{ color: 'var(--color-accent)', fontWeight: 'bold', letterSpacing: '1px' }}>{promo.code}</span>
+                                                <span style={{ color: '#ccc', fontSize: '0.9rem' }}>
+                                                    ({promo.discount_type === 'percentage' ? `${promo.discount_value}% OFF` : `EGP ${promo.discount_value} OFF`})
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             {/* Metadata Block (Strength / Origin) -> Specifically Centered over Controls */}
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '4rem', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.5rem', width: '100%' }}>
@@ -449,7 +501,7 @@ export default function ProductPage({ params }) {
                             {/* 3. Step 3: Presentation Style */}
                             {product.has_gifts && !selectedModel?.disable_gifts && (
                                 <div className={styles.controlGroup} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '1rem' }}>
-                                    <label className={styles.label} style={{ color: 'var(--color-accent)', fontSize: '1.1rem', letterSpacing: '1px', marginBottom: '1.5rem', display: 'block' }}>Make It a Gift?</label>
+                                    <label className={styles.label} style={{ color: 'var(--color-accent)', fontSize: '1.1rem', letterSpacing: '1px', marginBottom: '1.5rem', display: 'block' }}>Discover Your Exclusive Gifts</label>
                                     {giftOptions.length === 0 ? (
                                         <p style={{ fontSize: '0.9rem', color: '#888' }}>Loading options...</p>
                                     ) : (
@@ -579,6 +631,38 @@ export default function ProductPage({ params }) {
                             <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem', lineHeight: '1.6' }}>Please sign in to access your private lounge collection and save preferred vitolas.</p>
                             <button onClick={() => router.push('/login')} className="btn" style={{ background: 'var(--color-accent)', color: '#120C0A', width: '100%', marginBottom: '1rem', border: 'none', fontWeight: 'bold' }}>Sign In</button>
                             <button onClick={() => setShowAuthModal(false)} className="btn-outline" style={{ width: '100%', borderColor: 'transparent', color: 'var(--color-text-secondary)' }}>Return to Shop</button>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Promo Terms Modal */}
+            {
+                showPromoTerms && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ background: 'var(--color-bg)', padding: '2.5rem', borderRadius: '4px', maxWidth: '450px', width: '90%', textAlign: 'center', border: '1px solid var(--color-accent)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                            <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginBottom: '1rem', fontSize: '2rem' }}>Promo Code: {showPromoTerms.code}</h2>
+                            
+                            <div style={{ color: 'var(--color-text-primary)', marginBottom: '2rem', textAlign: 'left', background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '4px', lineHeight: '1.8' }}>
+                                <p><strong>Discount:</strong> {showPromoTerms.discount_type === 'percentage' ? `${showPromoTerms.discount_value}%` : `EGP ${showPromoTerms.discount_value}`}</p>
+                                {showPromoTerms.rule_first_order && <p><strong>Requirement:</strong> First-time customers only.</p>}
+                                {showPromoTerms.rule_min_order_amount && <p><strong>Minimum Order:</strong> EGP {showPromoTerms.rule_min_order_amount}</p>}
+                                {showPromoTerms.rule_payment_methods && <p><strong>Valid Payments:</strong> {showPromoTerms.rule_payment_methods.toUpperCase()}</p>}
+                                <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '1rem' }}>*Apply this code at checkout.</p>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button onClick={() => {
+                                    // Copy to clipboard
+                                    navigator.clipboard.writeText(showPromoTerms.code);
+                                    localStorage.setItem('pending_promo_code', showPromoTerms.code);
+                                    showToast(`Promo ${showPromoTerms.code} applied! Redirecting...`, 'success');
+                                    setShowPromoTerms(null);
+                                    handleCheckout(); // Automatically add to cart and go to checkout!
+                                }} className="btn" style={{ background: 'var(--color-accent)', color: '#120C0A', flex: 1, border: 'none', fontWeight: 'bold' }}>Apply Now</button>
+                                
+                                <button onClick={() => setShowPromoTerms(null)} className="btn-outline" style={{ flex: 1, borderColor: 'transparent', color: 'var(--color-text-secondary)' }}>Close</button>
+                            </div>
                         </div>
                     </div>
                 )

@@ -1,0 +1,21 @@
+{
+  "name": "A Cigar Lounge",
+  "short_name": "A Cigar Lounge",
+  "description": "The finest selection of hand-rolled cigars and luxury accessories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#120C0A",
+  "theme_color": "#120C0A",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
