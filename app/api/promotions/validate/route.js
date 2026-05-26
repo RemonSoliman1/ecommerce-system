@@ -35,9 +35,36 @@ export async function POST(request) {
             if (!email) {
                 return NextResponse.json({ success: false, error: 'You must be logged in to use this promo code' }, { status: 403 });
             }
-            const allowedEmails = promo.customer_email.split(',').map(e => e.trim().toLowerCase());
-            if (!allowedEmails.includes(email.toLowerCase())) {
-                return NextResponse.json({ success: false, error: 'This promo code is not valid for your email' }, { status: 403 });
+
+            if (promo.customer_email.startsWith('[VIP')) {
+                const { data: customerData } = await supabaseAdmin
+                    .from('customers')
+                    .select('points, tier')
+                    .eq('email', email)
+                    .maybeSingle();
+
+                if (!customerData) {
+                    return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 403 });
+                }
+
+                if (promo.customer_email === '[VIP]') {
+                    if ((customerData.points || 0) < 1000) {
+                        return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 403 });
+                    }
+                } else {
+                    const match = promo.customer_email.match(/\[VIP:(.+)\]/);
+                    if (match) {
+                        const requiredTiers = match[1].split(',');
+                        if (!requiredTiers.includes(customerData.tier || 'Silver')) {
+                            return NextResponse.json({ success: false, error: `This promo code is restricted to ${requiredTiers.join(', ')} members` }, { status: 403 });
+                        }
+                    }
+                }
+            } else {
+                const allowedEmails = promo.customer_email.split(',').map(e => e.trim().toLowerCase());
+                if (!allowedEmails.includes(email.toLowerCase())) {
+                    return NextResponse.json({ success: false, error: 'This promo code is not valid for your email' }, { status: 403 });
+                }
             }
         }
 

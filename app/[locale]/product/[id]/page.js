@@ -11,6 +11,8 @@ import WishlistButton from '@/components/ui/WishlistButton';
 import { Star, ShieldCheck, Leaf } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useWishlist } from '@/context/WishlistContext';
+import RelatedProducts from '@/components/ui/RelatedProducts';
 
 export default function ProductPage({ params }) {
     const { id } = use(params);
@@ -19,6 +21,7 @@ export default function ProductPage({ params }) {
     const { addToCart } = useCart();
     const { user } = useAuth(); // AuthContext to guard Wishlist
     const { showToast } = useToast();
+    const { toggleWishlist, isInWishlist } = useWishlist();
     const router = useRouter();
 
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -225,6 +228,21 @@ export default function ProductPage({ params }) {
 
         addToCart(checkoutProduct, `${itemName} (${selectedSize})`, selectedModel.price, quantity, giftPayload);
         router.push('/checkout');
+    };
+
+    const handleNotifyMe = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
+        if (!isInWishlist(product.id)) {
+            toggleWishlist(product);
+        }
+        showToast(t('notify_success') || "✅ Added to Waitlist! You will be notified as soon as this item is back in stock.", "success");
     };
 
     const handlePrevImage = () => {
@@ -597,11 +615,10 @@ export default function ProductPage({ params }) {
                                                 </div>
                                                 <button
                                                     className={`btn ${styles.addToCart}`}
-                                                    onClick={handleAddToCart}
-                                                    disabled={isOut}
-                                                    style={isOut ? { background: '#222', color: '#666', border: '1px solid #333', cursor: 'not-allowed', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem' } : { background: 'var(--color-accent)', color: '#120C0A', border: 'none', fontWeight: 'bold', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}
+                                                    onClick={isOut ? handleNotifyMe : handleAddToCart}
+                                                    style={isOut ? { background: 'var(--color-accent)', color: '#120C0A', border: 'none', fontWeight: 'bold', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' } : { background: 'var(--color-accent)', color: '#120C0A', border: 'none', fontWeight: 'bold', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}
                                                 >
-                                                    {isOut ? t('out_of_stock') || 'Waitlist' : `${t('add_to_cart')} — EGP ${(((selectedModel?.price || 0) + (selectedGiftOption ? (selectedModel?.gift_overrides?.[selectedGiftOption.value] ?? parseFloat(selectedGiftOption.metadata?.price || 0)) : 0)) * quantity).toLocaleString()}`}
+                                                    {isOut ? t('notify_me') || 'Notify Me / Waitlist' : `${t('add_to_cart')} — EGP ${(((selectedModel?.price || 0) + (selectedGiftOption ? (selectedModel?.gift_overrides?.[selectedGiftOption.value] ?? parseFloat(selectedGiftOption.metadata?.price || 0)) : 0)) * quantity).toLocaleString()}`}
                                                 </button>
                                             </div>
                                         </>
@@ -620,6 +637,13 @@ export default function ProductPage({ params }) {
                     </div>
                 </div>
             </div>
+
+            {/* Related Products Section */}
+            <RelatedProducts 
+                currentProductId={product.id} 
+                category={product.category} 
+                brandId={product.brandId || product.brand_id} 
+            />
 
             {/* Auth Modal for Wishlist Shielding */}
             {
@@ -656,9 +680,8 @@ export default function ProductPage({ params }) {
                                     // Copy to clipboard
                                     navigator.clipboard.writeText(showPromoTerms.code);
                                     localStorage.setItem('pending_promo_code', showPromoTerms.code);
-                                    showToast(`Promo ${showPromoTerms.code} applied! Redirecting...`, 'success');
+                                    showToast(`Promo ${showPromoTerms.code} saved! It will be applied at checkout.`, 'success');
                                     setShowPromoTerms(null);
-                                    handleCheckout(); // Automatically add to cart and go to checkout!
                                 }} className="btn" style={{ background: 'var(--color-accent)', color: '#120C0A', flex: 1, border: 'none', fontWeight: 'bold' }}>Apply Now</button>
                                 
                                 <button onClick={() => setShowPromoTerms(null)} className="btn-outline" style={{ flex: 1, borderColor: 'transparent', color: 'var(--color-text-secondary)' }}>Close</button>

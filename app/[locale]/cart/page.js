@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { ShieldCheck, Trash2 } from 'lucide-react';
 
 export default function CartPage() {
-    const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+    const { cart, removeFromCart, updateQuantity, cartSubtotal, cartTotal, discountAmount, promoCode } = useCart();
     const t = useTranslations('Cart');
 
     if (cart.length === 0) {
@@ -82,8 +82,14 @@ export default function CartPage() {
                 <div className={styles.summary}>
                     <div className={styles.summaryRow}>
                         <span>{t('subtotal')}</span>
-                        <span>EGP {cartTotal.toFixed(2)}</span>
+                        <span>EGP {cartSubtotal.toFixed(2)}</span>
                     </div>
+                    {discountAmount > 0 && (
+                        <div className={styles.summaryRow} style={{ color: '#4CAF50' }}>
+                            <span>Discount {promoCode ? `(${promoCode})` : ''}</span>
+                            <span>- EGP {discountAmount.toFixed(2)}</span>
+                        </div>
+                    )}
                     <div className={styles.summaryRow}>
                         <span>{t('shipping')}</span>
                         <span>{t('calculated_checkout')}</span>

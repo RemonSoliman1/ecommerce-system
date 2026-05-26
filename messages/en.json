@@ -8,6 +8,7 @@
         "nav_cart": "Cart",
         "cart_empty": "Your cart is empty.",
         "checkout": "Checkout",
+        "subtotal": "Subtotal",
         "total": "Total",
         "search_label": "Search the humidor...",
         "lang_label": "Language",
@@ -54,7 +55,9 @@
         "new_arrivals": "NEW ARRIVALS",
         "explore": "explore",
         "all_products": "ALL PRODUCTS",
-        "sponsored_by": "SPONSORED BY"
+        "sponsored_by": "SPONSORED BY",
+        "special_offers": "SPECIAL OFFERS",
+        "promotions": "PROMOTIONS"
     },
     "Shop": {
         "title": "Our Collection",
@@ -94,6 +97,7 @@
         "out_of_stock": "Out of Stock",
         "sold_out": "Sold Out",
         "notify_me": "Notify Me / Waitlist",
+        "notify_success": "✅ Added to Waitlist! You will be notified as soon as this item is back in stock.",
         "from": "From",
         "view_details": "View Details",
         "add_to_cart": "Add to Cart",

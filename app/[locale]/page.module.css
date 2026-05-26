@@ -426,3 +426,74 @@
     display: block;
   }
 }
+
+/* Card Layouts for ProductCard.js */
+.card {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-accent);
+}
+.cardImage {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border-radius: 4px 4px 0 0;
+}
+.cardOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(18, 12, 10, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 1.5rem;
+  text-align: center;
+  z-index: 5;
+}
+.card:hover .cardOverlay {
+  opacity: 1;
+}
+.quickViewBtn {
+  color: var(--color-bg);
+  background: var(--color-accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 2px;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+}
+.cardInfo {
+  padding: 1.5rem;
+  text-align: center;
+}
+.cardTitle {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  color: #fff;
+  font-family: var(--font-serif);
+}
+.cardFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+.price {
+  color: var(--color-accent);
+  font-weight: 600;
+}

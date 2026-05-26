@@ -16,7 +16,7 @@ const getSupabaseAdmin = () => {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { orderId } = body;
+        const { orderId, processedBy } = body;
 
         if (!orderId) {
             return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
@@ -79,7 +79,12 @@ export async function POST(request) {
         // 3. Update order status to cancelled
         const { error: updateError } = await supabaseAdmin
             .from('orders')
-            .update({ status: 'cancelled' })
+            .update({ 
+                status: 'cancelled',
+                cancelled_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                processed_by: processedBy || 'admin'
+            })
             .eq('id', orderId);
 
         if (updateError) {

@@ -27,7 +27,34 @@ export async function GET(request) {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return NextResponse.json({ success: true, users });
+
+        // Fetch related customer and order data
+        const { data: customers } = await supabase
+            .from('customers')
+            .select('id, email, points, tier, phone, address_street, address_city');
+        
+        const { data: orders } = await supabase
+            .from('orders')
+            .select('id, user_email, total_amount, status, created_at');
+
+        const enrichedUsers = users.map(u => {
+            const customerData = (customers || []).find(c => c.email?.toLowerCase() === u.email?.toLowerCase()) || {};
+            const userOrders = (orders || []).filter(o => o.user_email?.toLowerCase() === u.email?.toLowerCase()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            return {
+                ...u,
+                customer_id: customerData.id,
+                points: customerData.points || 0,
+                tier: customerData.tier || 'Silver',
+                phone: customerData.phone || '',
+                address: [customerData.address_street, customerData.address_city].filter(Boolean).join(', ') || '',
+                dob: 'N/A',
+                total_spent: userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0),
+                orders_count: userOrders.length,
+                recent_orders: userOrders.slice(0, 3)
+            };
+        });
+
+        return NextResponse.json({ success: true, users: enrichedUsers });
     } catch (error) {
         console.error("Admin Users GET Error:", error.message);
         return NextResponse.json({ success: false, error: 'Failed to fetch users' }, { status: 500 });

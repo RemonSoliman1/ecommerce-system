@@ -6,6 +6,7 @@ export default function AdminPromoCodes() {
     const [promotions, setPromotions] = useState([]);
     
     // New Promo State
+    const [editingId, setEditingId] = useState(null);
     const [code, setCode] = useState('');
     const [discountType, setDiscountType] = useState('percentage');
     const [discountValue, setDiscountValue] = useState('');
@@ -28,8 +29,15 @@ export default function AdminPromoCodes() {
     const [targetIds, setTargetIds] = useState([]); // Support multiple targets
     const [customerTargetType, setCustomerTargetType] = useState('all'); // all, specific, vip
     const [customerEmails, setCustomerEmails] = useState([]);
+    const [customerTargetTiers, setCustomerTargetTiers] = useState([]);
     const [targetSearch, setTargetSearch] = useState('');
     const [customerSearch, setCustomerSearch] = useState('');
+    
+    const VIP_TIERS = [
+        { id: 'Silver', name: 'Silver (0-999)' },
+        { id: 'Gold', name: 'Gold (1000-4999)' },
+        { id: 'Platinum', name: 'Platinum (5000+)' }
+    ];
     
     // Data for dropdowns
     const [products, setProducts] = useState([]);
@@ -79,50 +87,114 @@ export default function AdminPromoCodes() {
         setStatus('Saving...');
 
         try {
+            const bodyPayload = {
+                code: code.toUpperCase(),
+                discount_type: discountType,
+                discount_value: parseFloat(discountValue),
+                max_discount_value: maxDiscountValue ? parseFloat(maxDiscountValue) : null,
+                target_type: targetType,
+                target_id: targetType === 'all' ? null : targetIds.join(','),
+                customer_email: customerTargetType === 'vip' ? (customerTargetTiers.length > 0 ? `[VIP:${customerTargetTiers.join(',')}]` : '[VIP]') : (customerTargetType === 'specific' && customerEmails.length > 0 ? customerEmails.join(',') : null),
+                usage_limit: enableUsageLimit && usageLimit ? parseInt(usageLimit) : null,
+                rule_first_order: ruleFirstOrder,
+                rule_one_time_use: ruleOneTimeUse,
+                rule_min_order_amount: enableMinOrder && minOrderAmount ? parseFloat(minOrderAmount) : null,
+                rule_min_quantity: enableMinQuantity && minQuantity ? parseInt(minQuantity) : null,
+                rule_payment_methods: enablePaymentRestriction && paymentMethods.length > 0 ? paymentMethods.join(',') : null,
+                active: true
+            };
+            if (editingId) {
+                bodyPayload.id = editingId;
+            }
+
             const res = await fetch('/api/admin/promos', {
-                method: 'POST',
+                method: editingId ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
-                body: JSON.stringify({
-                    code: code.toUpperCase(),
-                    discount_type: discountType,
-                    discount_value: parseFloat(discountValue),
-                    max_discount_value: maxDiscountValue ? parseFloat(maxDiscountValue) : null,
-                    target_type: targetType,
-                    target_id: targetIds.length > 0 ? targetIds.join(',') : null,
-                    customer_email: customerTargetType === 'specific' && customerEmails.length > 0 ? customerEmails.join(',') : null,
-                    usage_limit: enableUsageLimit && usageLimit ? parseInt(usageLimit) : null,
-                    rule_first_order: ruleFirstOrder,
-                    rule_one_time_use: ruleOneTimeUse,
-                    rule_min_order_amount: enableMinOrder && minOrderAmount ? parseFloat(minOrderAmount) : null,
-                    rule_min_quantity: enableMinQuantity && minQuantity ? parseInt(minQuantity) : null,
-                    rule_payment_methods: enablePaymentRestriction && paymentMethods.length > 0 ? paymentMethods.join(',') : null,
-                    active: true
-                })
+                body: JSON.stringify(bodyPayload)
             });
 
             const data = await res.json();
             if (data.success) {
-                setStatus('Success! Promo code created.');
+                setStatus(`Success! Promo code ${editingId ? 'updated' : 'created'}.`);
                 fetchPromos();
-                setCode('');
-                setDiscountValue('');
-                setMaxDiscountValue('');
-                setUsageLimit('');
-                setRuleFirstOrder(false);
-                setRuleOneTimeUse(false);
-                setEnableUsageLimit(false);
-                setEnableMinOrder(false);
-                setMinOrderAmount('');
-                setEnableMinQuantity(false);
-                setMinQuantity('');
-                setEnablePaymentRestriction(false);
-                setPaymentMethods([]);
+                cancelEdit();
             } else {
                 setStatus(`Error: ${data.error}`);
             }
         } catch (err) {
             setStatus('An unexpected error occurred.');
         }
+    };
+
+    const handleToggleActive = async (id, currentActive) => {
+        try {
+            await fetch('/api/admin/promos', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
+                body: JSON.stringify({ id, active: !currentActive })
+            });
+            fetchPromos();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handleEdit = (promo) => {
+        setEditingId(promo.id);
+        setCode(promo.code);
+        setDiscountType(promo.discount_type);
+        setDiscountValue(promo.discount_value);
+        setMaxDiscountValue(promo.max_discount_value || '');
+        setTargetType(promo.target_type);
+        setTargetIds(promo.target_id ? promo.target_id.split(',') : []);
+        if (promo.customer_email?.startsWith('[VIP')) {
+            setCustomerTargetType('vip');
+            setCustomerEmails([]);
+            const match = promo.customer_email.match(/\[VIP:(.+)\]/);
+            if (match) {
+                setCustomerTargetTiers(match[1].split(','));
+            } else {
+                setCustomerTargetTiers([]);
+            }
+        } else if (promo.customer_email) {
+            setCustomerTargetType('specific');
+            setCustomerEmails(promo.customer_email.split(','));
+        } else {
+            setCustomerTargetType('all');
+            setCustomerEmails([]);
+        }
+        setEnableUsageLimit(!!promo.usage_limit);
+        setUsageLimit(promo.usage_limit || '');
+        setRuleFirstOrder(promo.rule_first_order);
+        setRuleOneTimeUse(promo.rule_one_time_use);
+        setEnableMinOrder(!!promo.rule_min_order_amount);
+        setMinOrderAmount(promo.rule_min_order_amount || '');
+        setEnableMinQuantity(!!promo.rule_min_quantity);
+        setMinQuantity(promo.rule_min_quantity || '');
+        setEnablePaymentRestriction(!!promo.rule_payment_methods);
+        setPaymentMethods(promo.rule_payment_methods ? promo.rule_payment_methods.split(',') : []);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setCode('');
+        setDiscountValue('');
+        setMaxDiscountValue('');
+        setUsageLimit('');
+        setRuleFirstOrder(false);
+        setRuleOneTimeUse(false);
+        setEnableUsageLimit(false);
+        setEnableMinOrder(false);
+        setMinOrderAmount('');
+        setEnableMinQuantity(false);
+        setMinQuantity('');
+        setEnablePaymentRestriction(false);
+        setPaymentMethods([]);
+        setTargetType('all');
+        setTargetIds([]);
+        setCustomerTargetType('all');
+        setCustomerEmails([]);
     };
 
     const handleDelete = async (id) => {
@@ -161,7 +233,9 @@ export default function AdminPromoCodes() {
             </p>
 
             <form onSubmit={handleCreatePromo} style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '12px', border: '1px solid #333', marginBottom: '3rem' }}>
-                <h3 style={{ color: '#fff', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Create New Promo Code</h3>
+                <h3 style={{ color: '#fff', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>
+                    {editingId ? 'Edit Promo Code' : 'Create New Promo Code'}
+                </h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
@@ -335,8 +409,31 @@ export default function AdminPromoCodes() {
                     <h4 style={{ color: '#D4AF37', marginBottom: '1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Customer Targeting</h4>
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                         <label><input type="radio" checked={customerTargetType === 'all'} onChange={() => setCustomerTargetType('all')} /> Anyone can use this code</label>
+                        <label><input type="radio" checked={customerTargetType === 'vip'} onChange={() => setCustomerTargetType('vip')} /> VIP / Loyal Only</label>
                         <label><input type="radio" checked={customerTargetType === 'specific'} onChange={() => setCustomerTargetType('specific')} /> Specific Customer(s)</label>
                     </div>
+
+                    {customerTargetType === 'vip' && (
+                        <div style={{ maxHeight: '250px', overflowX: 'hidden', overflowY: 'auto', background: '#222', border: '1px solid #333', borderRadius: '4px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1rem' }}>
+                            {VIP_TIERS.map(t => (
+                                <label key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', width: '100%', padding: '12px 16px', cursor: 'pointer', background: customerTargetTiers.includes(t.id) ? 'rgba(197, 163, 92, 0.2)' : 'transparent', borderBottom: '1px solid #444', fontSize: '0.9rem' }}>
+                                    <span style={{ textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#fff' }}>{t.name}</span>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={customerTargetTiers.includes(t.id)} 
+                                        onChange={() => {
+                                            if (customerTargetTiers.includes(t.id)) {
+                                                setCustomerTargetTiers(customerTargetTiers.filter(id => id !== t.id));
+                                            } else {
+                                                setCustomerTargetTiers([...customerTargetTiers, t.id]);
+                                            }
+                                        }}
+                                        style={{ justifySelf: 'end', cursor: 'pointer', transform: 'scale(1.2)' }}
+                                    />
+                                </label>
+                            ))}
+                        </div>
+                    )}
 
                     {customerTargetType === 'specific' && (
                         <div>
@@ -364,9 +461,16 @@ export default function AdminPromoCodes() {
                     )}
                 </div>
 
-                <button type="submit" style={{ marginTop: '1rem', padding: '1rem 2rem', background: 'var(--color-accent)', color: '#120C0A', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-                    Create Promo Code
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button type="submit" style={{ padding: '1rem 2rem', background: 'var(--color-accent)', color: '#120C0A', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        {editingId ? 'Update Promo Code' : 'Create Promo Code'}
+                    </button>
+                    {editingId && (
+                        <button type="button" onClick={cancelEdit} style={{ padding: '1rem 2rem', background: 'transparent', color: '#fff', border: '1px solid #555', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                            Cancel Edit
+                        </button>
+                    )}
+                </div>
 
                 {status && <div style={{ marginTop: '1rem', color: status.includes('Error') ? 'red' : '#00ff00' }}>{status}</div>}
             </form>
@@ -397,6 +501,12 @@ export default function AdminPromoCodes() {
                                     </td>
                                     <td style={{ padding: '1rem' }}>
                                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                            <button onClick={(e) => { e.stopPropagation(); handleToggleActive(promo.id, promo.active); }} style={{ background: promo.active ? 'rgba(0, 255, 0, 0.1)' : 'rgba(255, 0, 0, 0.1)', color: promo.active ? '#0f0' : '#f00', border: `1px solid ${promo.active ? '#0f0' : '#f00'}`, padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }} title="Toggle Active">
+                                                {promo.active ? 'Active' : 'Disabled'}
+                                            </button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(promo); }} style={{ background: '#333', color: '#fff', border: '1px solid #555', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }} title="Edit">
+                                                Edit
+                                            </button>
                                             <button onClick={(e) => { e.stopPropagation(); handleExport(promo.code); }} style={{ background: '#333', color: '#fff', border: '1px solid #555', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }} title="Export Usage Data">
                                                 Export
                                             </button>

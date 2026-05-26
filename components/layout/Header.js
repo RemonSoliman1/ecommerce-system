@@ -16,7 +16,7 @@ export default function Header() {
     const { isTelegram } = useTelegram();
     const pathname = usePathname();
     const router = useRouter();
-    const { cart, updateQuantity, removeFromCart } = useCart();
+    const { cart, updateQuantity, removeFromCart, cartSubtotal, cartTotal, discountAmount, promoCode } = useCart();
     const { user } = useAuth();
     const { products, visibleProducts, brands: BRANDS } = useProducts(); // usage
     const [isHovered, setIsHovered] = useState(false); // Restored
@@ -285,9 +285,21 @@ export default function Header() {
                                                     </li>
                                                 ))}
                                             </ul>
-                                            <div className={styles.total}>
-                                                <span>{t('total')}</span>
-                                                <span>EGP {cart.reduce((t, i) => t + (i.price * i.quantity), 0).toFixed(2)}</span>
+                                            {discountAmount > 0 && (
+                                                <div className={styles.total} style={{ paddingBottom: '5px' }}>
+                                                    <span>{t('subtotal') || 'Subtotal'}</span>
+                                                    <span>EGP {cartSubtotal?.toFixed(2) || '0.00'}</span>
+                                                </div>
+                                            )}
+                                            {discountAmount > 0 && (
+                                                <div className={styles.total} style={{ color: '#4CAF50', borderTop: 'none', paddingTop: 0, paddingBottom: '5px' }}>
+                                                    <span>Discount {promoCode ? `(${promoCode})` : ''}</span>
+                                                    <span>- EGP {discountAmount.toFixed(2)}</span>
+                                                </div>
+                                            )}
+                                            <div className={styles.total} style={{ borderTop: discountAmount > 0 ? 'none' : '1px solid var(--color-border)', paddingTop: discountAmount > 0 ? 0 : '15px' }}>
+                                                <span>{discountAmount > 0 ? t('total') : (t('subtotal') || 'Subtotal')}</span>
+                                                <span>EGP {cartTotal?.toFixed(2) || '0.00'}</span>
                                             </div>
                                             <Link href="/checkout" className={`btn ${styles.checkoutBtn}`}>
                                                 {t('checkout')}

@@ -28,7 +28,7 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null;
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { orderId } = body;
+        const { orderId, processedBy } = body;
 
         if (!orderId) {
             return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
@@ -51,7 +51,12 @@ export async function POST(request) {
         // 2. Update Database Record
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ status: 'Confirmed' })
+            .update({ 
+                status: 'Confirmed',
+                confirmed_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                processed_by: processedBy || 'admin'
+            })
             .eq('id', orderId);
 
         if (updateError) throw updateError;

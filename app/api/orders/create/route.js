@@ -168,6 +168,18 @@ export async function POST(request) {
             } catch (customerError) {
                 console.error('[API] Customer DB synchronization failed gracefully:', customerError.message);
             }
+
+            // Silent Lookup Hook for Telegram
+            if (telegramChatId && customerId) {
+                try {
+                    await supabaseAdmin
+                        .from('telegram_users')
+                        .update({ store_customer_id: customerId })
+                        .eq('telegram_id', telegramChatId);
+                } catch (tgHookError) {
+                    console.error('[API] Telegram Link Hook Error:', tgHookError.message);
+                }
+            }
             if (body.promoCode) {
                 // Ignore errors here to not block order placement
                 supabaseAdmin.rpc('increment_promo_usage', { p_code: body.promoCode }).catch(console.error);

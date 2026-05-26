@@ -8,6 +8,9 @@ import { Star } from 'lucide-react';
 // ... (comments)
 
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function ProductCard({ product }) {
     const startPrice = product.models?.[0]?.price || 0;
@@ -17,6 +20,23 @@ export default function ProductCard({ product }) {
     const [imgError, setImgError] = useState(false);
     const t = useTranslations('Product');
     const isOut = product.models?.every(m => parseInt(m.stock || 0) <= 0) ?? false;
+
+    const { user } = useAuth() || {};
+    const { showToast } = useToast() || {};
+    const { toggleWishlist, isInWishlist } = useWishlist() || {};
+
+    const handleNotifyMe = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!user) {
+            if (showToast) showToast("Please login to join the waitlist", "error");
+            return;
+        }
+        if (toggleWishlist && isInWishlist && !isInWishlist(product.id)) {
+            toggleWishlist(product);
+        }
+        if (showToast) showToast(t('notify_success') || "✅ Added to Waitlist! You will be notified as soon as this item is back in stock.", "success");
+    };
 
     return (
         <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative', display: 'block', textDecoration: 'none', color: 'inherit' }}>
@@ -39,7 +59,12 @@ export default function ProductCard({ product }) {
                     <div style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '1rem', fontFamily: 'var(--font-serif)', fontStyle: 'italic', textAlign: 'center' }}>
                         {product.strength ? `${product.strength} • ` : ''}{product.origin}
                     </div>
-                    <span className="btn" style={{ pointerEvents: 'none' }}>{isOut ? (t('notify_me') || 'Waitlist') : t('quick_view')}</span>
+                    <span 
+                        className={styles.quickViewBtn} 
+                        onClick={isOut ? handleNotifyMe : undefined}
+                    >
+                        {isOut ? (t('notify_me') || 'Waitlist') : t('quick_view')}
+                    </span>
                 </div>
 
                 <div style={{ width: '100%', height: '250px', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', filter: isOut ? 'grayscale(0.5)' : 'contrast(105%) saturate(110%)' }}>

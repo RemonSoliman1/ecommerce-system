@@ -67,8 +67,8 @@ export default function OrderCard({ order }) {
                     <h3 style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text)' }}>#{String(order.id).slice(0, 8).toUpperCase()}</h3>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.85rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</span>
-                    <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text)' }}>{new Date(order.date).toLocaleDateString()}</p>
+                    <span style={{ fontSize: '0.85rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px' }}>Date Placed</span>
+                    <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text)' }}>{new Date(order.date).toLocaleString()}</p>
                 </div>
             </div>
 
@@ -126,6 +126,46 @@ export default function OrderCard({ order }) {
                             </div>
                         ))}
                     </div>
+                    
+                    {/* Financial Summary */}
+                    <div style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '6px' }}>
+                        <h4 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Order Summary</h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                            <span>Subtotal</span>
+                            <span>EGP {items.reduce((acc, curr) => acc + (Number(curr.price || 0) * curr.quantity), 0).toFixed(2)}</span>
+                        </div>
+                        {order.promo_code && order.discount_amount > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#4CAF50' }}>
+                                <span>Discount ({order.promo_code})</span>
+                                <span>- EGP {Number(order.discount_amount).toFixed(2)}</span>
+                            </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                            <span>Shipping</span>
+                            <span>EGP {(Number(order.total) - items.reduce((acc, curr) => acc + (Number(curr.price || 0) * curr.quantity), 0) + Number(order.discount_amount || 0)).toFixed(2)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #333', fontWeight: 'bold' }}>
+                            <span>Total Paid</span>
+                            <span>EGP {Number(order.total).toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    {/* Audit Trail */}
+                    {(order.updated_at || order.confirmed_at || order.cancelled_at) && (
+                        <div style={{ marginTop: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '6px', border: '1px solid #333' }}>
+                            <h4 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Audit Trail</h4>
+                            {order.updated_at && (
+                                <p style={{ margin: '5px 0', fontSize: '0.85rem' }}><strong style={{ color: '#888' }}>Last Updated:</strong> {new Date(order.updated_at).toLocaleString()}</p>
+                            )}
+                            {order.confirmed_at && (
+                                <p style={{ margin: '5px 0', fontSize: '0.85rem', color: '#4CAF50' }}><strong style={{ color: '#888' }}>Confirmed On:</strong> {new Date(order.confirmed_at).toLocaleString()}</p>
+                            )}
+                            {order.cancelled_at && (
+                                <p style={{ margin: '5px 0', fontSize: '0.85rem', color: '#f44336' }}><strong style={{ color: '#888' }}>Cancelled On:</strong> {new Date(order.cancelled_at).toLocaleString()}</p>
+                            )}
+                        </div>
+                    )}
+
                     <button
                         onClick={handleReorder}
                         className="btn"

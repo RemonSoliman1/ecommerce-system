@@ -26,25 +26,33 @@ export async function GET(request) {
         // Fetch all orders descending by date
         const { data: orders, error } = await supabase
             .from('orders')
-            .select('*, order_items(*)')
+            .select('*, order_items(*), customers(address_street, address_city)')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
         // Map data to ensure consistency on the frontend
-        const mappedOrders = orders.map(o => ({
-            id: o.id,
-            userId: o.telegram_id ? `TG: ${o.telegram_id}` : (o.customer_id || o.user_id || 'N/A'),
-            userEmail: o.email || o.user_email || '',
-            date: o.created_at,
-            status: o.status || 'Pending',
-            total: o.total_price || o.total_amount || 0,
-            items: Array.isArray(o.order_items) ? o.order_items : (Array.isArray(o.items) ? o.items : []),
-            address: o.shipping_address || o.address || 'N/A',
-            paymentMethod: o.payment_method || 'N/A',
-            promoCode: o.promo_code || null,
-            discount: o.discount_amount || 0
-        }));
+        const mappedOrders = orders.map(o => {
+            const cust = o.customers || {};
+            const fullAddress = [cust.address_street, cust.address_city].filter(Boolean).join(', ');
+            return {
+                id: o.id,
+                userId: o.telegram_id ? `TG: ${o.telegram_id}` : (o.customer_id || o.user_id || 'N/A'),
+                userEmail: o.email || o.user_email || '',
+                date: o.created_at,
+                updated_at: o.updated_at,
+                confirmed_at: o.confirmed_at,
+                cancelled_at: o.cancelled_at,
+                processed_by: o.processed_by,
+                status: o.status || 'Pending',
+                total: o.total_price || o.total_amount || 0,
+                items: Array.isArray(o.order_items) ? o.order_items : (Array.isArray(o.items) ? o.items : []),
+                address: fullAddress || o.shipping_address || o.address || 'N/A',
+                paymentMethod: o.payment_method || 'N/A',
+                promoCode: o.promo_code || null,
+                discount: o.discount_amount || 0
+            };
+        });
 
         return NextResponse.json({ success: true, orders: mappedOrders });
     } catch (error) {

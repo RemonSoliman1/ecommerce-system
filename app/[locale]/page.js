@@ -37,7 +37,7 @@ const ProductSimpleCard = ({ product, activePromos = [] }) => {
     <Link href={`/product/${product.id}`} className={styles.simpleCard} style={{ position: 'relative' }}>
       {(hasDiscount || hasPromo) && (
         <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ff4d4d', color: 'white', padding: '4px 8px', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px', zIndex: 2 }}>
-          {hasDiscount ? 'SALE' : 'PROMO'}
+          {hasDiscount && hasPromo ? 'SALE + PROMO' : (hasDiscount ? 'SALE' : 'PROMO')}
         </div>
       )}
       {isOutOfStock ? (

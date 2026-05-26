@@ -127,6 +127,7 @@ export default function AdminPage() {
     const [orderStatusFilter, setOrderStatusFilter] = useState('All');
     const [orderDateFilter, setOrderDateFilter] = useState('');
     const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [expandedUserId, setExpandedUserId] = useState(null);
     const [confirmingOrder, setConfirmingOrder] = useState(null);
     const [formData, setFormData] = useState({
         id: '',
@@ -294,12 +295,20 @@ export default function AdminPage() {
             const res = await fetch('/api/admin/orders/confirm', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId })
+                body: JSON.stringify({ orderId, processedBy: user?.email?.split('@')[0] || 'admin' })
             });
             const data = await res.json();
             if (data.success) {
                 alert('Order confirmed and email sent!');
-                setAdminOrders(adminOrders.map(o => o.id === orderId ? { ...o, status: 'Confirmed' } : o));
+                const timestamp = new Date().toISOString();
+                const processor = user?.email?.split('@')[0] || 'admin';
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { 
+                    ...o, 
+                    status: 'Confirmed',
+                    confirmed_at: timestamp,
+                    updated_at: timestamp,
+                    processed_by: processor
+                } : o));
             } else {
                 alert('Failed to confirm order: ' + (data.error || 'Unknown error'));
             }
@@ -317,12 +326,20 @@ export default function AdminPage() {
             const res = await fetch('/api/admin/orders/cancel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId })
+                body: JSON.stringify({ orderId, processedBy: user?.email?.split('@')[0] || 'admin' })
             });
             const data = await res.json();
             if (data.success) {
                 alert('Order cancelled and stock reverted successfully!');
-                setAdminOrders(adminOrders.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+                const timestamp = new Date().toISOString();
+                const processor = user?.email?.split('@')[0] || 'admin';
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { 
+                    ...o, 
+                    status: 'cancelled',
+                    cancelled_at: timestamp,
+                    updated_at: timestamp,
+                    processed_by: processor
+                } : o));
             } else {
                 alert('Failed to cancel order: ' + (data.error || 'Unknown error'));
             }
@@ -1910,16 +1927,22 @@ export default function AdminPage() {
                                                         onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
                                                     >
                                                         <td style={{ padding: '10px' }}>#{order.id}</td>
-                                                        <td style={{ padding: '10px', color: '#bbb' }}>{new Date(order.date).toLocaleDateString()}</td>
+                                                        <td style={{ padding: '10px', color: '#bbb' }}>
+                                                            <div>{new Date(order.date).toLocaleDateString()}</div>
+                                                            {order.updated_at && order.updated_at !== order.date && (
+                                                                <div style={{ fontSize: '0.8rem', marginTop: '4px' }}><span style={{color: '#888'}}>Upd:</span> {new Date(order.updated_at).toLocaleDateString()}</div>
+                                                            )}
+                                                        </td>
                                                         <td style={{ padding: '10px' }}>{order.userEmail}</td>
                                                         <td style={{ padding: '10px' }}>
                                                             <span style={{
-                                                                background: order.status === 'Pending' ? '#8a6d3b' : 'rgba(76, 175, 80, 0.2)',
-                                                                color: order.status === 'Pending' ? '#fff' : '#4CAF50',
+                                                                background: order.status.toLowerCase() === 'pending' ? 'rgba(212, 175, 55, 0.2)' : (order.status.toLowerCase() === 'cancelled' ? 'rgba(255, 0, 0, 0.1)' : 'rgba(76, 175, 80, 0.2)'),
+                                                                color: order.status.toLowerCase() === 'pending' ? '#d4af37' : (order.status.toLowerCase() === 'cancelled' ? '#ff4d4d' : '#4CAF50'),
                                                                 fontWeight: order.status === 'Pending' ? 'normal' : 'bold',
                                                                 padding: '2px 8px',
                                                                 borderRadius: '4px',
-                                                                fontSize: '0.8rem'
+                                                                fontSize: '0.8rem',
+                                                                textTransform: 'capitalize'
                                                             }}>
                                                                 {order.status}
                                                             </span>
@@ -1958,6 +1981,41 @@ export default function AdminPage() {
                                                                         <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Customer Details</h4>
                                                                         <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>ID:</strong> {order.userId || 'N/A'}</p>
                                                                         <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Email:</strong> {order.userEmail}</p>
+
+                                                                        <h4 style={{ color: 'var(--color-accent)', margin: '20px 0 10px 0' }}>Audit Trail</h4>
+                                                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', fontSize: '0.9rem', color: '#ccc' }}>
+                                                                            <li style={{ marginBottom: '5px' }}>
+                                                                                <strong style={{ color: '#888' }}>Placed:</strong> {new Date(order.date).toLocaleString()} by <span style={{color: '#fff'}}>Customer</span>
+                                                                            </li>
+                                                                            
+                                                                            {order.confirmed_at && (
+                                                                                <li style={{ marginBottom: '5px', color: '#4CAF50' }}>
+                                                                                    <strong style={{ color: '#888' }}>Confirmed:</strong> {new Date(order.confirmed_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
+                                                                                </li>
+                                                                            )}
+                                                                            {order.status.toLowerCase() === 'confirmed' && !order.confirmed_at && (
+                                                                                <li style={{ marginBottom: '5px', color: '#4CAF50' }}>
+                                                                                    <strong style={{ color: '#888' }}>Confirmed:</strong> <span>(Legacy record - timestamp missing)</span> by <span style={{color: '#fff'}}>Admin</span>
+                                                                                </li>
+                                                                            )}
+
+                                                                            {order.cancelled_at && (
+                                                                                <li style={{ marginBottom: '5px', color: '#ff4d4d' }}>
+                                                                                    <strong style={{ color: '#888' }}>Cancelled:</strong> {new Date(order.cancelled_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
+                                                                                </li>
+                                                                            )}
+                                                                            {order.status.toLowerCase() === 'cancelled' && !order.cancelled_at && (
+                                                                                <li style={{ marginBottom: '5px', color: '#ff4d4d' }}>
+                                                                                    <strong style={{ color: '#888' }}>Cancelled:</strong> <span>(Legacy record - timestamp missing)</span> by <span style={{color: '#fff'}}>Admin</span>
+                                                                                </li>
+                                                                            )}
+
+                                                                            {order.updated_at && !order.confirmed_at && !order.cancelled_at && (
+                                                                                <li style={{ marginBottom: '5px' }}>
+                                                                                    <strong style={{ color: '#888' }}>Last Edited:</strong> {new Date(order.updated_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
+                                                                                </li>
+                                                                            )}
+                                                                        </ul>
                                                                     </div>
                                                                     {(() => {
                                                                         const sub = order.items.reduce((acc, curr) => acc + (Number(curr.price || 0) * curr.quantity), 0);
@@ -2471,15 +2529,21 @@ export default function AdminPage() {
                                         </thead>
                                         <tbody>
                                             {adminUsers.map(u => (
-                                                <tr key={u.id}>
-                                                    <td>{u.name || 'N/A'}</td>
-                                                    <td>{u.email}</td>
-                                                    <td style={{ color: u.role === 'admin' ? 'var(--color-accent)' : '#fff', fontWeight: u.role === 'admin' ? 'bold' : 'normal' }}>
+                                                <React.Fragment key={u.id}>
+                                                <tr style={{ cursor: 'pointer', transition: 'background 0.2s', borderBottom: '1px solid #333' }}
+                                                    onClick={() => setExpandedUserId(expandedUserId === u.id ? null : u.id)}
+                                                    onMouseOver={(e) => e.currentTarget.style.background = '#2a2a2a'}
+                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <td style={{ padding: '10px' }}>{u.name || 'N/A'}</td>
+                                                    <td style={{ padding: '10px' }}>{u.email}</td>
+                                                    <td style={{ padding: '10px', color: u.role === 'admin' ? 'var(--color-accent)' : '#fff', fontWeight: u.role === 'admin' ? 'bold' : 'normal' }}>
                                                         {u.role === 'admin' ? 'Admin' : 'User'}
                                                     </td>
-                                                    <td>
+                                                    <td style={{ padding: '10px' }}>
                                                         <button
-                                                            onClick={async () => {
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
                                                                 const newRole = u.role === 'admin' ? 'user' : 'admin';
                                                                 if (!confirm(`Are you sure you want to change ${u.email} to ${newRole}?`)) return;
                                                                 try {
@@ -2494,8 +2558,8 @@ export default function AdminPage() {
                                                                     } else {
                                                                         alert('Failed to update role');
                                                                     }
-                                                                } catch (e) {
-                                                                    alert('Error updating role: ' + e.message);
+                                                                } catch (err) {
+                                                                    alert('Error updating role: ' + err.message);
                                                                 }
                                                             }}
                                                             style={{
@@ -2513,6 +2577,50 @@ export default function AdminPage() {
                                                         </button>
                                                     </td>
                                                 </tr>
+                                                {expandedUserId === u.id && (
+                                                    <tr style={{ background: '#111' }}>
+                                                        <td colSpan="4" style={{ padding: '20px', borderBottom: '1px solid #333' }}>
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                                                                <div>
+                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Customer Info</h4>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>ID:</strong> {u.customer_id || 'N/A'}</p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Phone:</strong> {u.phone || 'N/A'}</p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>DOB:</strong> {u.dob || 'N/A'}</p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Address:</strong> {u.address || 'N/A'}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Loyalty & Spending</h4>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Tier:</strong> <span style={{ color: u.tier === 'Platinum' ? '#e5e4e2' : u.tier === 'Gold' ? '#ffd700' : '#c0c0c0', fontWeight: 'bold' }}>{u.tier}</span></p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Points:</strong> {u.points?.toLocaleString() || 0}</p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Spent:</strong> EGP {u.total_spent?.toLocaleString() || 0}</p>
+                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Orders:</strong> {u.orders_count || 0}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Recent Orders</h4>
+                                                                    {u.recent_orders && u.recent_orders.length > 0 ? (
+                                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                                            {u.recent_orders.map(ro => (
+                                                                                <div key={ro.id} style={{ fontSize: '0.85rem', padding: '8px', background: '#222', borderRadius: '4px' }}>
+                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                                                                        <span>#{String(ro.id).substring(0, 8)}...</span>
+                                                                                        <span style={{ color: ro.status?.toLowerCase() === 'cancelled' ? '#ff4d4d' : ro.status?.toLowerCase() === 'pending' ? '#d4af37' : '#4CAF50' }}>{ro.status}</span>
+                                                                                    </div>
+                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
+                                                                                        <span>EGP {Number(ro.total_amount || 0).toLocaleString()}</span>
+                                                                                        <span>{new Date(ro.created_at).toLocaleDateString()}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p style={{ color: '#888' }}>No recent orders.</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                                </React.Fragment>
                                             ))}
                                         </tbody>
                                     </table>

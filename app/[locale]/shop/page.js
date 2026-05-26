@@ -22,7 +22,7 @@ const FLAVOR_CLUSTERS = {
 };
 
 function ShopContent() {
-    const { visibleProducts, products, brands: BRANDS, loading, autoHideStock } = useProducts(); // context usage
+    const { visibleProducts, products, brands: BRANDS, loading, autoHideStock, activePromos = [] } = useProducts(); // context usage
     const t = useTranslations('Shop');
     const tProduct = useTranslations('Product');
 
@@ -650,7 +650,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                 
                 {(hasDiscount || hasPromo) && (
                     <div style={{ position: 'absolute', top: '60px', right: '10px', background: '#ff4d4d', color: 'white', padding: '4px 8px', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px', zIndex: 10 }}>
-                        {hasDiscount ? 'SALE' : 'PROMO'}
+                        {hasDiscount && hasPromo ? 'SALE + PROMO' : (hasDiscount ? 'SALE' : 'PROMO')}
                     </div>
                 )}
                 <div className={styles.overlay}>

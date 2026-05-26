@@ -8,6 +8,7 @@
         "nav_cart": "السلة",
         "cart_empty": "سلة المشتريات فارغة.",
         "checkout": "إتمام الشراء",
+        "subtotal": "المجموع الفرعي",
         "total": "الإجمالي",
         "search_label": "ابحث في المرطب...",
         "lang_label": "اللغة",
@@ -53,8 +54,10 @@
         "shop_now": "تسوق الآن",
         "new_arrivals": "وصل حديثاً",
         "explore": "استكشف",
-        "all_products": "كل المنتجات",
-        "sponsored_by": "برعاية"
+        "all_products": "جميع المنتجات",
+        "sponsored_by": "برعاية",
+        "special_offers": "عروض خاصة",
+        "promotions": "عروض ترويجية"
     },
     "Shop": {
         "title": "مجموعتنا",
@@ -94,6 +97,7 @@
         "out_of_stock": "نفدت الكمية",
         "sold_out": "مباع بالكامل",
         "notify_me": "أعلمني عند التوفر",
+        "notify_success": "✅ تم إضافتك لقائمة الانتظار! سنقوم بإخطارك بمجرد توفر هذا المنتج.",
         "from": "يبدأ من",
         "view_details": "عرض التفاصيل",
         "add_to_cart": "أضف للسلة",

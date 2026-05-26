@@ -23,6 +23,60 @@ export function CartProvider({ children }) {
         }
     }, []);
 
+    const [promoCode, setPromoCode] = useState(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
+
+    // Sync Promo from LocalStorage
+    useEffect(() => {
+        const checkPromo = () => {
+            const saved = localStorage.getItem('pending_promo_code');
+            if (saved !== promoCode) setPromoCode(saved);
+        };
+        checkPromo();
+        window.addEventListener('storage', checkPromo); // Sync across tabs/modals
+        // Polling interval to catch local storage changes in the same tab if events aren't firing
+        const interval = setInterval(checkPromo, 1000);
+        return () => {
+            window.removeEventListener('storage', checkPromo);
+            clearInterval(interval);
+        };
+    }, [promoCode]);
+
+    // Validate Promo against Current Cart
+    useEffect(() => {
+        if (!promoCode || cart.length === 0) {
+            setDiscountAmount(0);
+            return;
+        }
+
+        const validatePromo = async () => {
+            try {
+                const subtotal = cart.reduce((total, item) => total + (item.price + (item.giftOption ? item.giftOption.price : 0)) * item.quantity, 0);
+                const res = await fetch('/api/promotions/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        code: promoCode,
+                        cart: cart,
+                        cartTotal: subtotal,
+                        email: null, 
+                        paymentMethod: null
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.discountAmount !== undefined) {
+                    setDiscountAmount(data.discountAmount);
+                } else {
+                    setDiscountAmount(0);
+                }
+            } catch (e) {
+                setDiscountAmount(0);
+            }
+        };
+
+        validatePromo();
+    }, [cart, promoCode]);
+
     // Live Inventory Auto-Crush Validation
     useEffect(() => {
         if (products && products.length > 0 && cart.length > 0) {
@@ -62,10 +116,11 @@ export function CartProvider({ children }) {
     }, [products]);
 
     // Derived state (calculated on render, no need for separate state or redeclaration)
-    const cartTotal = cart.reduce((total, item) => {
+    const cartSubtotal = cart.reduce((total, item) => {
         const itemTotal = (item.price + (item.giftOption ? item.giftOption.price : 0)) * item.quantity;
         return total + itemTotal;
     }, 0);
+    const cartTotal = Math.max(0, cartSubtotal - discountAmount);
 
     // Sync with Telegram MainButton
     useEffect(() => {
@@ -189,6 +244,9 @@ export function CartProvider({ children }) {
             removeFromCart,
             updateQuantity,
             cartTotal,
+            cartSubtotal,
+            discountAmount,
+            promoCode,
             cartCount,
             isOpen,
             setIsOpen,

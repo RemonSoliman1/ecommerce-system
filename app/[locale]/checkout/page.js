@@ -12,7 +12,7 @@ import { useTelegram } from '@/context/TelegramContext';
 import { Lock, CreditCard, Banknote, Smartphone, ShieldCheck } from 'lucide-react';
 
 export default function CheckoutPage() {
-    const { cart, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
+    const { cart, cartSubtotal, removeFromCart, updateQuantity, clearCart } = useCart();
     const { refreshProducts } = useProducts();
     const { user } = useAuth();
     const { user: tgUser, isTelegram, webApp } = useTelegram(); // Get TG user
@@ -35,6 +35,9 @@ export default function CheckoutPage() {
         if (!promoCode) return;
         setIsValidatingPromo(true);
         setPromoError('');
+        setAppliedPromo(null);
+        setDiscountAmount(0);
+        localStorage.removeItem('pending_promo_code');
         try {
             const res = await fetch('/api/promotions/validate', {
                 method: 'POST',
@@ -42,7 +45,7 @@ export default function CheckoutPage() {
                 body: JSON.stringify({ 
                     code: promoCode,
                     cart: cart,
-                    cartTotal: cartTotal,
+                    cartTotal: cartSubtotal,
                     email: address.email || user?.email,
                     paymentMethod: paymentMethod
                 })
@@ -51,9 +54,11 @@ export default function CheckoutPage() {
             if (data.success && data.promo) {
                 setAppliedPromo(data.promo);
                 setDiscountAmount(data.discountAmount);
+                localStorage.setItem('pending_promo_code', data.promo.code);
                 showToast(`Promo ${data.promo.code} applied!`, 'success');
             } else {
                 setPromoError(data.error || 'Invalid promo code');
+                localStorage.removeItem('pending_promo_code');
             }
         } catch (e) {
             setPromoError('Failed to validate promo');
@@ -64,7 +69,7 @@ export default function CheckoutPage() {
     // Auto-apply promo from Product Page
     useEffect(() => {
         const pendingPromo = localStorage.getItem('pending_promo_code');
-        if (pendingPromo && cartTotal > 0) {
+        if (pendingPromo && cartSubtotal > 0 && !appliedPromo && !isValidatingPromo) {
             setPromoCode(pendingPromo);
             // We can't immediately call handleApplyPromo because it relies on state that might not be fully synced in the closure,
             // but since cartTotal is a prop/context it should be fine. However, we need to pass the code directly.
@@ -77,7 +82,7 @@ export default function CheckoutPage() {
                         body: JSON.stringify({ 
                             code: pendingPromo,
                             cart: cart,
-                            cartTotal: cartTotal,
+                            cartTotal: cartSubtotal,
                             email: address.email || user?.email,
                             paymentMethod: paymentMethod
                         })
@@ -87,7 +92,6 @@ export default function CheckoutPage() {
                         setAppliedPromo(data.promo);
                         setDiscountAmount(data.discountAmount);
                         showToast(`Promo ${data.promo.code} applied!`, 'success');
-                        localStorage.removeItem('pending_promo_code');
                     }
                 } catch (e) {
                     // Ignore errors on auto-apply
@@ -96,7 +100,7 @@ export default function CheckoutPage() {
             };
             applyPending();
         }
-    }, [cartTotal, cart.length, user]);
+    }, [cartSubtotal, cart.length, user]);
 
     // Transfer States (InstaPay/Vodafone)
     const [transferRef, setTransferRef] = useState('');
@@ -314,7 +318,7 @@ export default function CheckoutPage() {
             const refinedOrder = {
                 orderId: tempId,
                 items: cart,
-                total: Math.max(0, cartTotal - discountAmount) + shippingCost,
+                total: Math.max(0, cartSubtotal - discountAmount) + shippingCost,
                 discount: discountAmount,
                 promoCode: appliedPromo?.code || null,
                 customer: address,
@@ -354,6 +358,7 @@ export default function CheckoutPage() {
 
             setIsProcessing(false);
             clearCart(); // Now safe to clear
+            localStorage.removeItem('pending_promo_code'); // Remove promo after successful checkout
             refreshProducts(); // Blast the Global caching context to synchronize inventory with Supabase Backend
             setStep(3); // Success
 
@@ -681,7 +686,7 @@ export default function CheckoutPage() {
                         <h3>{t('summary')}</h3>
                         <div className={styles.summaryRow}>
                             <span>{t('subtotal')}</span>
-                            <span>EGP {cartTotal.toFixed(2)}</span>
+                            <span>EGP {cartSubtotal.toFixed(2)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>{t('shipping_est')}</span>
@@ -713,7 +718,7 @@ export default function CheckoutPage() {
                             {appliedPromo && (
                                 <div style={{ color: '#00ff00', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
                                     <span>Applied: {appliedPromo.code}</span>
-                                    <button onClick={() => { setAppliedPromo(null); setDiscountAmount(0); setPromoCode(''); }} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
+                                    <button onClick={() => { setAppliedPromo(null); setDiscountAmount(0); setPromoCode(''); localStorage.removeItem('pending_promo_code'); }} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
                                 </div>
                             )}
                         </div>
@@ -729,8 +734,8 @@ export default function CheckoutPage() {
                             <span>{t('total')}</span>
                             <span>
                                 {!address.city ?
-                                    `EGP ${Math.max(0, cartTotal - discountAmount).toFixed(2)} + Ship` :
-                                    `EGP ${(Math.max(0, cartTotal - discountAmount) + (address.city.toLowerCase().includes('cairo') ? 50 : 100)).toFixed(2)}`}
+                                    `EGP ${Math.max(0, cartSubtotal - discountAmount).toFixed(2)} + Ship` :
+                                    `EGP ${(Math.max(0, cartSubtotal - discountAmount) + (address.city.toLowerCase().includes('cairo') ? 50 : 100)).toFixed(2)}`}
                             </span>
                         </div>
 
