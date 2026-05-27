@@ -398,6 +398,7 @@ export default function Header() {
                             </div>
                         </div>
                         <Link href="/about" className={styles.link}>HERITAGE</Link>
+                        <Link href="/guide" className={styles.link}>GUIDE</Link>
                     </div>
                 </div>
             </nav>
@@ -434,6 +435,7 @@ export default function Header() {
                             <Link href="/shop?type=sampler" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>SAMPLERS</Link>
                             <Link href="/shop?type=accessory" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>ACCESSORIES</Link>
                             <Link href="/about" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>HERITAGE</Link>
+                            <Link href="/guide" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>USER GUIDE</Link>
                             <button className={styles.mobilemylink} onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} style={{width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer'}}>CUSTOMER SERVICE</button>
                         </div>
                     ) : (

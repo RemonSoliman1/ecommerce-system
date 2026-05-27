@@ -484,6 +484,35 @@ bot.on('text', async (ctx) => {
                         return;
                     }
 
+                    if (command === '/del' || command === '/delete') {
+                        if (ctx.message.reply_to_message) {
+                            const targetHubMsgId = ctx.message.reply_to_message.message_id;
+                            
+                            // Look up mapping to delete from customer
+                            const { data: mapping } = await supabase.from('message_mappings')
+                                .select('customer_message_id')
+                                .eq('hub_message_id', targetHubMsgId)
+                                .single();
+                            
+                            if (mapping) {
+                                try {
+                                    await bot.telegram.deleteMessage(customer.telegram_id, mapping.customer_message_id);
+                                } catch (e) {
+                                    console.error("Silent Delete failed on customer:", e.message);
+                                }
+                            }
+
+                            // Clean up Hub (delete the target message AND the /del command)
+                            try {
+                                await bot.telegram.deleteMessage(ctx.message.chat.id, targetHubMsgId);
+                                await bot.telegram.deleteMessage(ctx.message.chat.id, ctx.message.message_id);
+                            } catch (e) {}
+                        } else {
+                            await bot.telegram.sendMessage(ctx.message.chat.id, `❌ You must REPLY to a message with /del to delete it.`, { message_thread_id: threadId });
+                        }
+                        return;
+                    }
+
                     if (command === '/admin_help') {
                         const helpText = `🛠️ Admin Command Cheat Sheet\n/end-chat (or /end) - Closes the live chat and returns the customer to bot mode.\n/rename [name] - Changes the name of this specific topic.\n/toggle_logs - Pauses or resumes the silent bot activity logs for this user.\n/admin_help - Generates this pinned cheat sheet.`;
                         try {
@@ -512,7 +541,9 @@ bot.on('text', async (ctx) => {
                 .single();
 
             if (customer && customer.telegram_id) {
-                await bot.telegram.sendMessage(customer.telegram_id, text);
+                const fwd = await bot.telegram.copyMessage(customer.telegram_id, ctx.message.chat.id, ctx.message.message_id);
+                // Map the admin's reply
+                await logMessage(customer.telegram_id, 'admin', ctx.message.text || ctx.message.caption || '[Media]', ctx.message.message_id, fwd.message_id);
             }
         } catch (e) {
             console.error("Failed to route Admin reply back through Forum parameter:", e);
@@ -577,6 +608,53 @@ bot.on('text', async (ctx) => {
 // Generic Catch
 bot.catch((err, ctx) => {
     console.error(`Error processing webhook update for ${ctx.updateType}`, err);
+});
+
+// The Two-Way Edit Synchronization Engine
+bot.on('edited_message', async (ctx) => {
+    const isHub = ctx.editedMessage.chat.id.toString() === ADMIN_CHAT_ID;
+    const msgId = ctx.editedMessage.message_id;
+    const newText = ctx.editedMessage.text || ctx.editedMessage.caption || '';
+    
+    if (isHub) {
+        // ADMIN EDITED A MESSAGE -> Sync to Customer
+        const { data: mapping } = await supabase.from('message_mappings')
+            .select('customer_message_id, chat_logs!inner(telegram_user_id, id)')
+            .eq('hub_message_id', msgId)
+            .single();
+            
+        if (mapping && mapping.chat_logs && newText) {
+            try {
+                await bot.telegram.editMessageText(mapping.chat_logs.telegram_user_id, mapping.customer_message_id, null, newText);
+                await supabase.from('chat_logs').update({ message_text: newText }).eq('id', mapping.chat_logs.id);
+            } catch (e) {
+                console.error("Silent Edit failed on customer:", e.message);
+            }
+        }
+    } else {
+        // CUSTOMER EDITED A MESSAGE -> Alert Hub
+        const { data: mapping } = await supabase.from('message_mappings')
+            .select('hub_message_id, chat_log_id, chat_logs!inner(message_text)')
+            .eq('customer_message_id', msgId)
+            .single();
+            
+        if (mapping && mapping.chat_logs) {
+            const oldText = mapping.chat_logs.message_text;
+            const user = await getUserState(ctx.from.id);
+            
+            if (user && user.thread_id) {
+                const alertText = `⚠️ <b>Customer Edited Message</b>\n\n<b>OLD:</b> ${oldText || '[Media/No Text]'}\n<b>NEW:</b> ${newText || '[Media/No Text]'}`;
+                try {
+                    await bot.telegram.sendMessage(ADMIN_CHAT_ID, alertText, { 
+                        message_thread_id: user.thread_id,
+                        reply_to_message_id: mapping.hub_message_id,
+                        parse_mode: 'HTML'
+                    });
+                    await supabase.from('chat_logs').update({ message_text: newText }).eq('id', mapping.chat_log_id);
+                } catch (e) {}
+            }
+        }
+    }
 });
 
 // Edge Execution Wrappers
