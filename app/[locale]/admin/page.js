@@ -462,9 +462,12 @@ export default function AdminPage() {
         const { name, value } = e.target;
         setCurrentModel(prev => {
             const updated = { ...prev, [name]: value };
-            if (name === 'size' && !prev.dimensions) {
-                // Find a match case-insensitively
-                const key = Object.keys(DIM_MAP).find(k => k.toLowerCase() === value.trim().toLowerCase());
+            if (name === 'size') {
+                const val = value.trim().toLowerCase();
+                const key = Object.keys(DIM_MAP).find(k => {
+                    const kl = k.toLowerCase();
+                    return kl === val || (val.length >= 4 && kl.startsWith(val));
+                });
                 if (key) {
                     updated.dimensions = DIM_MAP[key];
                 }
