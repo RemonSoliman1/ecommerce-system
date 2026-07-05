@@ -62,7 +62,7 @@ export default function ProductCard({ product }) {
             
             {/* Dynamic Animated Badges */}
             {(() => {
-                const finalBadges = [...(product.badges || [])];
+                const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
                 if (hasDiscount && discountPercent > 0) finalBadges.push(`${discountPercent}% OFF`);
                 
                 if (finalBadges.length > 0) {

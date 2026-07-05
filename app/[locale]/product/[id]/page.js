@@ -386,7 +386,7 @@ export default function ProductPage({ params }) {
 
                                 {/* Dynamic Animated Badges */}
                                 {(() => {
-                                    const finalBadges = [...(product.badges || [])];
+                                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
                                     const selectedOriginalPrice = selectedModel?.original_price;
                                     const selectedHasDiscount = selectedOriginalPrice && selectedOriginalPrice > selectedModel?.price;
                                     const selectedDiscountPercent = selectedHasDiscount ? Math.round(((selectedOriginalPrice - selectedModel.price) / selectedOriginalPrice) * 100) : 0;

@@ -629,14 +629,15 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                 
                 {/* Dynamic Animated Badges */}
                 {(() => {
-                    const finalBadges = [...(product.badges || [])];
+                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
                     if (hasDiscount && discountPercent > 0) finalBadges.push(`${discountPercent}% OFF`);
+                    if (hasPromo) finalBadges.push('PROMO');
                     
                     if (finalBadges.length > 0) {
                         return (
                             <div style={{ position: 'absolute', top: '10px', right: product.rating ? '60px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
                                 {finalBadges.map((badge, idx) => {
-                                    const isDiscount = typeof badge === 'string' && badge.includes('% OFF');
+                                    const isDiscount = typeof badge === 'string' && (badge.includes('% OFF') || badge === 'PROMO');
                                     return (
                                         <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
                                             {badge}
@@ -648,12 +649,6 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                     }
                     return null;
                 })()}
-                
-                {(hasDiscount || hasPromo) && (
-                    <div style={{ position: 'absolute', top: '60px', right: '10px', background: '#ff4d4d', color: 'white', padding: '4px 8px', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px', zIndex: 10 }}>
-                        {hasDiscount && hasPromo ? 'SALE + PROMO' : (hasDiscount ? 'SALE' : 'PROMO')}
-                    </div>
-                )}
                 <div className={styles.overlay}>
                     <div className={styles.overlayContent}>
                         <span className={`${styles.quickViewBtn} tour-view-details-btn`}>{isOut ? (t('notify_me') || 'Waitlist') : t('view_details')}</span>
