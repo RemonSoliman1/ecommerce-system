@@ -42,8 +42,13 @@ export async function POST(request) {
         telegramText += `\n👉 View the full drop and pricing here: ${siteUrl}/shop`;
 
         // 4. Dispatch
-        // Non-blocking background call
-        broadcastTelegramMessage(telegramText, null).catch(err => console.error("Grouped broadcast failed:", err));
+        // Await the broadcast so Vercel doesn't terminate the process before it finishes
+        try {
+            await broadcastTelegramMessage(telegramText, null);
+        } catch (err) {
+            console.error("Grouped broadcast failed:", err);
+            return NextResponse.json({ success: false, error: 'Telegram timeout/failure', details: err.message }, { status: 500 });
+        }
 
         return NextResponse.json({ 
             success: true, 

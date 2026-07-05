@@ -28,59 +28,80 @@ export function PWAProvider({ children }) {
         <PWAContext.Provider value={{ ...pwa, showManualModal, setShowManualModal }}>
             {children}
             
-            {/* iOS Visual Guide Overlay */}
+            {/* iOS Visual Interactive Guide Overlay */}
             {pwa.showIOSGuide && (
                 <div style={{
                     position: 'fixed',
-                    bottom: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'rgba(18, 12, 10, 0.95)',
-                    color: '#D4AF37',
-                    padding: '20px',
-                    borderRadius: '12px',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(18, 12, 10, 0.9)',
                     zIndex: 9999,
-                    textAlign: 'center',
-                    border: '1px solid #D4AF37',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                    width: '90%',
-                    maxWidth: '400px'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    paddingBottom: '80px',
+                    animation: 'fadeIn 0.3s ease-out'
                 }}>
-                    <h3 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>Install CigarLounge</h3>
-                    <p style={{ margin: '0 0 15px 0', fontSize: '14px', color: '#fff' }}>
-                        To install this app on your iPhone:
-                    </p>
-                    <ol style={{ textAlign: 'left', color: '#fff', fontSize: '14px', marginBottom: '20px', paddingLeft: '20px' }}>
-                        <li>Tap the <strong>Share</strong> button <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign: 'middle'}}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> at the bottom of Safari.</li>
-                        <li>Scroll down and select <strong>"Add to Home Screen"</strong> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign: 'middle'}}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>.</li>
-                    </ol>
-                    <button 
-                        onClick={() => pwa.setShowIOSGuide(false)}
-                        style={{
-                            backgroundColor: '#D4AF37',
-                            color: '#120C0A',
-                            border: 'none',
-                            padding: '10px 20px',
-                            borderRadius: '4px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            width: '100%'
-                        }}
-                    >
-                        Got it!
-                    </button>
-                    {/* Arrow pointing down */}
+                    <style>{`
+                        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                        @keyframes bounceDown {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(10px); }
+                        }
+                    `}</style>
                     <div style={{
-                        position: 'absolute',
-                        bottom: '-15px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '0',
-                        height: '0',
-                        borderLeft: '15px solid transparent',
-                        borderRight: '15px solid transparent',
-                        borderTop: '15px solid #D4AF37'
-                    }}></div>
+                        backgroundColor: '#1a1a1a',
+                        color: '#fff',
+                        padding: '30px 20px',
+                        borderRadius: '16px',
+                        textAlign: 'center',
+                        border: '1px solid #D4AF37',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+                        width: '90%',
+                        maxWidth: '350px',
+                        position: 'relative'
+                    }}>
+                        <button 
+                            onClick={() => pwa.setShowIOSGuide(false)}
+                            style={{
+                                position: 'absolute', top: '10px', right: '15px',
+                                background: 'none', border: 'none', color: '#888',
+                                fontSize: '24px', cursor: 'pointer'
+                            }}
+                        >&times;</button>
+                        
+                        <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#D4AF37' }}>Install App</h3>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+                            <div style={{ background: '#2a2a2a', padding: '15px', borderRadius: '12px', width: '100%' }}>
+                                <p style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold' }}>1. Tap the Share button</p>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                            </div>
+                            
+                            <div style={{ background: '#2a2a2a', padding: '15px', borderRadius: '12px', width: '100%' }}>
+                                <p style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold' }}>2. Tap Add to Home Screen</p>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                            </div>
+                        </div>
+
+                        <p style={{ margin: '20px 0 0 0', fontSize: '14px', color: '#aaa' }}>
+                            Follow the arrow below to begin
+                        </p>
+                    </div>
+                    
+                    {/* Bouncing Arrow pointing to Safari Share button */}
+                    <div style={{
+                        marginTop: '30px',
+                        animation: 'bounceDown 1.5s infinite ease-in-out'
+                    }}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                    </div>
                 </div>
             )}
 

@@ -132,8 +132,8 @@ export async function POST(request) {
             try {
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
                 const telegramText = `🔥 NEW ARRIVAL: ${data.name}\n👉 Click to view details & price: ${siteUrl}/product/${data.id}`;
-                // Non-blocking background call
-                broadcastTelegramMessage(telegramText, data.image).catch(err => console.error("Telegram broadcast failed:", err));
+                // Await so Vercel doesn't kill it mid-flight
+                await broadcastTelegramMessage(telegramText, data.image);
             } catch (tgErr) {
                 console.error("New Arrival Telegram dispatch failed:", tgErr);
             }
