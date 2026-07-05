@@ -819,13 +819,7 @@ export default function AdminPage() {
 
     const handleSetMainImage = (url) => {
         setFormData(prev => {
-            const newImages = [...(prev.images || [])];
-            const idx = newImages.indexOf(url);
-            if (idx > -1) {
-                newImages.splice(idx, 1);
-                newImages.unshift(url);
-            }
-            return { ...prev, images: newImages, image: url };
+            return { ...prev, image: url };
         });
     };
 
@@ -947,7 +941,25 @@ export default function AdminPage() {
         products.forEach(processProduct);
         processProduct(formData);
 
-        const sortAlpha = (set) => [...set].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const deduplicate = (set) => {
+            const map = new Map();
+            for (const item of set) {
+                if (typeof item === 'string') {
+                    const lower = item.toLowerCase();
+                    if (!map.has(lower)) {
+                        map.set(lower, item);
+                    } else if (item && item[0] === item[0].toUpperCase() && map.get(lower)[0] !== map.get(lower)[0].toUpperCase()) {
+                        // Prefer Capitalized version
+                        map.set(lower, item);
+                    }
+                } else {
+                    map.set(item, item);
+                }
+            }
+            return Array.from(map.values());
+        };
+
+        const sortAlpha = (set) => deduplicate(set).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         return {
             customBrands,
@@ -1290,25 +1302,28 @@ export default function AdminPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
                                 {(formData.images || []).map((img, idx) => (
                                     <div key={idx} draggable onDragStart={() => handleImageDragStart(idx)} onDragOver={handleImageDragOver} onDrop={() => handleImageDrop(idx)} style={{ position: 'relative', border: formData.image === img ? '2px solid var(--color-accent)' : '1px solid #333', borderRadius: '4px', overflow: 'hidden', aspectRatio: '1/1', background: '#000', cursor: 'grab' }}>
-                                        <img
-                                            src={img}
-                                            alt={`Img ${idx}`}
-                                            style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
-                                            onClick={() => setPreviewImage(img)}
-                                        />
-                                        {/* Remove Button */}
-                                        <div style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.7)', padding: '2px', zIndex: 10 }}>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); handleRemoveImage(idx); }}
-                                                style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}
-                                            >
-                                                &times;
-                                            </button>
-                                        </div>
+                                        <img src={img} alt={`Img ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }} onClick={() => setPreviewImage(img)} />
+                                        
+                                        {/* Delete Badge */}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const newImages = [...formData.images];
+                                                newImages.splice(idx, 1);
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    images: newImages,
+                                                    image: prev.image === img ? newImages[0] || '' : prev.image
+                                                }));
+                                            }}
+                                            style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.7)', color: 'red', border: 'none', cursor: 'pointer', padding: '2px 5px', fontSize: '0.8rem' }}
+                                        >
+                                            X
+                                        </button>
 
-                                        {/* Controls Overlay */}
-                                        <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.8)', padding: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        {/* Bottom Action Bar */}
+                                        <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 4px', boxSizing: 'border-box' }}>
                                             {/* Reorder Left */}
                                             {idx > 0 && (
                                                 <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(idx, 'left'); }} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -1316,17 +1331,17 @@ export default function AdminPage() {
                                                 </button>
                                             )}
 
-                                            {/* Set Main Toggle */}
+                                            {/* Set Cover Toggle */}
                                             {formData.image !== img ? (
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); handleSetMainImage(img); }}
                                                     style={{ color: '#aaa', background: 'none', border: 'none', fontSize: '0.7rem', cursor: 'pointer' }}
                                                 >
-                                                    Set Main
+                                                    Set Cover
                                                 </button>
                                             ) : (
-                                                <span style={{ color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 'bold' }}>Main</span>
+                                                <span style={{ color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 'bold' }}>Cover</span>
                                             )}
 
                                             {/* Reorder Right */}
