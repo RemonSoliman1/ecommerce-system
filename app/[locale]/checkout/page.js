@@ -216,24 +216,22 @@ export default function CheckoutPage() {
     // Simple validation check
     const canProceedToPayment = address.name && address.street && address.city && address.phone && address.email;
 
+    // Global free shipping check
+    const hasFreeShippingItem = cart.some(item => {
+        const liveProduct = products?.find(p => p.id === item.id);
+        const badgesToCheck = liveProduct?.badges || item.badges || [];
+        return badgesToCheck.some(b => typeof b === 'string' && b.toLowerCase().replace(/\s+/g, '') === 'freeshipping');
+    });
+
+    const computedBaseShipping = !address.city ? null : (address.city.toLowerCase().includes('cairo') ? 50 : 100);
+
     const handleCalculateShipping = () => {
         if (!canProceedToPayment) {
             alert("Please fill in all address fields.");
             return;
         }
         
-        let cost = address.city.toLowerCase().includes('cairo') ? 50 : 100;
-        
-        // Free shipping override if any item in cart has "Free Shipping" badge
-        const hasFreeShippingItem = cart.some(item => {
-            const liveProduct = products?.find(p => p.id === item.id);
-            const badgesToCheck = liveProduct?.badges || item.badges || [];
-            return badgesToCheck.some(b => b.toLowerCase().replace(/\s+/g, '') === 'freeshipping');
-        });
-        
-        if (hasFreeShippingItem) cost = 0;
-
-        setShippingCost(cost);
+        setShippingCost(hasFreeShippingItem ? 0 : computedBaseShipping);
         setStep(2); // Move to Payment/Confirm
     };
 
@@ -732,8 +730,16 @@ export default function CheckoutPage() {
                         <div className={styles.summaryRow}>
                             <span>{t('shipping_est')}</span>
                             <span>
-                                {!address.city ? 'Enter City' :
-                                    (address.city.toLowerCase().includes('cairo') ? 'EGP 50.00' : 'EGP 100.00')}
+                                {computedBaseShipping === null ? 'Enter City' : (
+                                    hasFreeShippingItem ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>EGP {computedBaseShipping.toFixed(2)}</span>
+                                            <span style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>FREE</span>
+                                        </span>
+                                    ) : (
+                                        `EGP ${computedBaseShipping.toFixed(2)}`
+                                    )
+                                )}
                             </span>
                         </div>
                         
@@ -774,9 +780,9 @@ export default function CheckoutPage() {
                         <div className={styles.totalRow}>
                             <span>{t('total')}</span>
                             <span>
-                                {!address.city ?
+                                {computedBaseShipping === null ?
                                     `EGP ${Math.max(0, cartSubtotal - discountAmount).toFixed(2)} + Ship` :
-                                    `EGP ${(Math.max(0, cartSubtotal - discountAmount) + (address.city.toLowerCase().includes('cairo') ? 50 : 100)).toFixed(2)}`}
+                                    `EGP ${(Math.max(0, cartSubtotal - discountAmount) + (hasFreeShippingItem ? 0 : computedBaseShipping)).toFixed(2)}`}
                             </span>
                         </div>
 

@@ -1280,13 +1280,36 @@ export default function AdminPage() {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label>Product Badges (e.g., FREE Shipping, 40% OFF)</label>
+                            <label>Product Badges (e.g., Best Seller, Limited Edition)</label>
+                            
+                            {/* Smart Toggles */}
+                            <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', alignItems: 'center' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#fff', fontSize: '0.9rem' }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={(formData.badges || []).some(b => typeof b === 'string' && b.toLowerCase().replace(/\s+/g, '') === 'freeshipping')}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            setFormData(prev => {
+                                                let newBadges = (prev.badges || []).filter(b => typeof b !== 'string' || b.toLowerCase().replace(/\s+/g, '') !== 'freeshipping');
+                                                if (isChecked) {
+                                                    newBadges.push('Free Shipping');
+                                                }
+                                                return { ...prev, badges: newBadges };
+                                            });
+                                        }}
+                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                    />
+                                    🚀 Enable Free Shipping
+                                </label>
+                            </div>
+
                             <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                                 <input
                                     type="text"
                                     id="badgeInput"
                                     className={styles.input}
-                                    placeholder="Type a badge and click Add"
+                                    placeholder="Type a custom badge and click Add"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
