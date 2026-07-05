@@ -25,6 +25,8 @@ export default function ProductCard({ product }) {
     const { showToast } = useToast() || {};
     const { toggleWishlist, isInWishlist } = useWishlist() || {};
 
+    const isNewArrival = product.created_at ? (new Date() - new Date(product.created_at)) / (1000 * 60 * 60 * 24) <= 14 : false;
+
     const handleNotifyMe = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -40,11 +42,15 @@ export default function ProductCard({ product }) {
 
     return (
         <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative', display: 'block', textDecoration: 'none', color: 'inherit' }}>
-            {isOut && (
+            {isOut ? (
                 <div style={{ position: 'absolute', top: 10, left: 10, background: 'linear-gradient(135deg, rgba(208, 200, 185, 0.9), rgba(197, 163, 92, 0.9))', color: '#120C0A', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '2px', zIndex: 10, textTransform: 'uppercase', pointerEvents: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '1px' }}>
                     {t('sold_out') || 'Sold Out'}
                 </div>
-            )}
+            ) : isNewArrival ? (
+                <div style={{ position: 'absolute', top: 10, left: 10, background: 'linear-gradient(135deg, rgba(255, 77, 77, 0.9), rgba(200, 30, 30, 0.9))', color: '#fff', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '2px', zIndex: 10, textTransform: 'uppercase', pointerEvents: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '1px' }}>
+                    🔥 Just Arrived
+                </div>
+            ) : null}
             {product.rating && (
                 <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: '50%', width: '46px', height: '46px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#1a1a1a', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
                     <span style={{ fontSize: '0.45rem', fontWeight: 'bold', letterSpacing: '0.5px', marginBottom: '-2px' }}>RATED</span>
@@ -60,7 +66,7 @@ export default function ProductCard({ product }) {
                         {product.strength ? `${product.strength} • ` : ''}{product.origin}
                     </div>
                     <span 
-                        className={styles.quickViewBtn} 
+                        className={`${styles.quickViewBtn} tour-view-details-btn`} 
                         onClick={isOut ? handleNotifyMe : undefined}
                     >
                         {isOut ? (t('notify_me') || 'Waitlist') : t('quick_view')}

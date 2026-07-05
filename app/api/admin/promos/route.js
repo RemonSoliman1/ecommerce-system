@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { broadcastTelegramMessage } from '@/lib/telegram';
 
 export async function GET(request) {
     try {
@@ -36,6 +37,39 @@ export async function POST(request) {
         const { data, error } = await supabaseAdmin.from('promotions').insert([body]).select();
 
         if (error) throw error;
+
+        try {
+            if (data && data[0] && data[0].is_active) {
+                const promo = data[0];
+                // Only broadcast generic promos that are active
+                let promoText = `🎉 NEW EXCLUSIVE OFFER: ${promo.code}\n`;
+                if (promo.discount_type === 'percentage') {
+                    promoText += `Get ${promo.discount_value}% OFF`;
+                } else if (promo.discount_type === 'fixed') {
+                    promoText += `Get EGP ${promo.discount_value} OFF`;
+                } else if (promo.discount_type === 'points_multiplier') {
+                    promoText += `Earn ${promo.discount_value}x Points`;
+                } else if (promo.discount_type === 'free_shipping') {
+                    promoText += `Get FREE SHIPPING`;
+                }
+                
+                if (promo.min_order_value) {
+                    promoText += ` on orders over EGP ${promo.min_order_value}`;
+                }
+                
+                promoText += `!\n\n`;
+                if (promo.description) {
+                    promoText += `${promo.description}\n\n`;
+                }
+                
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
+                promoText += `👉 Shop Now: ${siteUrl}/shop`;
+                
+                broadcastTelegramMessage(promoText, null).catch(err => console.error("Promo broadcast failed:", err));
+            }
+        } catch (tgErr) {
+            console.error("Promo Telegram dispatch failed:", tgErr);
+        }
 
         return NextResponse.json({ success: true, promotion: data[0] });
     } catch (error) {

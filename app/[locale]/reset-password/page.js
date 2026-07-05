@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation'; // Use standard hook for params
 import { useRouter as useNavRouter } from '@/lib/navigation'; // Use our wrapper for push
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function ResetPasswordPage() {
     const router = useNavRouter();
     const searchParams = useSearchParams();
+    const t = useTranslations('Auth');
 
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
@@ -55,11 +57,11 @@ export default function ResetPasswordPage() {
     if (success) {
         return (
             <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem', textAlign: 'center' }}>
-                <h1 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>Password Changed!</h1>
-                <p>Your password has been updated successfully.</p>
-                <p>Redirecting to login...</p>
+                <h1 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>{t('password_changed')}</h1>
+                <p>{t('password_updated')}</p>
+                <p>{t('redirecting_login')}</p>
                 <p style={{ marginTop: '20px' }}>
-                    <Link href="/login" style={{ color: 'var(--color-accent)' }}>Click here if you are not redirected</Link>
+                    <Link href="/login" style={{ color: 'var(--color-accent)' }}>{t('click_if_not_redirected')}</Link>
                 </p>
             </div>
         );
@@ -67,13 +69,13 @@ export default function ResetPasswordPage() {
 
     return (
         <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem', textAlign: 'center' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>Reset Password</h1>
-            <p style={{ color: '#888', marginBottom: '2rem' }}>Enter the code sent to {email}</p>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>{t('reset_title')}</h1>
+            <p style={{ color: '#888', marginBottom: '2rem' }}>{t('reset_desc', { email })}</p>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                     type="email"
-                    placeholder="Email Address"
+                    placeholder={t('email_placeholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -86,7 +88,7 @@ export default function ResetPasswordPage() {
                 />
                 <input
                     type="text"
-                    placeholder="Verification Code (6-digits)"
+                    placeholder={t('code_placeholder_reset')}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     required
@@ -101,7 +103,7 @@ export default function ResetPasswordPage() {
                 <div style={{ position: 'relative' }}>
                     <input
                         type={showPassword ? "text" : "password"}
-                        placeholder="New Password"
+                        placeholder={t('new_password_placeholder')}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
@@ -127,7 +129,7 @@ export default function ResetPasswordPage() {
                             cursor: 'pointer'
                         }}
                     >
-                        {showPassword ? 'Hide' : 'Show'}
+                        {showPassword ? t('hide') : t('show')}
                     </button>
                 </div>
 
@@ -139,7 +141,7 @@ export default function ResetPasswordPage() {
                     className="btn btn-primary"
                     style={{ padding: '12px', cursor: 'pointer' }}
                 >
-                    {loading ? 'Resetting...' : 'Set New Password'}
+                    {loading ? t('resetting') : t('set_password_btn')}
                 </button>
             </form>
         </div>

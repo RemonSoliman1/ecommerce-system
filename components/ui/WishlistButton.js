@@ -16,7 +16,7 @@ export default function WishlistButton({ product, className = '' }) {
 
     return (
         <button
-            className={`${styles.wishlistBtn} ${isAdded ? styles.added : ''} ${className}`}
+            className={`${styles.wishlistBtn} ${isAdded ? styles.added : ''} ${className} tour-wishlist-btn`}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

@@ -164,28 +164,7 @@ function ShopContent() {
 
         // Search Filter - Enhanced with Fuzzy & Arabic Support
         if (searchQuery) {
-            let processedQuery = searchQuery.toLowerCase().trim();
-            const arabicBrandMap = {
-                "اوليفا": "oliva",
-                "دافيدوف": "davidoff",
-                "كوهيبا": "cohiba",
-                "ارتورو فوينتي": "arturo fuente",
-                "مونتكريستو": "montecristo",
-                "روميو وجولييت": "romeo y julieta",
-                "روميو و جولييت": "romeo y julieta",
-                "بارتاغاس": "partagas",
-                "روكي باتيل": "rocky patel",
-                "باديس": "padron",
-                "كاماتشو": "camacho",
-                "اليك برادلي": "alec bradley",
-                "ماكانودو": "macanudo"
-            };
-            for (const [ar, en] of Object.entries(arabicBrandMap)) {
-                if (processedQuery.includes(ar)) {
-                    processedQuery = processedQuery.replace(ar, en);
-                }
-            }
-            filtered = searchProducts(processedQuery, products);
+            filtered = searchProducts(searchQuery, products);
         }
 
         if (activeBrand !== 'all') filtered = filtered.filter(p => (p.brandId || p.brand_id) === activeBrand);
@@ -428,7 +407,7 @@ function ShopContent() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '0.4rem' }}>
                         <label style={{ margin: 0 }}>{t('sort.label')}</label>
                         {!autoHideStock && (
-                            <div className={styles.segmentedPill} style={{ width: 'auto', padding: '2px', marginLeft: 'auto' }}>
+                            <div className={styles.segmentedPill} style={{ width: 'auto', padding: '2px' }}>
                                 <button 
                                     className={`${styles.pillBtn} ${inStockOnly ? styles.pillBtnActive : styles.pillBtnInactive}`}
                                     style={{ padding: '2px 6px', fontSize: '0.65rem', flex: 'none', letterSpacing: '0' }}
@@ -655,7 +634,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                 )}
                 <div className={styles.overlay}>
                     <div className={styles.overlayContent}>
-                        <span className={styles.quickViewBtn}>{isOut ? (t('notify_me') || 'Waitlist') : t('view_details')}</span>
+                        <span className={`${styles.quickViewBtn} tour-view-details-btn`}>{isOut ? (t('notify_me') || 'Waitlist') : t('view_details')}</span>
                     </div>
                 </div>
                 <div style={{ width: '100%', height: '100%', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0', filter: isOut ? 'grayscale(0.5)' : 'contrast(105%) saturate(110%)' }}>

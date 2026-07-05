@@ -26,6 +26,7 @@ export default function ScrollToTop() {
 
     return (
         <button 
+            id="tour-scroll-top"
             onClick={scrollToTop} 
             className={styles.scrollTop}
             aria-label="Scroll to top"

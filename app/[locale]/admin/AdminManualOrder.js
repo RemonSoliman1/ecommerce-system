@@ -12,6 +12,45 @@ export default function AdminManualOrder({ onOrderCreated }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Smart Search State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+    
+    // Auto-search effect
+    React.useEffect(() => {
+        if (!searchQuery || searchQuery.length < 2) {
+            setSearchResults([]);
+            setShowResults(false);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                const res = await fetch(`/api/admin/customers/search?q=${encodeURIComponent(searchQuery)}`);
+                const data = await res.json();
+                if (data.customers) {
+                    setSearchResults(data.customers);
+                    setShowResults(true);
+                }
+            } catch (err) {
+                console.error("Search error", err);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleSelectCustomer = (customer) => {
+        setTelegramId(customer.id.toString());
+        setSearchQuery(customer.displayName);
+        setShowResults(false);
+    };
+
     const productObj = products.find(p => p.id === selectedProduct);
 
     const handleAddItem = () => {
@@ -19,11 +58,14 @@ export default function AdminManualOrder({ onOrderCreated }) {
 
         const model = productObj.models[selectedModelIndex];
         const newItem = {
-            product_id: productObj.id,
+            id: productObj.id,
             name: `${productObj.name} - ${model.name}`,
+            variant: model.name,
+            size: model.size,
             price: model.price,
             quantity: 1,
-            image: model.image || productObj.image
+            image: model.image || productObj.image,
+            availableStock: parseInt(model.stock || 0)
         };
 
         setOrderItems([...orderItems, newItem]);
@@ -35,7 +77,8 @@ export default function AdminManualOrder({ onOrderCreated }) {
 
     const handleUpdateQuantity = (index, newQty) => {
         const updated = [...orderItems];
-        updated[index].quantity = Math.max(1, newQty);
+        const maxStock = updated[index].availableStock;
+        updated[index].quantity = Math.max(1, Math.min(newQty, maxStock));
         setOrderItems(updated);
     };
 
@@ -143,15 +186,39 @@ export default function AdminManualOrder({ onOrderCreated }) {
             <form onSubmit={handleSubmit} onClick={e => e.stopPropagation()} style={{ cursor: 'default' }}>
                 {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
                 
-                <div className={styles.formGroup}>
-                    <label>Customer ID or Telegram ID (Optional)</label>
+                <div className={styles.formGroup} style={{ position: 'relative' }}>
+                    <label>Search Customer (Name, Phone, Email, or ID)</label>
                     <input 
                         type="text" 
-                        value={telegramId} 
-                        onChange={e => setTelegramId(e.target.value)} 
-                        placeholder="e.g., 123456789"
+                        value={searchQuery} 
+                        onChange={e => {
+                            setSearchQuery(e.target.value);
+                            // Also sync to telegramId directly if they are typing an ID manually
+                            setTelegramId(e.target.value);
+                        }} 
+                        onFocus={() => { if(searchResults.length > 0) setShowResults(true); }}
+                        placeholder="Type to search..."
+                        style={{ width: '100%', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}
                     />
-                    <small style={{color: '#888'}}>Leave blank for anonymous fast in-person sales.</small>
+                    
+                    {showResults && searchResults.length > 0 && (
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#333', border: '1px solid #444', borderRadius: '4px', zIndex: 10, maxHeight: '200px', overflowY: 'auto', marginTop: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                            {searchResults.map((res, i) => (
+                                <div 
+                                    key={`${res.type}-${res.id}-${i}`} 
+                                    onClick={() => handleSelectCustomer(res)}
+                                    style={{ padding: '0.75rem', borderBottom: '1px solid #444', cursor: 'pointer', background: '#333' }}
+                                    onMouseOver={e => e.currentTarget.style.background = '#444'}
+                                    onMouseOut={e => e.currentTarget.style.background = '#333'}
+                                >
+                                    <div style={{ fontWeight: 'bold', color: '#fff' }}>{res.displayName}</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#aaa' }}>{res.subLabel}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <small style={{color: '#888', display: 'block', marginTop: '4px'}}>Selected ID: {telegramId || 'None (Anonymous)'}</small>
                 </div>
 
                 <div style={{ border: '1px solid #333', padding: '1rem', borderRadius: '4px', marginBottom: '1rem', background: '#0a0a0a' }}>
@@ -177,13 +244,23 @@ export default function AdminManualOrder({ onOrderCreated }) {
                                 value={selectedModelIndex}
                                 onChange={e => setSelectedModelIndex(parseInt(e.target.value))}
                             >
-                                {productObj.models.map((m, idx) => (
-                                    <option key={idx} value={idx}>{m.name} ({m.size}) - EGP {m.price}</option>
-                                ))}
+                                {productObj.models.map((m, idx) => {
+                                    const isOutOfStock = m.stock <= 0;
+                                    return (
+                                        <option 
+                                            key={idx} 
+                                            value={idx} 
+                                            disabled={isOutOfStock}
+                                            style={{ color: isOutOfStock ? '#666' : '#fff' }}
+                                        >
+                                            {m.name} ({m.size}) - {isOutOfStock ? '(Out of Stock)' : `EGP ${m.price}`}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         )}
                         
-                        <button type="button" className="btn" onClick={handleAddItem} disabled={!selectedProduct}>+ Add</button>
+                        <button type="button" className="btn" onClick={handleAddItem} disabled={!selectedProduct || (productObj?.models?.[selectedModelIndex]?.stock <= 0)}>+ Add</button>
                     </div>
 
                     {orderItems.length > 0 && (
@@ -205,6 +282,7 @@ export default function AdminManualOrder({ onOrderCreated }) {
                                                 <input 
                                                     type="number" 
                                                     min="1" 
+                                                    max={item.availableStock}
                                                     value={item.quantity} 
                                                     onChange={e => handleUpdateQuantity(idx, parseInt(e.target.value) || 1)}
                                                     style={{ width: '60px', padding: '0.25rem', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: '4px' }}

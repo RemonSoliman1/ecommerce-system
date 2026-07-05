@@ -215,7 +215,7 @@ export default function Home() {
               title: meta.title || '',
               sub: meta.subtitle || '',
               link: link,
-              btnText: 'Discover'
+              btnText: t('discover')
           };
       });
   } else {
@@ -233,7 +233,7 @@ export default function Home() {
           title: product.name,
           sub: 'NEW ARRIVAL',
           link: `/shop/product/${product.id}`,
-          btnText: 'Shop This Cigar'
+          btnText: t('shop_this_cigar')
         };
       });
   }
@@ -304,10 +304,8 @@ export default function Home() {
         </Link>
       ) : (
         <section className={styles.promoBanner}>
-          <h2>GET <span>10% OFF</span> ON YOUR FIRST ORDER</h2>
-          <div className={styles.promoSub}>
-            CODE: <span className={styles.promoCode}>FIRSTPUFF10</span>
-          </div>
+          <h2 dangerouslySetInnerHTML={{ __html: t.raw('first_order_promo') }} />
+          <div className={styles.promoSub} dangerouslySetInnerHTML={{ __html: t.raw('code_firstpuff', { className: styles.promoCode }) }} />
         </section>
       )}
 
@@ -380,14 +378,14 @@ export default function Home() {
               {user ? (
                 <div className={styles.loyaltyStatus}>
                   <div className={styles.loyaltyHeader}>
-                    <h2>Welcome back, {user.name || 'Aficionado'}</h2>
-                    <div className={styles.tierBadge}>{tier.name} Status</div>
+                    <h2>{t('welcome_back')} {user.name || t('aficionado')}</h2>
+                    <div className={styles.tierBadge}>{tier.name} {t('status')}</div>
                   </div>
 
                   <div className={styles.pointsDisplay}>
                     <div className={styles.pointCircle}>
                       <span className={styles.pointValue}>{points}</span>
-                      <span className={styles.pointLabel}>Points</span>
+                      <span className={styles.pointLabel}>{t('points')}</span>
                     </div>
 
                     <div className={styles.tierProgress}>
@@ -395,19 +393,19 @@ export default function Home() {
                         <>
                           <div className={styles.progressText}>
                             <span>{tier.name}</span>
-                            <span>{5000 - points} to Platinum ({tier.name === 'Silver' ? 'Next: Gold' : 'Next: Platinum'})</span>
+                            <span>{5000 - points} {t('to_platinum')} ({tier.name === 'Silver' ? `${t('next')} Gold` : `${t('next')} Platinum`})</span>
                           </div>
                           <div className={styles.progressBar}>
                             <div className={styles.progressFill} style={{ width: `${Math.min((points / 5000) * 100, 100)}%` }}></div>
                           </div>
                         </>
                       ) : (
-                        <p className={styles.maxTier}>You have reached the highest tier. Enjoy exclusive Platinum benefits!</p>
+                        <p className={styles.maxTier}>{t('max_tier')}</p>
                       )}
 
                       <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <Link href="/account" className="btn-outline-dark">View My Offers</Link>
-                        <Link href="/shop" className="btn-dark">Earn More Points</Link>
+                        <Link href="/account" className="btn-outline-dark">{t('view_offers')}</Link>
+                        <Link href="/shop" className="btn-dark">{t('earn_more')}</Link>
                       </div>
                     </div>
                   </div>

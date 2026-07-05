@@ -19,10 +19,16 @@ export default function usePWAInstall() {
         const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         setIsStandalone(standalone);
 
-        // Listen for Android beforeinstallprompt
+        // Listen for beforeinstallprompt (Android and Desktop)
         const handleBeforeInstallPrompt = (e) => {
             e.preventDefault();
             setInstallPrompt(e);
+            
+            // Automatically show the install modal for first-time users
+            if (!localStorage.getItem('lounge_install_prompt_shown')) {
+                setShowAndroidModal(true);
+                localStorage.setItem('lounge_install_prompt_shown', 'true');
+            }
         };
 
         const handleAppInstalled = () => {

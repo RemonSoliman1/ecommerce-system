@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/notifications",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/monitor-lifecycle",
+      "schedule": "0 0 * * *"
     }
   ]
 }

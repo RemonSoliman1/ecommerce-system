@@ -50,15 +50,15 @@ export async function POST(request) {
 
                     if (intent === 'promo') {
                         // Smaller watermark in the top right for promotions
-                        stampSize = Math.floor(w * 0.15);
+                        stampSize = Math.floor(Math.min(w, h) * 0.15);
                         const stampBufferForMeta = await sharp(stampPath).resize({ width: stampSize }).toBuffer();
                         const stampMeta = await sharp(stampBufferForMeta).metadata();
                         
                         top = Math.floor(h * 0.05); // 5% from top
                         left = Math.floor(w - stampSize - (w * 0.05)); // 5% from right
                     } else {
-                        // Standard watermark for products (center, 40%)
-                        stampSize = Math.floor(w * 0.4);
+                        // Standard watermark for products (center, 40% of the smallest dimension)
+                        stampSize = Math.floor(Math.min(w, h) * 0.4);
                         const stampBufferForMeta = await sharp(stampPath).resize({ width: stampSize }).toBuffer();
                         const stampMeta = await sharp(stampBufferForMeta).metadata();
                         

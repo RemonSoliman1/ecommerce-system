@@ -43,13 +43,13 @@ export default function ForgotPasswordPage() {
 
     return (
         <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem', textAlign: 'center' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>Forgot Password</h1>
-            <p style={{ color: '#888', marginBottom: '2rem' }}>Enter your email to receive a reset code.</p>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>{t('forgot_title')}</h1>
+            <p style={{ color: '#888', marginBottom: '2rem' }}>{t('forgot_desc')}</p>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                     type="email"
-                    placeholder="Email Address"
+                    placeholder={t('email_placeholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -69,12 +69,12 @@ export default function ForgotPasswordPage() {
                     className="btn btn-primary"
                     style={{ padding: '12px', cursor: 'pointer' }}
                 >
-                    {loading ? 'Sending...' : 'Send Reset Code'}
+                    {loading ? t('sending') : t('send_code_btn')}
                 </button>
             </form>
 
             <p style={{ marginTop: '20px', fontSize: '0.9rem' }}>
-                <Link href="/login" style={{ color: 'var(--color-accent)' }}>Back to Login</Link>
+                <Link href="/login" style={{ color: 'var(--color-accent)' }}>{t('back_to_login')}</Link>
             </p>
         </div>
     );

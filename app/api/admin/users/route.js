@@ -23,7 +23,7 @@ export async function GET(request) {
         const supabase = getSupabaseAdmin();
         const { data: users, error } = await supabase
             .from('users')
-            .select('id, name, email, role, verified, created_at')
+            .select('id, name, email, role, verified, created_at, activity_status, last_active_at')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -31,7 +31,7 @@ export async function GET(request) {
         // Fetch related customer and order data
         const { data: customers } = await supabase
             .from('customers')
-            .select('id, email, points, tier, phone, address_street, address_city');
+            .select('id, email, points, tier, phone, address_street, address_city, requires_receipt');
         
         const { data: orders } = await supabase
             .from('orders')
@@ -50,7 +50,8 @@ export async function GET(request) {
                 dob: 'N/A',
                 total_spent: userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0),
                 orders_count: userOrders.length,
-                recent_orders: userOrders.slice(0, 3)
+                recent_orders: userOrders.slice(0, 3),
+                requires_receipt: customerData.requires_receipt || false
             };
         });
 

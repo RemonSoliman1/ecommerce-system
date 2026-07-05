@@ -1,0 +1,4 @@
+ALTER TABLE users ADD COLUMN IF NOT EXISTS survey_completed BOOLEAN DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS favorite_profiles TEXT[] DEFAULT '{}';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS favorite_brands TEXT[] DEFAULT '{}';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS most_smoked_cigar TEXT;

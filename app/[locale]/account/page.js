@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react';
 import { Link } from '@/lib/navigation';
 import styles from './account.module.css';
 import OrderCard from './OrderCard';
+import UserGuide from '@/components/account/UserGuide';
 import { useTranslations } from 'next-intl';
 import { useLoyalty } from '@/context/LoyaltyContext';
-import { LayoutDashboard, ShoppingBag, MapPin, Settings, LogOut, Heart } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, MapPin, Settings, LogOut, Heart, BookOpen } from 'lucide-react';
 import { usePWA } from '@/context/PWAContext';
 
 export default function AccountPage() {
@@ -206,6 +207,8 @@ export default function AccountPage() {
                                     {updateStatus.loading ? 'Saving...' : 'Save Password'}
                                 </button>
                                 
+
+                                
                                 {pwa && (
                                     <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #333' }}>
                                         <h3 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>App Installation</h3>
@@ -238,6 +241,8 @@ export default function AccountPage() {
                         </form>
                     </div>
                 );
+            case 'guide':
+                return <UserGuide />;
             case 'overview':
             default: {
                 const today = new Date();
@@ -300,7 +305,7 @@ export default function AccountPage() {
                                     textTransform: 'uppercase',
                                     transition: 'all 0.3s ease'
                                 }}>
-                                    Claim Your Gift
+                                    {t('claim_gift')}
                                 </button>
                             </div>
                         )}
@@ -338,31 +343,31 @@ export default function AccountPage() {
                                     cursor: 'pointer',
                                     textTransform: 'uppercase'
                                 }}>
-                                    Shop Now
+                                    {t('shop_now')}
                                 </button>
                             </div>
                         )}
 
-                        <h2>Dashboard Overview</h2>
+                        <h2>{t('dashboard_overview')}</h2>
                         <div className={styles.statsGrid}>
                             <div className={styles.statCard}>
                                 <span className={styles.statValue}>{points}</span>
-                                <span className={styles.statLabel}>Loyalty Points</span>
+                                <span className={styles.statLabel}>{t('loyalty_points')}</span>
                             </div>
                             <div className={styles.statCard}>
                                 <span className={styles.statValue}>{tier.name}</span>
-                                <span className={styles.statLabel}>Current Status</span>
+                                <span className={styles.statLabel}>{t('current_status')}</span>
                             </div>
                             <div className={styles.statCard}>
                                 <span className={styles.statValue}>{orders.length}</span>
-                                <span className={styles.statLabel}>Total Orders</span>
+                                <span className={styles.statLabel}>{t('total_orders')}</span>
                             </div>
                         </div>
 
                         {/* Recent Order Snippet */}
                         {orders.length > 0 && (
                             <div style={{ marginTop: '3rem' }}>
-                                <h3 style={{ marginBottom: '1rem', color: 'var(--color-accent)' }}>Recent Order</h3>
+                                <h3 style={{ marginBottom: '1rem', color: 'var(--color-accent)' }}>{t('recent_order')}</h3>
                                 <OrderCard order={orders[0]} />
                             </div>
                         )}
@@ -389,31 +394,42 @@ export default function AccountPage() {
                                 if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
                             }}
                         >
-                            <LayoutDashboard size={20} /> Overview
+                            <LayoutDashboard size={20} /> {t('tab_overview')}
                         </button>
                         <button
+                            id="tour-orders-tab"
                             className={`${styles.navBtn} ${activeTab === 'orders' ? styles.activeBtn : ''}`}
                             onClick={() => {
                                 setActiveTab('orders');
                                 if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
                             }}
                         >
-                            <ShoppingBag size={20} /> Orders
+                            <ShoppingBag size={20} /> {t('tab_orders')}
                         </button>
                         <button
                             className={styles.navBtn}
                             onClick={() => router.push('/wishlist')}
                         >
-                            <Heart size={20} /> Wishlist
+                            <Heart size={20} /> {t('tab_wishlist')}
                         </button>
                         <button
+                            id="tour-settings-tab"
                             className={`${styles.navBtn} ${activeTab === 'settings' ? styles.activeBtn : ''}`}
                             onClick={() => {
                                 setActiveTab('settings');
                                 if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
                             }}
                         >
-                            <Settings size={20} /> Settings
+                            <Settings size={20} /> {t('tabs.profile') || 'Settings'}
+                        </button>
+                        <button
+                            className={`${styles.navBtn} ${activeTab === 'guide' ? styles.activeBtn : ''}`}
+                            onClick={() => {
+                                setActiveTab('guide');
+                                if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        >
+                            <BookOpen size={20} /> {t('tabs.guide') || 'User Guide'}
                         </button>
 
                         {user.role === 'admin' && (
@@ -422,7 +438,7 @@ export default function AccountPage() {
                                 onClick={() => router.push('/admin')}
                                 style={{ color: '#ffcc00' }}
                             >
-                                <LayoutDashboard size={20} /> Admin Dashboard
+                                <LayoutDashboard size={20} /> {t('tab_admin')}
                             </button>
                         )}
 
@@ -431,7 +447,7 @@ export default function AccountPage() {
                             onClick={logout}
                             style={{ marginTop: '1rem', color: '#ff4444' }}
                         >
-                            <LogOut size={20} /> Sign Out
+                            <LogOut size={20} /> {t('sign_out')}
                         </button>
                     </nav>
                 </aside>

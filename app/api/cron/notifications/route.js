@@ -9,9 +9,9 @@ function initWebPush() {
     if (!isWebPushInitialized) {
         try {
             webpush.setVapidDetails(
-                process.env.VAPID_SUBJECT || 'mailto:test@example.com',
-                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BMYvV3yI-H9hZ-r_d6O5g3YwH-_u9v-T7c_lX9T8c_u5l-X_y9d_rZ',
-                process.env.VAPID_PRIVATE_KEY || 'y-9_u_5_d_Z_v_y_w_X_c_l_T_8_r_H_O_I_V_M_B_5_g_3_Y_w_H_9_h_Z_r'
+                process.env.VAPID_SUBJECT || 'mailto:admin@cigarlounge.com',
+                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BIM_6RpJruOaN5YKWMiE_KGvC1f95wcjlNJFS643-QSSM4HMVuehQthclAzYaBu-G9v_QRoFcXuvqEhcNTQiQ2w',
+                process.env.VAPID_PRIVATE_KEY || 'WVaaFfkBuwW30Xpv8P32_trc2F2ccajGI3ita2cnbZg'
             );
             isWebPushInitialized = true;
         } catch (e) {
@@ -133,27 +133,73 @@ export async function GET(request) {
             }
         }
 
-        // 2. Future Automations (e.g. Picks for you, New Arrivals)
-        // Can be implemented similarly by picking random featured products 
-        // and sending to all users once a week based on the current day of week.
-        
-        const dayOfWeek = new Date().getDay();
-        if (dayOfWeek === 5) { // Friday = "Weekend Picks for You"
-             // get all subs
-             const { data: allSubs } = await supabaseAdmin.from('push_subscriptions').select('subscription_data');
-             if (allSubs) {
-                 const weekendPayload = JSON.stringify({
-                    title: 'Weekend Picks for You 🥃',
-                    body: 'Stock up for the weekend. Check out our curated selection of fine cigars.',
-                    url: '/shop',
-                 });
-                 for (const sub of allSubs) {
-                    try {
-                        await webpush.sendNotification(sub.subscription_data, weekendPayload);
-                        messagesSent++;
-                    } catch (e) { console.error('Push failed', e); }
+        // --- 2. Dynamic Smart Dispatching ---
+        const nowUtc = new Date();
+        const cairoDateStr = nowUtc.toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
+        const cairoDate = new Date(cairoDateStr);
+        const currentLocalHour = cairoDate.getHours();
+        const currentLocalDay = cairoDate.getDay();
+
+        // Query users whose preferred_engagement_time matches currentLocalHour
+        // AND who are NOT Dormant
+        const { data: targetUsers } = await supabaseAdmin
+            .from('users')
+            .select('id, activity_status, preferred_stockup_day, weekend_start_day, last_notified_inactive_at')
+            .eq('preferred_engagement_time', currentLocalHour)
+            .neq('activity_status', 'Dormant');
+
+        if (targetUsers && targetUsers.length > 0) {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
+            for (const user of targetUsers) {
+                let payload = null;
+                let shouldUpdateInactiveTimestamp = false;
+
+                if (user.activity_status === 'Slipping') {
+                    // Check if we haven't notified them in 7 days
+                    const lastNotified = user.last_notified_inactive_at ? new Date(user.last_notified_inactive_at) : null;
+                    if (!lastNotified || lastNotified < sevenDaysAgo) {
+                        payload = {
+                            title: 'We’ve Missed You 🎩',
+                            body: 'It’s been a while. Treat yourself to our latest collection of premium cigars with a special welcome-back discount.',
+                            url: '/shop'
+                        };
+                        shouldUpdateInactiveTimestamp = true;
+                    }
+                } else {
+                    // Active Users
+                    if (currentLocalDay === user.preferred_stockup_day) {
+                        payload = {
+                            title: 'Weekend Picks for You 🥃',
+                            body: 'Stock up for the weekend. Check out our curated selection of fine cigars.',
+                            url: '/shop'
+                        };
+                    } else if (currentLocalDay === user.weekend_start_day) {
+                        payload = {
+                            title: 'Enjoy Your Weekend! 🚬',
+                            body: 'What are you in the mood for today? Browse our collection and find your perfect smoke.',
+                            url: '/shop'
+                        };
+                    }
                 }
-             }
+
+                if (payload) {
+                    const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('subscription_data').eq('user_id', user.id);
+                    if (subs && subs.length > 0) {
+                        for (const sub of subs) {
+                            try {
+                                await webpush.sendNotification(sub.subscription_data, JSON.stringify(payload));
+                                messagesSent++;
+                            } catch (e) {}
+                        }
+                    }
+                    
+                    if (shouldUpdateInactiveTimestamp) {
+                        await supabaseAdmin.from('users').update({ last_notified_inactive_at: new Date().toISOString() }).eq('id', user.id);
+                    }
+                }
+            }
         }
 
         return NextResponse.json({ success: true, messagesSent });

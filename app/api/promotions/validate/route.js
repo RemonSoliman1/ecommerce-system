@@ -6,7 +6,7 @@ export async function POST(request) {
         const { code, cart, cartTotal, email, paymentMethod } = await request.json();
 
         if (!code || !cart) {
-            return NextResponse.json({ success: false, error: 'Missing code or cart data' }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Missing code or cart data' }, { status: 200 });
         }
 
         // Fetch promo
@@ -18,13 +18,13 @@ export async function POST(request) {
             .single();
 
         if (error || !promo) {
-            return NextResponse.json({ success: false, error: 'Invalid or expired promo code' }, { status: 404 });
+            return NextResponse.json({ success: false, error: 'Invalid or expired promo code' }, { status: 200 });
         }
 
         // Validate Minimum Order Amount
         if (promo.rule_min_order_amount !== null && cartTotal < parseFloat(promo.rule_min_order_amount)) {
             const difference = (parseFloat(promo.rule_min_order_amount) - cartTotal).toFixed(2);
-            return NextResponse.json({ success: false, error: `Add EGP ${difference} more to your cart to claim this offer!` }, { status: 403 });
+            return NextResponse.json({ success: false, error: `Add EGP ${difference} more to your cart to claim this offer!` }, { status: 200 });
         }
 
         // Validate Payment Method
@@ -33,7 +33,7 @@ export async function POST(request) {
         // Validate specific customer restrict
         if (promo.customer_email) {
             if (!email) {
-                return NextResponse.json({ success: false, error: 'You must be logged in to use this promo code' }, { status: 403 });
+                return NextResponse.json({ success: false, error: 'You must be logged in to use this promo code' }, { status: 200 });
             }
 
             if (promo.customer_email.startsWith('[VIP')) {
@@ -44,26 +44,26 @@ export async function POST(request) {
                     .maybeSingle();
 
                 if (!customerData) {
-                    return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 403 });
+                    return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 200 });
                 }
 
                 if (promo.customer_email === '[VIP]') {
                     if ((customerData.points || 0) < 1000) {
-                        return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 403 });
+                        return NextResponse.json({ success: false, error: 'This promo code is strictly for our Loyal/VIP members' }, { status: 200 });
                     }
                 } else {
                     const match = promo.customer_email.match(/\[VIP:(.+)\]/);
                     if (match) {
                         const requiredTiers = match[1].split(',');
                         if (!requiredTiers.includes(customerData.tier || 'Silver')) {
-                            return NextResponse.json({ success: false, error: `This promo code is restricted to ${requiredTiers.join(', ')} members` }, { status: 403 });
+                            return NextResponse.json({ success: false, error: `This promo code is restricted to ${requiredTiers.join(', ')} members` }, { status: 200 });
                         }
                     }
                 }
             } else {
                 const allowedEmails = promo.customer_email.split(',').map(e => e.trim().toLowerCase());
                 if (!allowedEmails.includes(email.toLowerCase())) {
-                    return NextResponse.json({ success: false, error: 'This promo code is not valid for your email' }, { status: 403 });
+                    return NextResponse.json({ success: false, error: 'This promo code is not valid for your email' }, { status: 200 });
                 }
             }
         }
@@ -73,13 +73,13 @@ export async function POST(request) {
 
         // Validate Usage Limit
         if (promo.usage_limit !== null && promo.usage_count >= promo.usage_limit) {
-            return NextResponse.json({ success: false, error: 'Promo code usage limit has been reached' }, { status: 403 });
+            return NextResponse.json({ success: false, error: 'Promo code usage limit has been reached' }, { status: 200 });
         }
 
         // Validate Rules requiring history
         if (promo.rule_first_order || promo.rule_one_time_use) {
             if (!email) {
-                return NextResponse.json({ success: false, error: 'You must log in to use this promo code' }, { status: 403 });
+                return NextResponse.json({ success: false, error: 'You must log in to use this promo code' }, { status: 200 });
             }
             const { data: pastOrders } = await supabaseAdmin
                 .from('orders')
@@ -87,11 +87,11 @@ export async function POST(request) {
                 .eq('user_email', email);
                 
             if (promo.rule_first_order && pastOrders && pastOrders.length > 0) {
-                return NextResponse.json({ success: false, error: 'This promo code is only valid for your first order' }, { status: 403 });
+                return NextResponse.json({ success: false, error: 'This promo code is only valid for your first order' }, { status: 200 });
             }
             
             if (promo.rule_one_time_use && pastOrders && pastOrders.some(o => o.promo_code === promo.code)) {
-                return NextResponse.json({ success: false, error: 'You have already used this promo code' }, { status: 403 });
+                return NextResponse.json({ success: false, error: 'You have already used this promo code' }, { status: 200 });
             }
         }
 
@@ -111,14 +111,14 @@ export async function POST(request) {
         }
 
         if (applicableItems.length === 0) {
-            return NextResponse.json({ success: false, error: 'Promo code does not apply to any items in your cart' }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Promo code does not apply to any items in your cart' }, { status: 200 });
         }
 
         // Validate Minimum Item Quantity (Sticks/Boxes)
         if (promo.rule_min_quantity !== null) {
             const totalApplicableQty = applicableItems.reduce((acc, item) => acc + item.quantity, 0);
             if (totalApplicableQty < parseInt(promo.rule_min_quantity)) {
-                return NextResponse.json({ success: false, error: `This promo requires you to have at least ${promo.rule_min_quantity} applicable items in your cart. You have ${totalApplicableQty}.` }, { status: 403 });
+                return NextResponse.json({ success: false, error: `This promo requires you to have at least ${promo.rule_min_quantity} applicable items in your cart. You have ${totalApplicableQty}.` }, { status: 200 });
             }
         }
 

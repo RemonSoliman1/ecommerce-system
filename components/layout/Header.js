@@ -17,7 +17,7 @@ export default function Header() {
     const pathname = usePathname();
     const router = useRouter();
     const { cart, updateQuantity, removeFromCart, cartSubtotal, cartTotal, discountAmount, promoCode } = useCart();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const { products, visibleProducts, brands: BRANDS } = useProducts(); // usage
     const [isHovered, setIsHovered] = useState(false); // Restored
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Restored
@@ -31,11 +31,11 @@ export default function Header() {
 
     // Derived Menu Data from live products
     const staticTypes = [
-        { id: 'cigar', label: 'CIGARS' },
-        { id: 'cigarillo', label: 'CIGARILLOS' },
-        { id: 'bundle', label: 'BUNDLES' },
-        { id: 'sampler', label: 'SAMPLERS' },
-        { id: 'accessory', label: 'ACCESSORIES' }
+        { id: 'cigar', label: t('cat_cigars') },
+        { id: 'cigarillo', label: t('cat_cigarillos') },
+        { id: 'bundle', label: t('cat_bundles') },
+        { id: 'sampler', label: t('cat_samplers') },
+        { id: 'accessory', label: t('cat_accessories') }
     ];
 
     // Get unique brands for the hovered type
@@ -164,6 +164,7 @@ export default function Header() {
                         {/* SEARCH BAR (MOBILE & DESKTOP) */}
                         <div className={styles.searchContainer}>
                             <input
+                                id="tour-search"
                                 type="text"
                                 placeholder={t('search_label') || 'Search the humidor...'}
                                 className={styles.searchInput}
@@ -226,11 +227,11 @@ export default function Header() {
                     {/* DESKTOP ACTIONS (HIDDEN ON MOBILE) */}
                     <div className={`${styles.actions} ${styles.desktopOnly}`}>
                         {user ? (
-                            <Link href="/account" className={styles.iconBtn} aria-label="Account">
+                            <Link href="/account" id="tour-account-btn" className={styles.iconBtn} aria-label="Account">
                                 <User size={24} />
                             </Link>
                         ) : (
-                            <Link href="/login" className={styles.iconBtn} aria-label="Login">
+                            <Link href="/login" id="tour-account-btn" className={styles.iconBtn} aria-label="Login">
                                 <User size={24} />
                             </Link>
                         )}
@@ -252,7 +253,7 @@ export default function Header() {
                                 onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}
                             >
-                                <Link href="/cart" className={styles.cartIcon}>
+                                <Link href="/cart" id="tour-cart-header" className={styles.cartIcon}>
                                     <ShoppingBag size={24} />
                                     {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
                                 </Link>
@@ -323,14 +324,14 @@ export default function Header() {
             <nav className={styles.navBar}>
                 <div className="container" style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <div className={styles.nav}>
-                        <Link href="/" className={styles.link}>HOME</Link>
-                        <div className={styles.navItemContainer} onMouseLeave={() => { setHoveredType(null); setHoveredBrand(null); }}>
-                            <Link href="/shop" className={styles.link}>SHOP</Link>
+                        <Link href="/" className={styles.link}>{t('nav_home')}</Link>
+                        <div className={styles.navItemContainer} id="tour-nav-menu" onMouseLeave={() => { setHoveredType(null); setHoveredBrand(null); }}>
+                            <Link href="/shop" className={styles.link} id="tour-shop">{t('nav_shop')}</Link>
                             <div className={styles.megaMenu}>
                                 <div className={styles.megaMenuInner}>
                                     {/* Column 1: Categories (Types) */}
                                     <div className={styles.megaColumn} style={{ minWidth: '150px' }}>
-                                        <h4>CATEGORIES</h4>
+                                        <h4>{t('nav_categories')}</h4>
                                         {staticTypes.map(tOption => (
                                             <Link
                                                 key={tOption.id}
@@ -347,7 +348,7 @@ export default function Header() {
                                     {/* Column 2: Brands in this Category */}
                                     {hoveredType && (
                                         <div className={styles.megaColumn} style={{ animation: 'fadeIn 0.3s ease', minWidth: '250px' }}>
-                                            <h4>BRANDS IN HUMIDOR</h4>
+                                            <h4>{t('brands_in_humidor')}</h4>
                                             <div className={styles.megaScrollList}>
                                                 {menuBrands.map(brandId => {
                                                     const brandObj = BRANDS.find(b => b.id === brandId);
@@ -363,7 +364,7 @@ export default function Header() {
                                                         </Link>
                                                     );
                                                 })}
-                                                {menuBrands.length === 0 && <span style={{ color: '#666', fontSize: '0.85rem' }}>No brands available.</span>}
+                                                {menuBrands.length === 0 && <span style={{ color: '#666', fontSize: '0.85rem' }}>{t('no_brands')}</span>}
                                             </div>
                                         </div>
                                     )}
@@ -371,13 +372,13 @@ export default function Header() {
                                     {/* Column 3: Series/Vitolas in this Brand */}
                                     {hoveredBrand && (
                                         <div className={styles.megaColumn} style={{ animation: 'fadeIn 0.3s ease', minWidth: '250px' }}>
-                                            <h4>AVAILABLE COLLECTIONS</h4>
+                                            <h4>{t('available_collections')}</h4>
                                             <div className={styles.megaScrollList}>
                                                 <Link
                                                     href={`/shop?type=${hoveredType}&brand=${hoveredBrand}`}
                                                     style={{ color: 'var(--color-accent)', fontStyle: 'italic', marginBottom: '1rem', textTransform: 'uppercase', display: 'block', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}
                                                 >
-                                                    Shop All {BRANDS.find(b => b.id === hoveredBrand)?.name || hoveredBrand}
+                                                    {t('shop_all')} {BRANDS.find(b => b.id === hoveredBrand)?.name || hoveredBrand}
                                                 </Link>
                                                 <div>
                                                     {menuSeries.map(series => (
@@ -389,7 +390,7 @@ export default function Header() {
                                                             {series}
                                                         </Link>
                                                     ))}
-                                                    {menuSeries.length === 0 && <span style={{ color: '#666', fontSize: '0.85rem' }}>No collections found.</span>}
+                                                    {menuSeries.length === 0 && <span style={{ color: '#666', fontSize: '0.85rem' }}>{t('no_collections')}</span>}
                                                 </div>
                                             </div>
                                         </div>
@@ -397,8 +398,7 @@ export default function Header() {
                                 </div>
                             </div>
                         </div>
-                        <Link href="/about" className={styles.link}>HERITAGE</Link>
-                        <Link href="/guide" className={styles.link}>GUIDE</Link>
+                        <Link href="/about" className={styles.link}>{t('nav_heritage')}</Link>
                     </div>
                 </div>
             </nav>
@@ -416,27 +416,26 @@ export default function Header() {
                         onClick={() => setActiveMobileTab('menu')}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                        MAIN MENU
+                        {t('main_menu')}
                     </button>
                     <button 
                         className={`${styles.mobileTab} ${activeMobileTab === 'categories' ? styles.activeMobileTab : ''}`}
                         onClick={() => setActiveMobileTab('categories')}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                        MAIN CATEGORIES
+                        {t('main_categories')}
                     </button>
                 </div>
 
                 <div className={styles.mobileDrawerContent}>
                     {activeMobileTab === 'menu' ? (
                         <div className={styles.mobileActions}>
-                            <Link href="/" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>HOME</Link>
-                            <Link href="/shop" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>PRODUCTS</Link>
-                            <Link href="/shop?type=sampler" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>SAMPLERS</Link>
-                            <Link href="/shop?type=accessory" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>ACCESSORIES</Link>
-                            <Link href="/about" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>HERITAGE</Link>
-                            <Link href="/guide" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>USER GUIDE</Link>
-                            <button className={styles.mobilemylink} onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} style={{width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer'}}>CUSTOMER SERVICE</button>
+                            <Link href="/" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('nav_home')}</Link>
+                            <Link href="/shop" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('nav_products')}</Link>
+                            <Link href="/shop?type=sampler" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('cat_samplers')}</Link>
+                            <Link href="/shop?type=accessory" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('cat_accessories')}</Link>
+                            <Link href="/about" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('nav_heritage')}</Link>
+                            <button className={styles.mobilemylink} onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} style={{width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer'}}>{t('customer_service')}</button>
                         </div>
                     ) : (
                         <div className={styles.mobileActions}>

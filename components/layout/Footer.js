@@ -49,20 +49,20 @@ export default function Footer() {
                     <div className={styles.newsletterContent}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
                             <Verified size={24} color="var(--color-accent)" />
-                            <h3 style={{ margin: 0 }}>Join the Lounge</h3>
+                            <h3 style={{ margin: 0 }}>{t('join_title')}</h3>
                         </div>
-                        <p>Gain entry to our private reserve and receive notifications on rare vitolas.</p>
+                        <p>{t('join_desc')}</p>
                     </div>
                     {isSubscribed ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>
                             <CheckCircle size={20} />
-                            <span>Welcome to the Private Reserve.</span>
+                            <span>{t('welcome_reserve')}</span>
                         </div>
                     ) : (
                         <form className={styles.newsletterForm} onSubmit={handleSubscribe}>
                             <input
                                 type="email"
-                                placeholder="Your Email Address"
+                                placeholder={t('email_placeholder')}
                                 className={styles.emailInput}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -92,29 +92,29 @@ export default function Footer() {
 
                     {/* Column 2: The Vault */}
                     <div className={styles.col}>
-                        <h4>The Vault</h4>
+                        <h4>{t('vault')}</h4>
                         <ul className={styles.links}>
-                            <li><Link href="/shop?type=cigar">Premium Cigars</Link></li>
-                            <li><Link href="/shop?type=cigarillo">Cigarillos</Link></li>
-                            <li><Link href="/shop?type=accessory">Accessories</Link></li>
-                            <li><Link href="/shop?sort=newest">Rare Finds</Link></li>
+                            <li><Link href="/shop?type=cigar">{t('vault_cigars')}</Link></li>
+                            <li><Link href="/shop?type=cigarillo">{t('vault_cigarillos')}</Link></li>
+                            <li><Link href="/shop?type=accessory">{t('vault_accessories')}</Link></li>
+                            <li><Link href="/shop?sort=newest">{t('vault_rare')}</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 3: The Lounge */}
                     <div className={styles.col}>
-                        <h4>The Lounge</h4>
+                        <h4>{t('lounge')}</h4>
                         <ul className={styles.links}>
-                            <li><Link href="/account">My Account</Link></li>
-                            <li><Link href="/wishlist">Private Reserve</Link></li>
-                            <li><Link href="/loyalty">Loyalty Program</Link></li>
-                            <li><Link href="/about">Curator Recommendations</Link></li>
+                            <li><Link href="/account">{t('lounge_account')}</Link></li>
+                            <li><Link href="/wishlist">{t('lounge_reserve')}</Link></li>
+                            <li><Link href="/loyalty">{t('lounge_loyalty')}</Link></li>
+                            <li><Link href="/about">{t('lounge_curator')}</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 4: Contact */}
                     <div className={styles.col}>
-                        <h4>Our Heritage</h4>
+                        <h4>{t('heritage')}</h4>
                         <ul className={styles.contact}>
                             <li>
                                 <a href="tel:+201234567890" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'inherit', textDecoration: 'none' }}>
@@ -142,7 +142,7 @@ export default function Footer() {
                     <p>&copy; {new Date().getFullYear()} Cigar Lounge. Created by <a href="https://github.com/RemonSoliman1" target="_blank" rel="noopener noreferrer" style={{color: 'var(--color-accent)', textDecoration: 'none'}}>Remon Soliman</a>. All rights reserved.</p>
                     <div className={styles.paymentIcons}>
                         <CreditCard size={24} color="#888888" />
-                        <span className={styles.paymentText} style={{ color: '#888888' }}>Secure Payment</span>
+                        <span className={styles.paymentText} style={{ color: '#888888' }}>{t('secure_payment')}</span>
                     </div>
                 </div>
             </div>

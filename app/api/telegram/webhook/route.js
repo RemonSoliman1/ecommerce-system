@@ -277,7 +277,11 @@ const strings = {
         btnLinkAccount: "🔗 Link Store Account",
         reqContactPrompt: "Please click the button below to natively link your Lounge store profile with this Telegram bot using your phone number:",
         btnShareContact: "📱 Share Contact to Verify",
-        successLinked: "Your Lounge account has been successfully verified & linked! 🥃"
+        successLinked: "Your Lounge account has been successfully verified & linked! 🥃",
+        weekendPrompt: "Before you enter, when does your weekend typically start?",
+        btnFriday: "Friday",
+        btnSaturday: "Saturday",
+        preferenceSaved: "Preference saved! We'll tailor recommendations to your weekend."
     },
     ar: {
         welcome: (name) => `<b>مرحباً بك في اللاونج، ${escapeHTML(name)}. 🥃</b>\n\n• اضغط على 'دخول اللاونج' بالأسفل لتصفح مجموعتنا الكاملة.\n• اكتب اسم الماركة (مثل 'Oliva' أو 'Davidoff') للبحث الفوري في مخزوننا.\n• اكتب /chat للتحدث مباشرة مع فريق الدعم.`,
@@ -288,7 +292,11 @@ const strings = {
         btnLinkAccount: "🔗 ربط حساب المتجر",
         reqContactPrompt: "يرجى الضغط على الزر أدناه لربط ملف تعريف متجر اللاونج الخاص بك باستخدام رقم الهاتف:",
         btnShareContact: "📱 مشاركة جهة الاتصال للتحقق",
-        successLinked: "تم ربط حساب اللاونج الخاص بك وتوثيقه بنجاح! 🥃"
+        successLinked: "تم ربط حساب اللاونج الخاص بك وتوثيقه بنجاح! 🥃",
+        weekendPrompt: "قبل الدخول، متى تبدأ عطلة نهاية الأسبوع الخاصة بك عادةً؟",
+        btnFriday: "الجمعة",
+        btnSaturday: "السبت",
+        preferenceSaved: "تم حفظ التفضيل! سنقوم بتخصيص التوصيات لعطلة نهاية الأسبوع الخاصة بك."
     }
 };
 
@@ -334,9 +342,41 @@ bot.action(['lang_en', 'lang_ar'], async (ctx) => {
 
     const updatedUser = { ...user, language: lang };
 
-    // Send Welcome Instructions
+    // Send Weekend Prompt FIRST before the welcome menu
     const t = strings[lang];
-    await botReply(ctx, updatedUser, t.welcome(name), {
+    await botReply(ctx, updatedUser, t.weekendPrompt, {
+        ...Markup.inlineKeyboard([
+            [Markup.button.callback(t.btnFriday, 'pref_weekend_5'), Markup.button.callback(t.btnSaturday, 'pref_weekend_6')]
+        ])
+    }, "Sent Weekend Prompt");
+
+    await ctx.answerCbQuery(); // Acknowledge button press
+});
+
+// Weekend Preference Actions
+bot.action(['pref_weekend_5', 'pref_weekend_6'], async (ctx) => {
+    const user = await getUserState(ctx.from.id);
+    const lang = user.language || 'en';
+    const t = strings[lang];
+    const name = user.first_name || 'Aficionado';
+
+    const weekend_start_day = ctx.match[0] === 'pref_weekend_5' ? 5 : 6;
+    
+    // Attempt to update store customer if linked
+    if (user.store_customer_id) {
+        const preferred_stockup_day = weekend_start_day === 6 ? 4 : 3;
+        try {
+            await supabase.from('users').update({ weekend_start_day, preferred_stockup_day }).eq('id', user.store_customer_id);
+        } catch (e) {
+            console.error("Failed to update weekend preference in users table", e);
+        }
+    }
+
+    await botReply(ctx, user, t.preferenceSaved);
+    await logRecentAction(ctx.from.id, `👤 Set weekend to ${weekend_start_day === 5 ? 'Friday' : 'Saturday'}`, user);
+
+    // Now send the Welcome Menu
+    await botReply(ctx, user, t.welcome(name), {
         parse_mode: 'HTML',
         ...Markup.inlineKeyboard([
             [Markup.button.webApp(t.btnLounge, WEB_APP_URL)],
@@ -344,7 +384,7 @@ bot.action(['lang_en', 'lang_ar'], async (ctx) => {
         ])
     }, "Sent Welcome Menu");
 
-    await ctx.answerCbQuery(); // Acknowledge button press
+    await ctx.answerCbQuery();
 });
 
 // Action to Trigger Contact Parsing Keyboard

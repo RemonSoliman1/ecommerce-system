@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { sendPushNotification } from '@/lib/push';
+import { broadcastTelegramMessage } from '@/lib/telegram';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -86,6 +87,9 @@ export async function POST(request) {
         if (body.hasOwnProperty('available_gifts')) {
             delete body.available_gifts;
         }
+        if (body.hasOwnProperty('sampler_series')) {
+            delete body.sampler_series;
+        }
 
         // 1. Authorization Check
         if (body.admin_secret !== 'admin@129') {
@@ -122,6 +126,16 @@ export async function POST(request) {
                 });
             } catch (pushErr) {
                 console.error("New Arrival push failed:", pushErr);
+            }
+
+            // Dispatch Telegram Single-Item Drop
+            try {
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
+                const telegramText = `🔥 NEW ARRIVAL: ${data.name}\n👉 Click to view details & price: ${siteUrl}/product/${data.id}`;
+                // Non-blocking background call
+                broadcastTelegramMessage(telegramText, data.image).catch(err => console.error("Telegram broadcast failed:", err));
+            } catch (tgErr) {
+                console.error("New Arrival Telegram dispatch failed:", tgErr);
             }
         }
 

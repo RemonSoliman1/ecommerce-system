@@ -110,50 +110,16 @@ export function PWAProvider({ children }) {
                             <h4 style={{ color: '#fff', marginBottom: '10px' }}>Android</h4>
                             <p className={styles.subtext} style={{ fontSize: '14px', margin: 0, color: '#aaa' }}>1. Open in Chrome<br/>2. Tap the menu icon (3 dots) top right<br/>3. Tap "Install app" or "Add to Home screen"</p>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Custom Android Installation Modal */}
-            {pwa.showAndroidModal && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <img src="/favicon.png" alt="App Icon" style={{ width: '80px', height: '80px', border: '1px solid var(--color-accent)' }} />
-                        </div>
                         
-                        <h2 className={styles.title} style={{ marginBottom: '1rem' }}>
-                            Install CigarLounge
-                        </h2>
-                        
-                        <p className={styles.text}>
-                            Enhance your experience with the CigarLounge App. Enjoy faster browsing, seamless shopping, and instant access to our premium collection.
-                        </p>
-                        
-                        <div style={{ backgroundColor: 'rgba(212, 175, 55, 0.1)', padding: '12px', marginBottom: '2rem', border: '1px solid var(--color-accent)' }}>
-                            <p className={styles.subtext} style={{ textAlign: 'left', color: '#ccc' }}>
-                                <strong>IMPORTANT DEVICE NOTE:</strong><br/> Depending on your specific Android launcher settings, this app may be installed directly to your <strong>App Drawer / All Apps Menu</strong> instead of your Home Screen.<br/><br/>If it does not appear on your Home Screen automatically, simply open your App Drawer, search for "CigarLounge", and drag it to your Home Screen!
-                            </p>
-                        </div>
-
-                        <div className={styles.actions}>
-                            <button 
-                                onClick={() => pwa.promptInstall()}
-                                className={styles.btnConfirm}
-                            >
-                                Install App
-                            </button>
-                            <button 
-                                onClick={() => pwa.setShowAndroidModal(false)}
-                                className={styles.btnDeny}
-                            >
-                                Not Right Now
-                            </button>
+                        <div style={{ marginTop: '20px', textAlign: 'left' }}>
+                            <h4 style={{ color: '#fff', marginBottom: '10px' }}>Desktop (PC/Mac)</h4>
+                            <p className={styles.subtext} style={{ fontSize: '14px', margin: 0, color: '#aaa' }}>1. Open in Chrome or Edge<br/>2. Click the Install icon in the right side of the address bar</p>
                         </div>
                     </div>
                 </div>
             )}
-            {/* Custom Android Installation Modal */}
+
+            {/* Custom Installation Modal (Android & Desktop) */}
             {pwa.showAndroidModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -176,16 +142,17 @@ export function PWAProvider({ children }) {
                         </div>
                         
                         <h2 style={{ color: '#D4AF37', marginTop: 0, marginBottom: '10px', fontFamily: 'var(--font-serif)', fontSize: '24px' }}>
-                            Install CigarLounge
+                            Install CigarLounge App
                         </h2>
                         
                         <p style={{ color: '#fff', lineHeight: 1.6, marginBottom: '15px' }}>
-                            Enhance your experience with the CigarLounge App. Enjoy faster browsing, seamless shopping, and instant access to our premium collection.
+                            Install the CigarLounge App to your Desktop or Home Screen for the best experience. Get instant access, faster browsing, and native notifications!
                         </p>
                         
                         <div style={{ backgroundColor: 'rgba(212, 175, 55, 0.1)', padding: '12px', borderRadius: '8px', marginBottom: '25px', borderLeft: '3px solid #D4AF37' }}>
                             <p style={{ color: '#aaa', fontSize: '13px', margin: 0, textAlign: 'left' }}>
-                                <strong>Note:</strong> Depending on your device settings, the app may be placed silently in your <strong>App Drawer / App Menu</strong> instead of the Home Screen. You can search for "CigarLounge" in your apps!
+                                <strong>Android Note:</strong> The app may be placed in your App Drawer instead of the Home Screen depending on your settings.<br/>
+                                <strong>Desktop Note:</strong> A shortcut will be added to your desktop/dock for easy access.
                             </p>
                         </div>
 

@@ -14,10 +14,11 @@ import ResetAgeGate from '@/components/ui/ResetAgeGate';
 import FloatingChat from '@/components/ui/FloatingChat';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import TelegramBackButton from '@/components/ui/TelegramBackButton';
+import SurveyModal from '@/components/ui/SurveyModal';
 import { Playfair_Display, Montserrat, Allura } from 'next/font/google';
 import { TelegramProvider } from '@/context/TelegramContext';
 import { ProductProvider } from '@/context/ProductContext';
-
+import { TourProvider } from '@/context/TourContext';
 import { PWAProvider } from '@/context/PWAContext';
 
 const playfair = Playfair_Display({
@@ -68,26 +69,29 @@ export default async function RootLayout({ children, params }) {
         <NextIntlClientProvider messages={messages}>
           <TelegramProvider>
             <PWAProvider>
-              <ToastProvider>
-                <AuthProvider>
-                  <LoyaltyProvider>
-                  <ProductProvider>
-                    <CartProvider>
-                      <WishlistProvider>
-                        <AgeGate />
-                        <Header />
-                        {children}
-                        <FloatingChat />
-                        <ScrollToTop />
-                        <TelegramBackButton />
-                        <Footer />
-                        <BottomNav />
-                      </WishlistProvider>
-                    </CartProvider>
-                  </ProductProvider>
-                </LoyaltyProvider>
-              </AuthProvider>
-            </ToastProvider>
+              <TourProvider>
+                <ToastProvider>
+                  <AuthProvider>
+                    <LoyaltyProvider>
+                      <ProductProvider>
+                        <CartProvider>
+                          <WishlistProvider>
+                            <AgeGate />
+                            <Header />
+                            {children}
+                            <FloatingChat />
+                            <ScrollToTop />
+                            <TelegramBackButton />
+                            <SurveyModal />
+                            <Footer />
+                            <BottomNav />
+                          </WishlistProvider>
+                        </CartProvider>
+                      </ProductProvider>
+                    </LoyaltyProvider>
+                  </AuthProvider>
+                </ToastProvider>
+              </TourProvider>
             </PWAProvider>
           </TelegramProvider>
         </NextIntlClientProvider>

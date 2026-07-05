@@ -9,7 +9,7 @@ import styles from './checkout.module.css';
 import { Link } from '@/lib/navigation';
 import { useTranslations } from 'next-intl';
 import { useTelegram } from '@/context/TelegramContext';
-import { Lock, CreditCard, Banknote, Smartphone, ShieldCheck } from 'lucide-react';
+import { Lock, CreditCard, Banknote, Smartphone, ShieldCheck, Camera } from 'lucide-react';
 
 export default function CheckoutPage() {
     const { cart, cartSubtotal, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -21,6 +21,9 @@ export default function CheckoutPage() {
     const [shippingCost, setShippingCost] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [lastOrder, setLastOrder] = useState(null); // Valid receipt state
+    const [receiptRequirement, setReceiptRequirement] = useState({ requireReceipt: false, globalMode: 'none' });
+    const [showReceiptPrompt, setShowReceiptPrompt] = useState(false);
+    const [hasPromptedReceipt, setHasPromptedReceipt] = useState(false);
     const t = useTranslations('Checkout');
     const tCart = useTranslations('Cart');
 
@@ -160,6 +163,24 @@ export default function CheckoutPage() {
             }));
         }
     }, [user, tgUser]);
+
+    // Fetch checkout settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const email = address.email || user?.email || '';
+                if (!email) return; // Wait until email is available if possible, or just fetch global
+                const res = await fetch(`/api/settings/checkout?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+                if (data.success) {
+                    setReceiptRequirement({ requireReceipt: data.requireReceipt, globalMode: data.globalMode });
+                }
+            } catch (e) {
+                console.error('Failed to fetch checkout settings');
+            }
+        };
+        fetchSettings();
+    }, [address.email, user?.email]);
 
     const [paymentMethod, setPaymentMethod] = useState('card');
 
@@ -307,9 +328,19 @@ export default function CheckoutPage() {
             // SAVE ORDER HISTORY (Optimistic or wait for DB? Let's wait for DB ID)
             const tempId = Math.floor(Math.random() * 100000);
 
-            // FORMAT PAYMENT DETAILS
             let finalPaymentMethod = paymentMethod;
             if (paymentMethod === 'instapay' || paymentMethod === 'vodafone') {
+                if (!receiptUrl && !hasPromptedReceipt) {
+                    if (receiptRequirement.requireReceipt) {
+                        showToast(t('upload_receipt_required') || "Please upload your payment receipt before placing the order.", 'error');
+                        setIsProcessing(false);
+                        return;
+                    } else {
+                        setShowReceiptPrompt(true);
+                        setIsProcessing(false);
+                        return; // Stop processing to show modal
+                    }
+                }
                 if (transferRef) finalPaymentMethod += ` | REF:${transferRef}`;
                 if (receiptUrl) finalPaymentMethod += ` | IMG:${receiptUrl}`;
             }
@@ -548,7 +579,7 @@ export default function CheckoutPage() {
                                         <CreditCard size={20} style={{ color: paymentMethod === 'card' ? 'var(--color-accent)' : '#888' }} />
                                         <span>{t('card')}</span>
                                     </div>
-                                    <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} disabled={!canProceedToPayment} />
+                                    <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} disabled={!canProceedToPayment} style={{ display: 'none' }} />
                                 </label>
 
                                 {paymentMethod === 'card' && (
@@ -592,7 +623,7 @@ export default function CheckoutPage() {
                                         <Banknote size={20} style={{ color: paymentMethod === 'cod' ? 'var(--color-accent)' : '#888' }} />
                                         <span>{t('cod')}</span>
                                     </div>
-                                    <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} disabled={!canProceedToPayment} />
+                                    <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} disabled={!canProceedToPayment} style={{ display: 'none' }} />
                                 </label>
 
                                 <label className={`${styles.pMethod} ${paymentMethod === 'instapay' ? styles.activeMethod : ''}`}>
@@ -600,14 +631,14 @@ export default function CheckoutPage() {
                                         <Smartphone size={20} style={{ color: paymentMethod === 'instapay' ? 'var(--color-accent)' : '#888' }} />
                                         <span>{t('instapay')}</span>
                                     </div>
-                                    <input type="radio" name="payment" value="instapay" checked={paymentMethod === 'instapay'} onChange={() => setPaymentMethod('instapay')} disabled={!canProceedToPayment} />
+                                    <input type="radio" name="payment" value="instapay" checked={paymentMethod === 'instapay'} onChange={() => setPaymentMethod('instapay')} disabled={!canProceedToPayment} style={{ display: 'none' }} />
                                 </label>
 
                                 {paymentMethod === 'instapay' && (
                                     <div className={styles.cardInputs} style={{ marginTop: '0.5rem', marginBottom: '1rem', padding: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
                                         <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', color: '#ccc', lineHeight: '1.6' }} dangerouslySetInnerHTML={{ __html: t('transfer_instructions', { method: t('instapay') }) }}>
                                         </p>
-                                        <div>
+                                        <div id="receipt-upload-section-instapay">
                                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#888' }}>{t('upload_receipt')}</label>
                                             <div style={{ position: 'relative', display: 'inline-block', border: '1px solid var(--color-accent)', padding: '0.8rem 1.5rem', borderRadius: '4px', background: 'transparent', color: '#fff', cursor: 'pointer', textAlign: 'center', overflow: 'hidden', width: '100%', transition: 'all 0.3s ease' }}>
                                                 <span style={{ pointerEvents: 'none', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '1px' }}>[ 📁 UPLOAD RECEIPT ]</span>
@@ -626,14 +657,14 @@ export default function CheckoutPage() {
                                         <Smartphone size={20} style={{ color: paymentMethod === 'vodafone' ? 'var(--color-accent)' : '#888' }} />
                                         <span>{t('vodafone_cash')}</span>
                                     </div>
-                                    <input type="radio" name="payment" value="vodafone" checked={paymentMethod === 'vodafone'} onChange={() => setPaymentMethod('vodafone')} disabled={!canProceedToPayment} />
+                                    <input type="radio" name="payment" value="vodafone" checked={paymentMethod === 'vodafone'} onChange={() => setPaymentMethod('vodafone')} disabled={!canProceedToPayment} style={{ display: 'none' }} />
                                 </label>
 
                                 {paymentMethod === 'vodafone' && (
                                     <div className={styles.cardInputs} style={{ marginTop: '0.5rem', marginBottom: '1rem', padding: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
                                         <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', color: '#ccc', lineHeight: '1.6' }} dangerouslySetInnerHTML={{ __html: t('transfer_instructions', { method: t('vodafone_cash') }) }}>
                                         </p>
-                                        <div>
+                                        <div id="receipt-upload-section">
                                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#888' }}>{t('upload_receipt')}</label>
                                             <div style={{ position: 'relative', display: 'inline-block', border: '1px solid var(--color-accent)', padding: '0.8rem 1.5rem', borderRadius: '4px', background: 'transparent', color: '#fff', cursor: 'pointer', textAlign: 'center', overflow: 'hidden', width: '100%', transition: 'all 0.3s ease' }}>
                                                 <span style={{ pointerEvents: 'none', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '1px' }}>[ 📁 UPLOAD RECEIPT ]</span>
@@ -756,6 +787,115 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Custom Receipt Prompt Modal */}
+            {showReceiptPrompt && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, width: '100%', height: '100%',
+                    background: 'rgba(0, 0, 0, 0.85)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 99999,
+                    backdropFilter: 'blur(4px)'
+                }}>
+                    <div style={{
+                        background: '#1A1816',
+                        border: '1px solid rgba(197, 163, 92, 0.3)',
+                        borderRadius: '12px',
+                        padding: '2.5rem',
+                        maxWidth: '420px',
+                        width: '90%',
+                        textAlign: 'center',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
+                    }}>
+                        <div style={{
+                            width: '60px',
+                            height: '60px',
+                            borderRadius: '50%',
+                            background: 'rgba(197, 163, 92, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.5rem auto'
+                        }}>
+                            <Camera size={30} color="var(--color-accent)" />
+                        </div>
+                        <h3 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.4rem', fontWeight: '600' }}>
+                            {t('upload_receipt_required') ? t('upload_receipt_required').replace('before placing the order.', '') : 'Payment Receipt'}
+                        </h3>
+                        <p style={{ color: '#aaa', marginBottom: '2rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                            {t('upload_receipt_prompt') || "Would you like to upload the receipt or transaction number now?"}
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button
+                                onClick={() => {
+                                    setShowReceiptPrompt(false);
+                                    setHasPromptedReceipt(true);
+                                    
+                                    // Scroll exactly to the upload box
+                                    const uploadSectionId = paymentMethod === 'instapay' ? 'receipt-upload-section-instapay' : 'receipt-upload-section';
+                                    const uploadSection = document.getElementById(uploadSectionId);
+                                    
+                                    if (uploadSection) {
+                                        const yOffset = -100; // offset for sticky header
+                                        const y = uploadSection.getBoundingClientRect().top + window.scrollY + yOffset;
+                                        window.scrollTo({ top: y, behavior: 'smooth' });
+                                        
+                                        // Briefly highlight the box so they know where to look
+                                        uploadSection.style.transition = 'background 0.5s';
+                                        uploadSection.style.background = 'rgba(197, 163, 92, 0.2)';
+                                        setTimeout(() => { uploadSection.style.background = 'transparent'; }, 1000);
+                                    } else {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }
+                                }}
+                                style={{
+                                    padding: '0.9rem 1.5rem',
+                                    background: 'var(--color-accent)',
+                                    color: '#000',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    flex: 1,
+                                    fontSize: '0.95rem',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.background = '#d4af37'}
+                                onMouseOut={(e) => e.currentTarget.style.background = 'var(--color-accent)'}
+                            >
+                                {t('upload_now') || 'Upload Now'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowReceiptPrompt(false);
+                                    setHasPromptedReceipt(true);
+                                    // Resume placing order
+                                    handlePlaceOrder();
+                                }}
+                                style={{
+                                    padding: '0.9rem 1.5rem',
+                                    background: 'transparent',
+                                    color: '#888',
+                                    border: '1px solid #444',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    flex: 1,
+                                    fontSize: '0.95rem',
+                                    fontWeight: '500',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#666'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.color = '#888'; e.currentTarget.style.borderColor = '#444'; }}
+                            >
+                                {t('cancel') || 'Skip & Order'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

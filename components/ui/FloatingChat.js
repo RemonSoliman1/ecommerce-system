@@ -11,6 +11,7 @@ export default function FloatingChat() {
     return (
         <>
             <button
+                id="tour-floating-chat"
                 onClick={() => setIsOpen(true)}
                 className={styles.chatButton}
                 aria-label="Contact Support"

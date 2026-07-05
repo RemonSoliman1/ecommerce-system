@@ -12,14 +12,73 @@ import AdminPromotions from './AdminPromotions';
 import AdminManualOrder from './AdminManualOrder';
 import AdminMarketing from './AdminMarketing';
 import AdminPromoCodes from './AdminPromoCodes';
+import { useTranslations } from 'next-intl';
 
 export default function AdminPage() {
+    const t = useTranslations('Admin');
     const { user, loading: authLoading } = useAuth();
     const { products, refreshProducts, autoHideStock: globalAutoHide, toggleProductVisibilityOptimistically } = useProducts();
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState('products'); // products | orders | users
     const [adminUsers, setAdminUsers] = useState([]);
+    const [checkoutCustomerSearch, setCheckoutCustomerSearch] = useState('');
+
+    const defaultTabs = [
+        { id: 'products', labelKey: 'tabs_products' },
+        { id: 'orders', labelKey: 'tabs_orders' },
+        { id: 'attributes', labelKey: 'tabs_attributes' },
+        { id: 'users', labelKey: 'tabs_users' },
+        { id: 'promotions', labelKey: 'tabs_promotions' },
+        { id: 'promos', labelKey: 'tabs_promos' },
+        { id: 'marketing', labelKey: 'tabs_marketing' }
+    ];
+
+    const [adminTabsOrder, setAdminTabsOrder] = useState(defaultTabs);
+    const [draggedTabIndex, setDraggedTabIndex] = useState(null);
+
+    useEffect(() => {
+        const savedTabs = localStorage.getItem('admin_tabs_order');
+        if (savedTabs) {
+            try {
+                const parsed = JSON.parse(savedTabs);
+                if (Array.isArray(parsed) && parsed.length === defaultTabs.length) {
+                    // Make sure the structure is correct
+                    const isValid = parsed.every(pt => defaultTabs.some(dt => dt.id === pt.id));
+                    if (isValid) setAdminTabsOrder(parsed);
+                }
+            } catch(e) {}
+        }
+    }, []);
+
+    const handleDragStart = (e, index) => {
+        setDraggedTabIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => {
+            if (e.target) e.target.style.opacity = '0.4';
+        }, 0);
+    };
+
+    const handleDragEnter = (e, index) => {
+        e.preventDefault();
+        if (draggedTabIndex === null || draggedTabIndex === index) return;
+        const newTabs = [...adminTabsOrder];
+        const draggedItem = newTabs[draggedTabIndex];
+        newTabs.splice(draggedTabIndex, 1);
+        newTabs.splice(index, 0, draggedItem);
+        setDraggedTabIndex(index);
+        setAdminTabsOrder(newTabs);
+    };
+
+    const handleDragEnd = (e) => {
+        if (e.target) e.target.style.opacity = '1';
+        setDraggedTabIndex(null);
+        localStorage.setItem('admin_tabs_order', JSON.stringify(adminTabsOrder));
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
 
     const [persistentAttributes, setPersistentAttributes] = useState({
         brand: [],
@@ -134,7 +193,7 @@ export default function AdminPage() {
         name: '',
         brand_id: 'cohiba',
         type: 'cigar',
-        origin: 'Cuba', // Default
+        origin: BRANDS.length > 0 ? BRANDS[0].origin : '',
         description: '',
         image: '',
         images: [], // Multiple images
@@ -426,7 +485,7 @@ export default function AdminPage() {
                     name: existingName.name,
                     brand_id: existingName.brandId || existingName.brand_id,
                     type: existingName.type,
-                    origin: existingName.origin || 'Cuba',
+                    origin: existingName.origin || brandObj?.origin || '',
                     series: existingName.series || '',
                     sampler_series: existingName.sampler_series || '',
                     category: existingName.category || '',
@@ -460,7 +519,7 @@ export default function AdminPage() {
                 name: existing.name,
                 brand_id: existing.brandId || existing.brand_id,
                 type: existing.type,
-                origin: existing.origin || 'Cuba',
+                origin: existing.origin || brandObj?.origin || '',
                 series: existing.series || '',
                 sampler_series: existing.sampler_series || '',
                 category: existing.category || '',
@@ -909,6 +968,24 @@ export default function AdminPage() {
         return unique.sort((a, b) => a.name.localeCompare(b.name));
     }, [formData.type, dynamicOptions.customBrands, persistentAttributes.brand, attributeMetadata]);
 
+    const filteredSeries = useMemo(() => {
+        if (!formData.brand_id) return dynamicOptions.allSeries;
+
+        const seriesForThisBrand = new Set();
+        
+        products.forEach(p => {
+            if ((p.brandId || p.brand_id) === formData.brand_id && p.series) {
+                seriesForThisBrand.add(p.series);
+            }
+        });
+
+        if (formData.series) {
+            seriesForThisBrand.add(formData.series);
+        }
+
+        return Array.from(seriesForThisBrand).sort();
+    }, [formData.brand_id, formData.series, products, dynamicOptions.allSeries]);
+
     // --- Filtered Products Logic ---
     const filteredProductsList = useMemo(() => {
         return products.filter(p => {
@@ -972,65 +1049,70 @@ export default function AdminPage() {
     if (authLoading || !user) return <div className="container" style={{ padding: '2rem' }}>Authenticating...</div>;
     if (user.role !== 'admin') return <div className="container" style={{ padding: '2rem', textAlign: 'center' }}><h2>Access Denied</h2><p>You do not have permission to view this page.</p></div>;
 
+    const handleBroadcastCollection = async () => {
+        if (!confirm('Are you sure you want to broadcast the latest items (last 48h) to Telegram?')) return;
+        
+        try {
+            const res = await fetch('/api/admin/broadcast-collection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ admin_secret: 'admin@129' })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                alert('Broadcast initiated successfully!');
+            } else {
+                alert('Broadcast failed: ' + (data.message || data.error));
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error initiating broadcast');
+        }
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>Admin Dashboard</h1>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <span>{user.email}</span>
-                    <button onClick={() => router.push('/')} className="btn-outline">Back to Shop</button>
+                    <button onClick={() => router.push('/')} className="btn-outline">{t('back_to_shop')}</button>
                 </div>
             </div>
 
             <div className={styles.tabs}>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'products' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('products')}
-                >
-                    Products
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'orders' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('orders')}
-                >
-                    Orders
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'attributes' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('attributes')}
-                >
-                    Attributes
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'users' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('users')}
-                >
-                    Users / Roles
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'promotions' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('promotions')}
-                >
-                    Home Promotions
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'promos' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('promos')}
-                >
-                    Promo Codes
-                </button>
-                <button
-                    className={`${styles.tabBtn} ${activeTab === 'marketing' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('marketing')}
-                >
-                    Marketing
-                </button>
+                {adminTabsOrder.map((tab, index) => (
+                    <button
+                        key={tab.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragEnter={(e) => handleDragEnter(e, index)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        className={`${styles.tabBtn} ${activeTab === tab.id ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab(tab.id)}
+                        style={{ cursor: 'grab' }}
+                    >
+                        {t(tab.labelKey)}
+                    </button>
+                ))}
             </div>
 
             {activeTab === 'products' && (
                 <div className={styles.content}>
                     <div className={styles.form} style={{ maxWidth: '900px', margin: '0 auto' }}>
-                        <h2 className={styles.fullWidth}>Add / Edit Product</h2>
+                        <div className={styles.fullWidth} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0 }}>{t('add_edit_product')}</h2>
+                            <button 
+                                type="button" 
+                                onClick={handleBroadcastCollection} 
+                                className={styles.btn} 
+                                style={{ background: 'linear-gradient(135deg, #1e90ff, #00bfff)', color: '#fff' }}
+                            >
+                                📢 Broadcast Collection
+                            </button>
+                        </div>
 
                         {/* ID Section with Load Feature */}
                         <div className={styles.formGroup} style={{ position: 'relative' }}>
@@ -1096,7 +1178,7 @@ export default function AdminPage() {
                             label="Series / Collection"
                             name="series"
                             value={formData.series}
-                            options={dynamicOptions.allSeries.map(s => ({ value: s, label: s }))}
+                            options={filteredSeries.map(s => ({ value: s, label: s }))}
                             onChange={handleInputChange}
                             placeholder="Enter Series (Optional)"
                             category="series"
@@ -1138,14 +1220,12 @@ export default function AdminPage() {
                         <div className={styles.formGroup}>
                             <label>Cigar Aficionado (0-100 Points)</label>
                             <input
-                                type="number"
-                                min="0"
-                                max="100"
+                                type="text"
                                 name="rating"
                                 value={formData.rating || ''}
                                 onChange={handleInputChange}
                                 className={styles.input}
-                                placeholder="e.g. 96"
+                                placeholder="e.g. 96 Points - Cigar Snob"
                             />
                         </div>
 
@@ -1377,6 +1457,13 @@ export default function AdminPage() {
                                                             }}
                                                             style={{ cursor: 'pointer' }}
                                                         />
+                                                        {attributeMetadata[giftName]?.image && (
+                                                            <img 
+                                                                src={attributeMetadata[giftName].image} 
+                                                                alt={giftName} 
+                                                                style={{ width: '20px', height: '20px', objectFit: 'cover', borderRadius: '2px' }} 
+                                                            />
+                                                        )}
                                                         {giftName}
                                                         {currentModel.allowed_gifts?.includes(giftName) && (
                                                             <input
@@ -1768,7 +1855,7 @@ export default function AdminPage() {
                                                                 name: p.name,
                                                                 brand_id: p.brandId || p.brand_id,
                                                                 type: p.type,
-                                                                origin: p.origin || 'Cuba',
+                                                                origin: p.origin || BRANDS.find(b => b.id === p.brand_id)?.origin || 'Imported',
                                                                 category: p.category || '',
                                                                 description: p.description || '',
                                                                 image: p.image || '',
@@ -2504,6 +2591,129 @@ export default function AdminPage() {
                                 )}
                             </div>
                         </div>
+
+                        {/* Checkout Settings Section */}
+                        <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #333' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <h2>Checkout Settings</h2>
+                                    <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>
+                                        Configure store-wide settings for the checkout process.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style={{ background: '#121110', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Require Payment Receipts (Instapay/Vodafone)</label>
+                                <select 
+                                    value={(() => {
+                                        let mode = 'none';
+                                        try {
+                                            const settings = JSON.parse(persistentAttributes.checkout_settings || '{}');
+                                            mode = settings.receipt_requirement_mode || 'none';
+                                        } catch(e) {
+                                            if (typeof persistentAttributes.checkout_settings === 'string') {
+                                                mode = persistentAttributes.checkout_settings;
+                                            }
+                                        }
+                                        return mode;
+                                    })()}
+                                    onChange={async (e) => {
+                                        const newMode = e.target.value;
+                                        try {
+                                            const metadata = { receipt_requirement_mode: newMode };
+                                            const res = await fetch('/api/admin/attributes', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ category: 'checkout_settings', value: JSON.stringify(metadata) })
+                                            });
+                                            if (res.ok) {
+                                                setPersistentAttributes(prev => ({ ...prev, checkout_settings: JSON.stringify(metadata) }));
+                                                alert('Settings updated successfully.');
+                                            } else {
+                                                alert('Failed to update settings.');
+                                            }
+                                        } catch(error) {
+                                            alert('Error updating settings.');
+                                        }
+                                    }}
+                                    className="inputField"
+                                    style={{ width: '100%', maxWidth: '400px' }}
+                                >
+                                    <option value="none">None (Optional for all)</option>
+                                    <option value="all">All (Strictly required for everyone)</option>
+                                    <option value="specific">Specific Customers</option>
+                                </select>
+                                <p style={{ fontSize: '0.85rem', color: '#888', marginTop: '1rem', lineHeight: '1.5' }}>
+                                    If set to <strong>None</strong>, users will only see a gentle notification asking them to upload, but they can skip it. <br/>
+                                    If set to <strong>All</strong>, users cannot place an order with Instapay/Vodafone without uploading the receipt image. <br/>
+                                    If set to <strong>Specific Customers</strong>, the strict block only applies to the users you select below.
+                                </p>
+
+                                {(() => {
+                                    let settings = {};
+                                    try {
+                                        settings = JSON.parse(persistentAttributes.checkout_settings || '{}');
+                                    } catch(e) {
+                                        if (typeof persistentAttributes.checkout_settings === 'string') {
+                                            settings = { receipt_requirement_mode: persistentAttributes.checkout_settings };
+                                        }
+                                    }
+                                    const mode = settings.receipt_requirement_mode || 'none';
+                                    const restrictedEmails = settings.restricted_emails || [];
+
+                                    if (mode === 'specific') {
+                                        return (
+                                            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #333' }}>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Targeted Customers</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Search customers by name or email..." 
+                                                    value={checkoutCustomerSearch} 
+                                                    onChange={e => setCheckoutCustomerSearch(e.target.value)}
+                                                    className="inputField"
+                                                    style={{ width: '100%', maxWidth: '400px', marginBottom: '0.5rem' }}
+                                                />
+                                                <div style={{ maxWidth: '600px', maxHeight: '200px', overflowX: 'hidden', overflowY: 'auto', background: '#222', border: '1px solid #333', borderRadius: '4px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                    {adminUsers.filter(c => c.name?.toLowerCase().includes(checkoutCustomerSearch.toLowerCase()) || c.email?.toLowerCase().includes(checkoutCustomerSearch.toLowerCase())).map(c => (
+                                                        <label key={c.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', width: '100%', padding: '12px 16px', cursor: 'pointer', background: restrictedEmails.includes(c.email) ? 'rgba(197, 163, 92, 0.2)' : 'transparent', borderBottom: '1px solid #444', fontSize: '0.9rem' }}>
+                                                            <span style={{ textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#fff' }}>{c.name || 'N/A'} ({c.email})</span>
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={restrictedEmails.includes(c.email)} 
+                                                                onChange={async () => {
+                                                                    const newEmails = restrictedEmails.includes(c.email) 
+                                                                        ? restrictedEmails.filter(email => email !== c.email)
+                                                                        : [...restrictedEmails, c.email];
+                                                                        
+                                                                    const metadata = { ...settings, restricted_emails: newEmails };
+                                                                    
+                                                                    try {
+                                                                        const res = await fetch('/api/admin/attributes', {
+                                                                            method: 'POST',
+                                                                            headers: { 'Content-Type': 'application/json' },
+                                                                            body: JSON.stringify({ category: 'checkout_settings', value: JSON.stringify(metadata) })
+                                                                        });
+                                                                        if (res.ok) {
+                                                                            setPersistentAttributes(prev => ({ ...prev, checkout_settings: JSON.stringify(metadata) }));
+                                                                        }
+                                                                    } catch(err) {
+                                                                        console.error(err);
+                                                                        alert('Failed to update targeted customer list');
+                                                                    }
+                                                                }}
+                                                                style={{ justifySelf: 'end', cursor: 'pointer', transform: 'scale(1.2)' }}
+                                                            />
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
+                            </div>
+                        </div>
                     </div>
                 )
             }
@@ -2523,6 +2733,7 @@ export default function AdminPage() {
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Email</th>
+                                                <th>Activity Status</th>
                                                 <th>Current Role</th>
                                                 <th>Action</th>
                                             </tr>
@@ -2537,6 +2748,24 @@ export default function AdminPage() {
                                                 >
                                                     <td style={{ padding: '10px' }}>{u.name || 'N/A'}</td>
                                                     <td style={{ padding: '10px' }}>{u.email}</td>
+                                                    <td style={{ padding: '10px' }}>
+                                                        <span style={{
+                                                            display: 'inline-block',
+                                                            padding: '2px 8px',
+                                                            borderRadius: '12px',
+                                                            fontSize: '0.8rem',
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: u.activity_status === 'Active' ? 'rgba(76, 175, 80, 0.2)' : u.activity_status === 'Slipping' ? 'rgba(255, 193, 7, 0.2)' : 'rgba(244, 67, 54, 0.2)',
+                                                            color: u.activity_status === 'Active' ? '#4caf50' : u.activity_status === 'Slipping' ? '#ffc107' : '#f44336'
+                                                        }}>
+                                                            {u.activity_status === 'Active' ? '🟢 Active' : u.activity_status === 'Slipping' ? '🟡 Slipping' : '🔴 Dormant'}
+                                                        </span>
+                                                        {u.last_active_at && (
+                                                            <div style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>
+                                                                Last: {new Date(u.last_active_at).toLocaleDateString()}
+                                                            </div>
+                                                        )}
+                                                    </td>
                                                     <td style={{ padding: '10px', color: u.role === 'admin' ? 'var(--color-accent)' : '#fff', fontWeight: u.role === 'admin' ? 'bold' : 'normal' }}>
                                                         {u.role === 'admin' ? 'Admin' : 'User'}
                                                     </td>
@@ -2594,6 +2823,8 @@ export default function AdminPage() {
                                                                     <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Points:</strong> {u.points?.toLocaleString() || 0}</p>
                                                                     <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Spent:</strong> EGP {u.total_spent?.toLocaleString() || 0}</p>
                                                                     <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Orders:</strong> {u.orders_count || 0}</p>
+                                                                    
+
                                                                 </div>
                                                                 <div>
                                                                     <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Recent Orders</h4>

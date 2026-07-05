@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, Link } from '@/lib/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function RegisterPage() {
     const [name, setName] = useState('');
@@ -12,6 +13,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
     const { register } = useAuth();
     const router = useRouter();
+    const t = useTranslations('Auth');
 
     const calculateAge = (birthDate) => {
         const today = new Date();
@@ -79,12 +81,12 @@ export default function RegisterPage() {
 
     return (
         <div className="container" style={{ maxWidth: '400px', margin: '6rem auto', padding: '2rem', border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)' }}>
-            <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Create Account</h1>
+            <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>{t('register_title')}</h1>
             {error && <p style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                     type="text"
-                    placeholder="Full Name"
+                    placeholder={t('fullname_placeholder')}
                     value={name}
                     onChange={e => setName(e.target.value)}
                     style={{ padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
@@ -92,7 +94,7 @@ export default function RegisterPage() {
                 />
                 <input
                     type="email"
-                    placeholder="Email Address"
+                    placeholder={t('email_placeholder')}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     style={{ padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
@@ -102,7 +104,7 @@ export default function RegisterPage() {
                 <div style={{ position: 'relative' }}>
                     <input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Password"
+                        placeholder={t('password_placeholder')}
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         style={{ width: '100%', padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
@@ -113,14 +115,14 @@ export default function RegisterPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '0.8rem' }}
                     >
-                        {showPassword ? 'Hide' : 'Show'}
+                        {showPassword ? t('hide') : t('show')}
                     </button>
                 </div>
 
                 <div style={{ position: 'relative' }}>
                     <input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Confirm Password"
+                        placeholder={t('confirm_password_placeholder')}
                         value={confirmPassword}
                         onChange={e => setConfirmPassword(e.target.value)}
                         style={{ width: '100%', padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
@@ -129,7 +131,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', color: '#aaa', marginLeft: '0.5rem' }}>Date of Birth (For Age Verification)</label>
+                    <label style={{ fontSize: '0.9rem', color: '#aaa', marginLeft: '0.5rem' }}>{t('dob_label')}</label>
                     <input
                         type="date"
                         value={dob}
@@ -139,11 +141,11 @@ export default function RegisterPage() {
                     />
                 </div>
                 <button className="btn" type="submit" disabled={loading}>
-                    {loading ? 'Signing Up...' : 'Sign Up'}
+                    {loading ? t('signing_up') : t('signup_btn')}
                 </button>
             </form>
             <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
-                Already have an account? <Link href="/login" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>Login</Link>
+                {t('have_account')} <Link href="/login" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('login_btn')}</Link>
             </p>
         </div>
     );
