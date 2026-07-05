@@ -180,6 +180,7 @@ export async function POST(request) {
                 let restockedVariant = null;
                 let newVariant = null;
                 let priceDropVariant = null;
+                let discountAddedVariant = null;
                 let freeShippingAdded = false;
                 
                 const oldModels = oldProduct.models || [];
@@ -203,6 +204,12 @@ export async function POST(request) {
                         }
                         if (Number(newMod.price) < Number(oldMod.price)) {
                             priceDropVariant = newMod;
+                        }
+                        // Detect newly added discount (original_price is newly set higher than price)
+                        const oldHasDiscount = Number(oldMod.original_price) > Number(oldMod.price);
+                        const newHasDiscount = Number(newMod.original_price) > Number(newMod.price);
+                        if (!oldHasDiscount && newHasDiscount) {
+                            discountAddedVariant = newMod;
                         }
                     }
                 }
@@ -228,6 +235,11 @@ export async function POST(request) {
                     telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size} is now EGP ${priceDropVariant.price}!\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `📉 Price Drop: ${data.name}`;
                     pushBody = `${priceDropVariant.size} is now EGP ${priceDropVariant.price}!`;
+                } else if (discountAddedVariant) {
+                    const discountPercent = Math.round(((discountAddedVariant.original_price - discountAddedVariant.price) / discountAddedVariant.original_price) * 100);
+                    telegramText = `🔥 SPECIAL DISCOUNT: ${data.name} 🔥\n\n📏 Vitola: ${discountAddedVariant.size} is now ${discountPercent}% OFF!\n💵 Only EGP ${discountAddedVariant.price} (was ${discountAddedVariant.original_price})\n👉 ${siteUrl}/product/${data.id}`;
+                    pushTitle = `🔥 ${discountPercent}% OFF: ${data.name}`;
+                    pushBody = `${discountAddedVariant.size} is now ${discountPercent}% OFF! Only EGP ${discountAddedVariant.price}.`;
                 }
                 
                 if (telegramText) {
