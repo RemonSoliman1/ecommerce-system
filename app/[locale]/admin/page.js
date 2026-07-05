@@ -1289,7 +1289,7 @@ export default function AdminPage() {
                             {/* Image Grid */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
                                 {(formData.images || []).map((img, idx) => (
-                                    
+                                    <div key={idx} draggable onDragStart={() => handleImageDragStart(idx)} onDragOver={handleImageDragOver} onDrop={() => handleImageDrop(idx)} style={{ position: 'relative', border: formData.image === img ? '2px solid var(--color-accent)' : '1px solid #333', borderRadius: '4px', overflow: 'hidden', aspectRatio: '1/1', background: '#000', cursor: 'grab' }}>
                                         <img
                                             src={img}
                                             alt={`Img ${idx}`}
