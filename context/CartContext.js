@@ -191,7 +191,8 @@ export function CartProvider({ children }) {
                 price: price,
                 quantity: allowedQuantityToAdd,
                 giftOption: giftOption,
-                stock: product.stock // Preserve stock limit
+                stock: product.stock, // Preserve stock limit
+                badges: product.badges || []
             }];
         });
 

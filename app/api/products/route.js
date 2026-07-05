@@ -152,17 +152,25 @@ export async function POST(request) {
                 let mediaArray = [];
                 const imagesToSend = data.images && data.images.length > 0 ? data.images.slice(0, 10) : (data.image ? [data.image] : []);
                 
-                if (imagesToSend.length > 0) {
-                    mediaArray = imagesToSend.map((img, index) => ({
-                        type: 'photo',
-                        media: img,
-                        caption: index === 0 ? telegramText : undefined,
-                        parse_mode: 'HTML'
-                    }));
-                    await sendTelegramMediaGroup(mediaArray, targetGroup);
-                } else {
-                    await broadcastTelegramMessage(telegramText, null);
-                }
+                    if (imagesToSend.length > 0) {
+                        mediaArray = imagesToSend.map((img, index) => ({
+                            type: 'photo',
+                            media: img,
+                            caption: index === 0 ? telegramText : undefined,
+                            parse_mode: 'HTML'
+                        }));
+                        await sendTelegramMediaGroup(mediaArray, targetGroup);
+                    } else {
+                        await broadcastTelegramMessage(telegramText, null);
+                    }
+                    
+                    // Add Push Notification for New Arrival
+                    await sendPushNotification({
+                        title: `✨ New Arrival: ${data.name}`,
+                        body: 'Check out the latest addition to our humidor!',
+                        url: `/product/${data.id}`,
+                        targetType: 'all'
+                    });
             } catch (tgErr) {
                 console.error("New Arrival Telegram dispatch failed:", tgErr);
             }
@@ -172,9 +180,17 @@ export async function POST(request) {
                 let restockedVariant = null;
                 let newVariant = null;
                 let priceDropVariant = null;
+                let freeShippingAdded = false;
                 
                 const oldModels = oldProduct.models || [];
                 const newModels = data.models || [];
+                
+                const oldBadges = (oldProduct.badges || []).map(b => b.toLowerCase().replace(/\s+/g, ''));
+                const newBadges = (data.badges || []).map(b => b.toLowerCase().replace(/\s+/g, ''));
+                
+                if (!oldBadges.includes('freeshipping') && newBadges.includes('freeshipping')) {
+                    freeShippingAdded = true;
+                }
                 
                 for (const newMod of newModels) {
                     const oldMod = oldModels.find(m => m.size === newMod.size && m.name === newMod.name);
@@ -193,13 +209,25 @@ export async function POST(request) {
                 
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
                 let telegramText = '';
+                let pushTitle = '';
+                let pushBody = '';
 
                 if (newVariant) {
                     telegramText = `✨ NEW SIZE ADDED: ${data.name} ✨\n\n📏 Vitola: ${newVariant.size}\n💵 Price: EGP ${newVariant.price}\n👉 ${siteUrl}/product/${data.id}`;
+                    pushTitle = `✨ New Size: ${data.name}`;
+                    pushBody = `${newVariant.size} is now available!`;
+                } else if (freeShippingAdded) {
+                    telegramText = `🚚 FREE SHIPPING UNLOCKED: ${data.name} 🚚\n\nOrder now and get it delivered for free!\n👉 ${siteUrl}/product/${data.id}`;
+                    pushTitle = `🚚 Free Shipping: ${data.name}`;
+                    pushBody = `Order now and get it delivered for free!`;
                 } else if (restockedVariant) {
                     telegramText = `♻️ BACK IN STOCK: ${data.name} ♻️\n\n📏 Vitola: ${restockedVariant.size}\n👉 ${siteUrl}/product/${data.id}`;
+                    pushTitle = `♻️ Back in Stock: ${data.name}`;
+                    pushBody = `${restockedVariant.size} is back in the humidor!`;
                 } else if (priceDropVariant) {
                     telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size} is now EGP ${priceDropVariant.price}!\n👉 ${siteUrl}/product/${data.id}`;
+                    pushTitle = `📉 Price Drop: ${data.name}`;
+                    pushBody = `${priceDropVariant.size} is now EGP ${priceDropVariant.price}!`;
                 }
                 
                 if (telegramText) {
@@ -217,6 +245,18 @@ export async function POST(request) {
                         await sendTelegramMediaGroup(mediaArray, targetGroup);
                     } else {
                         await broadcastTelegramMessage(telegramText, null);
+                    }
+                    
+                    // Broadcast via Push Notification
+                    try {
+                        await sendPushNotification({
+                            title: pushTitle,
+                            body: pushBody,
+                            url: `/product/${data.id}`,
+                            targetType: 'all'
+                        });
+                    } catch (pErr) {
+                        console.error("Push Notification dispatch failed:", pErr);
                     }
                 }
             } catch (tgErr) {

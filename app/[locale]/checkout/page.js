@@ -221,8 +221,15 @@ export default function CheckoutPage() {
             alert("Please fill in all address fields.");
             return;
         }
-        // Mock shipping
-        const cost = address.city.toLowerCase().includes('cairo') ? 50 : 100;
+        
+        let cost = address.city.toLowerCase().includes('cairo') ? 50 : 100;
+        
+        // Free shipping override if any item in cart has "Free Shipping" badge
+        const hasFreeShippingItem = cartItems.some(item => 
+            item.badges && item.badges.some(b => b.toLowerCase().replace(/\s+/g, '') === 'freeshipping')
+        );
+        if (hasFreeShippingItem) cost = 0;
+
         setShippingCost(cost);
         setStep(2); // Move to Payment/Confirm
     };

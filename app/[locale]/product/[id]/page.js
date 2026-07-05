@@ -385,15 +385,29 @@ export default function ProductPage({ params }) {
                                 <h1 className={styles.title} style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', color: 'var(--color-text-primary)' }}>{product.name}</h1>
 
                                 {/* Dynamic Animated Badges */}
-                                {product.badges && product.badges.length > 0 && (
-                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '1rem' }}>
-                                        {product.badges.map((badge, idx) => (
-                                            <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
-                                                {badge}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
+                                {(() => {
+                                    const finalBadges = [...(product.badges || [])];
+                                    const selectedOriginalPrice = selectedModel?.original_price;
+                                    const selectedHasDiscount = selectedOriginalPrice && selectedOriginalPrice > selectedModel?.price;
+                                    const selectedDiscountPercent = selectedHasDiscount ? Math.round(((selectedOriginalPrice - selectedModel.price) / selectedOriginalPrice) * 100) : 0;
+                                    
+                                    if (selectedHasDiscount && selectedDiscountPercent > 0) {
+                                        finalBadges.push(`${selectedDiscountPercent}% OFF`);
+                                    }
+                                    
+                                    if (finalBadges.length > 0) {
+                                        return (
+                                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                                {finalBadges.map((badge, idx) => (
+                                                    <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
+                                                        {badge}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
 
                                 {/* Expert Rating */}
                                 {product.rating && (() => {

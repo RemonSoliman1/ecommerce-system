@@ -114,6 +114,14 @@ export async function POST(request) {
             let shippingCost = 0;
             if (customer && customer.city) {
                 shippingCost = customer.city.toLowerCase().includes('cairo') ? 50 : 100;
+                
+                // Add Free Shipping Support based on items badges
+                const hasFreeShippingItem = items.some(item => 
+                    item.badges && item.badges.some(b => b.toLowerCase().replace(/\s+/g, '') === 'freeshipping')
+                );
+                if (hasFreeShippingItem) {
+                    shippingCost = 0;
+                }
             }
             finalTotal += shippingCost;
         }

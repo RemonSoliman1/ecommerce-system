@@ -61,15 +61,23 @@ export default function ProductCard({ product }) {
             )}
             
             {/* Dynamic Animated Badges */}
-            {product.badges && product.badges.length > 0 && (
-                <div style={{ position: 'absolute', top: '10px', right: product.rating ? '65px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
-                    {product.badges.map((badge, idx) => (
-                        <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
-                            {badge}
-                        </span>
-                    ))}
-                </div>
-            )}
+            {(() => {
+                const finalBadges = [...(product.badges || [])];
+                if (hasDiscount && discountPercent > 0) finalBadges.push(`${discountPercent}% OFF`);
+                
+                if (finalBadges.length > 0) {
+                    return (
+                        <div style={{ position: 'absolute', top: '10px', right: product.rating ? '65px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
+                            {finalBadges.map((badge, idx) => (
+                                <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
+                                    {badge}
+                                </span>
+                            ))}
+                        </div>
+                    );
+                }
+                return null;
+            })()}
             <div className={styles.cardImage}>
                 <div className={styles.cardOverlay}>
                     {/* Restored Hover effect for Strength and Origin inside Overlay */}
