@@ -188,7 +188,7 @@ export default function AdminPage() {
     const [expandedOrderId, setExpandedOrderId] = useState(null);
     const [expandedUserId, setExpandedUserId] = useState(null);
     const [confirmingOrder, setConfirmingOrder] = useState(null);
-    const [formData, setFormData] = useState({
+    const initialFormState = {
         id: '',
         name: '',
         brand_id: 'cohiba',
@@ -205,12 +205,46 @@ export default function AdminPage() {
         series: '',
         sampler_series: '',
         has_gifts: false
-    });
+    };
+
+    const initialModelState = { name: '', size: '', dimensions: '', price: '', original_price: '', stock: '10', allowed_gifts: [], gift_overrides: {}, disable_gifts: false };
+
+    const [formData, setFormData] = useState(initialFormState);
 
     // ... (rest of state items are fine) ...
-    const [currentModel, setCurrentModel] = useState({ name: '', size: '', dimensions: '', price: '', original_price: '', stock: '10', allowed_gifts: [], gift_overrides: {}, disable_gifts: false });
+    const [currentModel, setCurrentModel] = useState(initialModelState);
     const [editModelIndex, setEditModelIndex] = useState(null);
+
+    const resetForm = () => {
+        setFormData(initialFormState);
+        setCurrentModel(initialModelState);
+        setEditModelIndex(null);
+        setStatus({ loading: false, error: '', success: '' });
+    };
     // const [imageFile, setImageFile] = useState(null); // Deprecated in favor of direct upload
+    
+    const [draggedImageIndex, setDraggedImageIndex] = useState(null);
+
+    const handleImageDragStart = (idx) => {
+        setDraggedImageIndex(idx);
+    };
+
+    const handleImageDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleImageDrop = (idx) => {
+        if (draggedImageIndex === null || draggedImageIndex === idx) return;
+        setFormData(prev => {
+            const newImages = [...prev.images];
+            const dragged = newImages[draggedImageIndex];
+            newImages.splice(draggedImageIndex, 1);
+            newImages.splice(idx, 0, dragged);
+            return { ...prev, images: newImages };
+        });
+        setDraggedImageIndex(null);
+    };
+
     const [uploadingImage, setUploadingImage] = useState(false);
     const [previewImage, setPreviewImage] = useState(null); // For modal preview
     const [parsingDesc, setParsingDesc] = useState(false);
@@ -858,6 +892,7 @@ export default function AdminPage() {
             if (res.ok) {
                 setStatus({ loading: false, error: '', success: 'Product saved successfully!' });
                 refreshProducts();
+                resetForm();
             } else {
                 setStatus({ loading: false, error: data.error || 'Failed to save', success: '' });
             }
@@ -1229,6 +1264,87 @@ export default function AdminPage() {
                             />
                         </div>
 
+                        <div className={styles.formGroup}>
+                            <label>Product Images (First image is Main)</label>
+
+                            {/* Upload & Add URL Buttons */}
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                                <div className={styles.fileUploadWrapper}>
+                                    <span className={styles.fileUploadLabel}>[ 📁 UPLOAD IMAGES ]</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleImageUpload}
+                                        className={styles.hiddenFileInput}
+                                        title="+ Upload Images"
+                                    />
+                                </div>
+                                <button type="button" onClick={handleAddImageUrl} style={{ background: 'none', border: '1px solid #555', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '5px 10px' }}>
+                                    + Add URL
+                                </button>
+                                {uploadingImage && <span style={{ marginLeft: '1rem', color: 'var(--color-accent)' }}>Uploading...</span>}
+                            </div>
+
+                            {/* Image Grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
+                                {(formData.images || []).map((img, idx) => (
+                                    
+                                        <img
+                                            src={img}
+                                            alt={`Img ${idx}`}
+                                            style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
+                                            onClick={() => setPreviewImage(img)}
+                                        />
+                                        {/* Remove Button */}
+                                        <div style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.7)', padding: '2px', zIndex: 10 }}>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); handleRemoveImage(idx); }}
+                                                style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}
+                                            >
+                                                &times;
+                                            </button>
+                                        </div>
+
+                                        {/* Controls Overlay */}
+                                        <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.8)', padding: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            {/* Reorder Left */}
+                                            {idx > 0 && (
+                                                <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(idx, 'left'); }} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>
+                                                    &lt;
+                                                </button>
+                                            )}
+
+                                            {/* Set Main Toggle */}
+                                            {formData.image !== img ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); handleSetMainImage(img); }}
+                                                    style={{ color: '#aaa', background: 'none', border: 'none', fontSize: '0.7rem', cursor: 'pointer' }}
+                                                >
+                                                    Set Main
+                                                </button>
+                                            ) : (
+                                                <span style={{ color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 'bold' }}>Main</span>
+                                            )}
+
+                                            {/* Reorder Right */}
+                                            {idx < (formData.images || []).length - 1 && (
+                                                <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(idx, 'right'); }} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>
+                                                    &gt;
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Image Preview Modal */}
+                        {previewImage && (
+                            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setPreviewImage(null)}>
+
                         <div className={styles.formGroup} style={{ border: '1px solid #333', padding: '1rem', borderRadius: '4px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <input
@@ -1461,7 +1577,7 @@ export default function AdminPage() {
                                                             <img 
                                                                 src={attributeMetadata[giftName].image} 
                                                                 alt={giftName} 
-                                                                style={{ width: '20px', height: '20px', objectFit: 'cover', borderRadius: '2px' }} 
+                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} 
                                                             />
                                                         )}
                                                         {giftName}
@@ -1493,86 +1609,6 @@ export default function AdminPage() {
                             )}
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label>Product Images (First image is Main)</label>
-
-                            {/* Upload & Add URL Buttons */}
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                                <div className={styles.fileUploadWrapper}>
-                                    <span className={styles.fileUploadLabel}>[ 📁 UPLOAD IMAGES ]</span>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleImageUpload}
-                                        className={styles.hiddenFileInput}
-                                        title="+ Upload Images"
-                                    />
-                                </div>
-                                <button type="button" onClick={handleAddImageUrl} style={{ background: 'none', border: '1px solid #555', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '5px 10px' }}>
-                                    + Add URL
-                                </button>
-                                {uploadingImage && <span style={{ marginLeft: '1rem', color: 'var(--color-accent)' }}>Uploading...</span>}
-                            </div>
-
-                            {/* Image Grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
-                                {(formData.images || []).map((img, idx) => (
-                                    <div key={idx} style={{ position: 'relative', border: formData.image === img ? '2px solid var(--color-accent)' : '1px solid #333', borderRadius: '4px', overflow: 'hidden', aspectRatio: '1/1', background: '#000' }}>
-                                        <img
-                                            src={img}
-                                            alt={`Img ${idx}`}
-                                            style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
-                                            onClick={() => setPreviewImage(img)}
-                                        />
-                                        {/* Remove Button */}
-                                        <div style={{ position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.7)', padding: '2px', zIndex: 10 }}>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); handleRemoveImage(idx); }}
-                                                style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}
-                                            >
-                                                &times;
-                                            </button>
-                                        </div>
-
-                                        {/* Controls Overlay */}
-                                        <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.8)', padding: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            {/* Reorder Left */}
-                                            {idx > 0 && (
-                                                <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(idx, 'left'); }} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                                    &lt;
-                                                </button>
-                                            )}
-
-                                            {/* Set Main Toggle */}
-                                            {formData.image !== img ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => { e.stopPropagation(); handleSetMainImage(img); }}
-                                                    style={{ color: '#aaa', background: 'none', border: 'none', fontSize: '0.7rem', cursor: 'pointer' }}
-                                                >
-                                                    Set Main
-                                                </button>
-                                            ) : (
-                                                <span style={{ color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 'bold' }}>Main</span>
-                                            )}
-
-                                            {/* Reorder Right */}
-                                            {idx < (formData.images || []).length - 1 && (
-                                                <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(idx, 'right'); }} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                                    &gt;
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Image Preview Modal */}
-                        {previewImage && (
-                            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setPreviewImage(null)}>
                                 <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
                                     <img src={previewImage} style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
                                     <button
@@ -1667,13 +1703,41 @@ export default function AdminPage() {
                         <div className={styles.fullWidth}>
                             {status.error && <p style={{ color: 'red', marginBottom: '1rem' }}>{status.error}</p>}
                             {status.success && <p style={{ color: 'green', marginBottom: '1rem' }}>{status.success}</p>}
-                            <button
-                                className={styles.submitBtn}
-                                onClick={handleSubmitProduct}
-                                disabled={status.loading || uploadingImage}
-                            >
-                                {status.loading || uploadingImage ? 'Processing...' : 'Save Product'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '2rem' }}>
+                                <button
+                                    onClick={resetForm}
+                                    style={{
+                                        background: 'transparent',
+                                        color: '#ff4d4d',
+                                        border: '1px solid #ff4d4d',
+                                        padding: '12px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        textTransform: 'uppercase',
+                                        flex: 1
+                                    }}
+                                >
+                                    Cancel / Clear
+                                </button>
+                                <button
+                                    onClick={handleSubmitProduct}
+                                    disabled={status.loading || uploadingImage}
+                                    style={{
+                                        background: 'var(--color-accent)',
+                                        color: '#000',
+                                        border: 'none',
+                                        padding: '12px',
+                                        borderRadius: '4px',
+                                        cursor: (status.loading || uploadingImage) ? 'not-allowed' : 'pointer',
+                                        fontWeight: 'bold',
+                                        textTransform: 'uppercase',
+                                        flex: 1
+                                    }}
+                                >
+                                    {status.loading || uploadingImage ? 'Processing...' : 'Save Product'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 

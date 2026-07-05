@@ -450,7 +450,9 @@ export default function ProductPage({ params }) {
                                     <div className={styles.controlGroup} style={{ flex: 1, minWidth: '200px' }}>
                                         <label className={styles.label}>Size</label>
                                         <div className={styles.sizeOptions}>
-                                            {sizes.map(size => (
+                                            {sizes.map(size => {
+                                                const displaySize = size.includes('-') ? size.split('-')[0].trim() : size;
+                                                return (
                                                 <button
                                                     key={size}
                                                     className={`${styles.sizeBtn} ${selectedSize === size ? styles.activeSize : ''}`}
@@ -469,15 +471,15 @@ export default function ProductPage({ params }) {
                                                     }}
                                                 >
                                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                        <span className={styles.modelName}>{size}</span>
+                                                        <span className={styles.modelName}>{displaySize}</span>
                                                         {modelsBySize[size]?.[0]?.dimensions && (
-                                                            <span style={{ fontSize: '0.7em', color: selectedSize === size ? '#eee' : '#888' }}>
+                                                            <span className={styles.modelName} style={{ fontSize: '0.85em', marginTop: '2px' }}>
                                                                 {modelsBySize[size][0].dimensions}
                                                             </span>
                                                         )}
                                                     </div>
                                                 </button>
-                                            ))}
+                                            )})}
                                         </div>
                                     </div>
 

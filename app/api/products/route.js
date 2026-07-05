@@ -131,7 +131,17 @@ export async function POST(request) {
             // Dispatch Telegram Single-Item Drop
             try {
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
-                const telegramText = `🔥 NEW ARRIVAL: ${data.name}\n👉 Click to view details & price: ${siteUrl}/product/${data.id}`;
+                const stripHtml = (html) => html ? html.replace(/<[^>]+>/g, '') : '';
+                const briefDescription = stripHtml(data.description).substring(0, 150) + (stripHtml(data.description).length > 150 ? '...' : '');
+                const vitola = data.models && data.models.length > 0 ? data.models[0].size : 'Standard';
+                const notes = Array.isArray(data.flavor_profile) ? data.flavor_profile.join(', ') : (data.flavor_profile || '');
+
+                const telegramText = `🔥 NEW ARRIVAL: ${data.name} 🔥\n\n` +
+                `📏 Vitola: ${vitola}\n` +
+                `${notes ? `🌿 Notes: ${notes}\n` : ''}\n` +
+                `📝 ${briefDescription}\n\n` +
+                `👉 View details & price: ${siteUrl}/product/${data.id}`;
+                
                 // Await so Vercel doesn't kill it mid-flight
                 await broadcastTelegramMessage(telegramText, data.image);
             } catch (tgErr) {
