@@ -1280,6 +1280,44 @@ export default function AdminPage() {
                         </div>
 
                         <div className={styles.formGroup}>
+                            <label>Product Badges (e.g., FREE Shipping, 40% OFF)</label>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input
+                                    type="text"
+                                    id="badgeInput"
+                                    className={styles.input}
+                                    placeholder="Type a badge and click Add"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const val = e.target.value.trim();
+                                            if (val && !(formData.badges || []).includes(val)) {
+                                                setFormData(prev => ({ ...prev, badges: [...(prev.badges || []), val] }));
+                                                e.target.value = '';
+                                            }
+                                        }
+                                    }}
+                                />
+                                <button type="button" className="btn" onClick={() => {
+                                    const input = document.getElementById('badgeInput');
+                                    const val = input.value.trim();
+                                    if (val && !(formData.badges || []).includes(val)) {
+                                        setFormData(prev => ({ ...prev, badges: [...(prev.badges || []), val] }));
+                                        input.value = '';
+                                    }
+                                }} style={{ padding: '0 20px' }}>Add</button>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                {(formData.badges || []).map((badge, idx) => (
+                                    <span key={idx} style={{ background: 'var(--color-accent)', color: '#000', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        {badge}
+                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, badges: prev.badges.filter((_, i) => i !== idx) }))} style={{ background: 'none', border: 'none', color: '#000', cursor: 'pointer', fontWeight: 'bold' }}>&times;</button>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className={styles.formGroup}>
                             <label>Product Images (First image is Main)</label>
 
                             {/* Upload & Add URL Buttons */}

@@ -627,6 +627,17 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                     </div>
                 )}
                 
+                {/* Dynamic Animated Badges */}
+                {product.badges && product.badges.length > 0 && (
+                    <div style={{ position: 'absolute', top: '10px', right: product.rating ? '60px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
+                        {product.badges.map((badge, idx) => (
+                            <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
+                                {badge}
+                            </span>
+                        ))}
+                    </div>
+                )}
+                
                 {(hasDiscount || hasPromo) && (
                     <div style={{ position: 'absolute', top: '60px', right: '10px', background: '#ff4d4d', color: 'white', padding: '4px 8px', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px', zIndex: 10 }}>
                         {hasDiscount && hasPromo ? 'SALE + PROMO' : (hasDiscount ? 'SALE' : 'PROMO')}

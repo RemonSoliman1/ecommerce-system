@@ -384,6 +384,17 @@ export default function ProductPage({ params }) {
                                 {brand?.name && <span className={styles.brandName} style={{ display: 'block', marginBottom: '0.5rem', fontSize: '1.2rem', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 'bold' }}>{brand.name}</span>}
                                 <h1 className={styles.title} style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', color: 'var(--color-text-primary)' }}>{product.name}</h1>
 
+                                {/* Dynamic Animated Badges */}
+                                {product.badges && product.badges.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '1rem' }}>
+                                        {product.badges.map((badge, idx) => (
+                                            <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
+                                                {badge}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {/* Expert Rating */}
                                 {product.rating && (() => {
                                     const str = String(product.rating);
