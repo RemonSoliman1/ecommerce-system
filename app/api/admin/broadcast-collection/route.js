@@ -67,7 +67,8 @@ export async function POST(request) {
         // 4. Dispatch
         // Await the broadcast so Vercel doesn't terminate the process before it finishes
         try {
-            await sendTelegramMediaGroup(mediaArray);
+            const targetGroup = process.env.TELEGRAM_GROUP_ID || '-1003609408005';
+            await sendTelegramMediaGroup(mediaArray, targetGroup);
         } catch (err) {
             console.error("Grouped broadcast failed:", err);
             return NextResponse.json({ success: false, error: 'Telegram timeout/failure', details: err.message }, { status: 500 });

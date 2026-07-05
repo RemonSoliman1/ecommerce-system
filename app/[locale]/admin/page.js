@@ -1344,6 +1344,17 @@ export default function AdminPage() {
                         {/* Image Preview Modal */}
                         {previewImage && (
                             <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setPreviewImage(null)}>
+                                <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+                                    <img src={previewImage} style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
+                                    <button
+                                        onClick={() => setPreviewImage(null)}
+                                        style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontWeight: 'bold' }}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className={styles.formGroup} style={{ border: '1px solid #333', padding: '1rem', borderRadius: '4px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1609,17 +1620,6 @@ export default function AdminPage() {
                             )}
                         </div>
 
-                                <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
-                                    <img src={previewImage} style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
-                                    <button
-                                        onClick={() => setPreviewImage(null)}
-                                        style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontWeight: 'bold' }}
-                                    >
-                                        X
-                                    </button>
-                                </div>
-                            </div>
-                        )}
 
                         <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                             <label>Description</label>

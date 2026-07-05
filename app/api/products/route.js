@@ -103,8 +103,7 @@ export async function POST(request) {
         if (!supabaseAdmin) {
             throw new Error('Server misconfiguration: Admin client not available');
         }
-
-        const isNew = !body.id;
+        const isNew = request.method === 'POST';
 
         const { data, error } = await supabaseAdmin
             .from('products')
