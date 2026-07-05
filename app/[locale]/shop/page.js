@@ -635,11 +635,14 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                     if (finalBadges.length > 0) {
                         return (
                             <div style={{ position: 'absolute', top: '10px', right: product.rating ? '60px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
-                                {finalBadges.map((badge, idx) => (
-                                    <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
-                                        {badge}
-                                    </span>
-                                ))}
+                                {finalBadges.map((badge, idx) => {
+                                    const isDiscount = typeof badge === 'string' && badge.includes('% OFF');
+                                    return (
+                                        <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
+                                            {badge}
+                                        </span>
+                                    );
+                                })}
                             </div>
                         );
                     }

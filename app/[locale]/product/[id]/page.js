@@ -398,11 +398,14 @@ export default function ProductPage({ params }) {
                                     if (finalBadges.length > 0) {
                                         return (
                                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '1rem' }}>
-                                                {finalBadges.map((badge, idx) => (
-                                                    <span key={idx} className="badge-wind" style={{ animationDelay: `${idx * 0.3}s` }}>
-                                                        {badge}
-                                                    </span>
-                                                ))}
+                                                {finalBadges.map((badge, idx) => {
+                                                    const isDiscount = typeof badge === 'string' && badge.includes('% OFF');
+                                                    return (
+                                                        <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
+                                                            {badge}
+                                                        </span>
+                                                    );
+                                                })}
                                             </div>
                                         );
                                     }

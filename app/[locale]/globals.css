@@ -241,27 +241,30 @@ option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(197, 163, 92, 0.95), rgba(160, 120, 60, 0.95));
-  color: #120C0A;
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  border-radius: 4px;
+  background: rgba(20, 15, 12, 0.9);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 2px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-  pointer-events: none;
-  font-family: var(--font-sans);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.2);
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.badge-wind::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  background-size: 200% 100%;
-  animation: elegantShine 3s infinite linear;
+.badge-red {
+  animation: windBlow 4s ease-in-out infinite;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff4d4d;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }

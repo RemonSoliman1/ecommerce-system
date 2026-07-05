@@ -13,7 +13,7 @@ import { Lock, CreditCard, Banknote, Smartphone, ShieldCheck, Camera } from 'luc
 
 export default function CheckoutPage() {
     const { cart, cartSubtotal, removeFromCart, updateQuantity, clearCart } = useCart();
-    const { refreshProducts } = useProducts();
+    const { products, refreshProducts } = useProducts();
     const { user } = useAuth();
     const { user: tgUser, isTelegram, webApp } = useTelegram(); // Get TG user
     const { showToast } = useToast();
@@ -225,9 +225,12 @@ export default function CheckoutPage() {
         let cost = address.city.toLowerCase().includes('cairo') ? 50 : 100;
         
         // Free shipping override if any item in cart has "Free Shipping" badge
-        const hasFreeShippingItem = cartItems.some(item => 
-            item.badges && item.badges.some(b => b.toLowerCase().replace(/\s+/g, '') === 'freeshipping')
-        );
+        const hasFreeShippingItem = cart.some(item => {
+            const liveProduct = products?.find(p => p.id === item.id);
+            const badgesToCheck = liveProduct?.badges || item.badges || [];
+            return badgesToCheck.some(b => b.toLowerCase().replace(/\s+/g, '') === 'freeshipping');
+        });
+        
         if (hasFreeShippingItem) cost = 0;
 
         setShippingCost(cost);
