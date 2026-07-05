@@ -35,33 +35,37 @@ export async function POST(request) {
         // 3. Format the message
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
         
-        // We will construct a MediaGroup. Telegram allows up to 10 items in a media group.
-        // If we have more than 10, we'll slice it to 10 to avoid errors, or send multiple groups.
-        // For simplicity, we'll take the first 10.
-        const productsToBroadcast = newProducts.slice(0, 10);
-        
-        const mediaArray = productsToBroadcast.map((p, index) => {
-            const stripHtml = (html) => html ? html.replace(/<[^>]+>/g, '') : '';
-            const briefDescription = stripHtml(p.description).substring(0, 80) + (stripHtml(p.description).length > 80 ? '...' : '');
+        // We will construct a MediaGroup.
+        // The first image will be a Collage of all the IDs.
+        const productIds = newProducts.map(p => p.id).slice(0, 9); // Max 9 for the collage
+        const collageUrl = `${siteUrl}/api/og/collage?ids=${productIds.join(',')}`;
+
+        // Create the overarching caption containing links to ALL items
+        let collageCaption = `🔥 Check out the new collection! 🔥\n\n`;
+        newProducts.slice(0, 9).forEach((p, index) => {
             const vitola = p.models && p.models.length > 0 ? p.models[0].size : 'Standard';
-            const notes = Array.isArray(p.flavor_profile) ? p.flavor_profile.join(', ') : (p.flavor_profile || '');
+            collageCaption += `<b>${index + 1}. ${p.name}</b> (${vitola})\n👉 ${siteUrl}/product/${p.id}\n\n`;
+        });
 
-            let caption = `🔥 ${index + 1}. ${p.name}\n` +
-                          `📏 Vitola: ${vitola}\n` +
-                          `${notes ? `🌿 Notes: ${notes}\n` : ''}` +
-                          `👉 Link: ${siteUrl}/product/${p.id}`;
-            
-            // Add introductory text to the first image caption
-            if (index === 0) {
-                caption = `🔥 Check out the new collection! 🔥\n\n` + caption;
-            }
-
-            return {
+        // The first photo in the album is the collage
+        const mediaArray = [
+            {
                 type: 'photo',
-                media: p.image || 'https://cigar-lounge-one.vercel.app/images/placeholder.png',
-                caption: caption,
+                media: collageUrl,
+                caption: collageCaption,
                 parse_mode: 'HTML'
-            };
+            }
+        ];
+
+        // The rest of the photos are the individual product images (up to 9, so total album is 10)
+        newProducts.slice(0, 9).forEach((p) => {
+            if (p.image) {
+                mediaArray.push({
+                    type: 'photo',
+                    media: p.image,
+                    parse_mode: 'HTML'
+                });
+            }
         });
 
         // 4. Dispatch
@@ -76,7 +80,7 @@ export async function POST(request) {
 
         return NextResponse.json({ 
             success: true, 
-            message: `Successfully initiated broadcast for ${productsToBroadcast.length} new items.` 
+            message: `Successfully initiated broadcast for ${newProducts.length} new items.` 
         });
 
     } catch (error) {

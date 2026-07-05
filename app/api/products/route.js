@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { sendPushNotification } from '@/lib/push';
-import { broadcastTelegramMessage } from '@/lib/telegram';
+import { broadcastTelegramMessage, sendTelegramMediaGroup } from '@/lib/telegram';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -105,6 +105,12 @@ export async function POST(request) {
         }
         const isNew = request.method === 'POST';
 
+        let oldProduct = null;
+        if (!isNew && supabaseAdmin && body.id) {
+            const { data: oldData } = await supabaseAdmin.from('products').select('*').eq('id', body.id).single();
+            oldProduct = oldData;
+        }
+
         const { data, error } = await supabaseAdmin
             .from('products')
             .upsert(body)
@@ -127,7 +133,7 @@ export async function POST(request) {
                 console.error("New Arrival push failed:", pushErr);
             }
 
-            // Dispatch Telegram Single-Item Drop
+            // Dispatch Telegram Single-Item Drop (Multi-Photo)
             try {
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
                 const stripHtml = (html) => html ? html.replace(/<[^>]+>/g, '') : '';
@@ -141,10 +147,80 @@ export async function POST(request) {
                 `📝 ${briefDescription}\n\n` +
                 `👉 View details & price: ${siteUrl}/product/${data.id}`;
                 
-                // Await so Vercel doesn't kill it mid-flight
-                await broadcastTelegramMessage(telegramText, data.image);
+                const targetGroup = process.env.TELEGRAM_GROUP_ID || '-1003609408005';
+                
+                let mediaArray = [];
+                const imagesToSend = data.images && data.images.length > 0 ? data.images.slice(0, 10) : (data.image ? [data.image] : []);
+                
+                if (imagesToSend.length > 0) {
+                    mediaArray = imagesToSend.map((img, index) => ({
+                        type: 'photo',
+                        media: img,
+                        caption: index === 0 ? telegramText : undefined,
+                        parse_mode: 'HTML'
+                    }));
+                    await sendTelegramMediaGroup(mediaArray, targetGroup);
+                } else {
+                    await broadcastTelegramMessage(telegramText, null);
+                }
             } catch (tgErr) {
                 console.error("New Arrival Telegram dispatch failed:", tgErr);
+            }
+        } else if (!isNew && data && oldProduct) {
+            // Check for restock, price drop, or new variants
+            try {
+                let restockedVariant = null;
+                let newVariant = null;
+                let priceDropVariant = null;
+                
+                const oldModels = oldProduct.models || [];
+                const newModels = data.models || [];
+                
+                for (const newMod of newModels) {
+                    const oldMod = oldModels.find(m => m.size === newMod.size && m.name === newMod.name);
+                    if (!oldMod) {
+                        newVariant = newMod;
+                        break;
+                    } else {
+                        if (Number(newMod.stock) > Number(oldMod.stock) && Number(oldMod.stock) === 0) {
+                            restockedVariant = newMod;
+                        }
+                        if (Number(newMod.price) < Number(oldMod.price)) {
+                            priceDropVariant = newMod;
+                        }
+                    }
+                }
+                
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
+                let telegramText = '';
+
+                if (newVariant) {
+                    telegramText = `✨ NEW SIZE ADDED: ${data.name} ✨\n\n📏 Vitola: ${newVariant.size}\n💵 Price: EGP ${newVariant.price}\n👉 ${siteUrl}/product/${data.id}`;
+                } else if (restockedVariant) {
+                    telegramText = `♻️ BACK IN STOCK: ${data.name} ♻️\n\n📏 Vitola: ${restockedVariant.size}\n👉 ${siteUrl}/product/${data.id}`;
+                } else if (priceDropVariant) {
+                    telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size} is now EGP ${priceDropVariant.price}!\n👉 ${siteUrl}/product/${data.id}`;
+                }
+                
+                if (telegramText) {
+                    const targetGroup = process.env.TELEGRAM_GROUP_ID || '-1003609408005';
+                    let mediaArray = [];
+                    const imagesToSend = data.images && data.images.length > 0 ? data.images.slice(0, 10) : (data.image ? [data.image] : []);
+                    
+                    if (imagesToSend.length > 0) {
+                        mediaArray = imagesToSend.map((img, index) => ({
+                            type: 'photo',
+                            media: img,
+                            caption: index === 0 ? telegramText : undefined,
+                            parse_mode: 'HTML'
+                        }));
+                        await sendTelegramMediaGroup(mediaArray, targetGroup);
+                    } else {
+                        await broadcastTelegramMessage(telegramText, null);
+                    }
+                }
+            } catch (tgErr) {
+                console.error("Restock Telegram dispatch failed:", tgErr);
             }
         }
 
