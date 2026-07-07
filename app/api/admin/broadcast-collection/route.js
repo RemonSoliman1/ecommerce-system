@@ -23,8 +23,8 @@ export async function POST(request) {
         const { data: newProducts, error } = await supabaseAdmin
             .from('products')
             .select('*')
-            .gte('created_at', twoDaysAgo)
-            .order('created_at', { ascending: false, nullsFirst: false });
+            .or(`created_at.gte.${twoDaysAgo},updated_at.gte.${twoDaysAgo}`)
+            .order('updated_at', { ascending: false, nullsFirst: false });
 
         if (error) throw error;
 
