@@ -912,6 +912,10 @@ export default function AdminPage() {
         const customVariants = new Set();
         const customDimensions = new Set();
         const customSeries = new Set();
+        
+        Object.values(DIM_MAP).forEach(d => {
+            if (d) customDimensions.add(d);
+        });
 
         const isDimension = (str) => /^\d+(\.\d+)?\s*x\s*\d+$/.test(str);
 
@@ -1646,7 +1650,7 @@ export default function AdminPage() {
                                     {!currentModel.disable_gifts && (
                                         <>
                                             <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '10px' }}>Allowed Gifts for this Variant (Leave unchecked to allow ALL global gifts)</label>
-                                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
                                                 {persistentAttributes.gift_option.map(giftName => (
                                                     <label key={giftName} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', background: '#222', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #444', transition: 'all 0.2s', ...(currentModel.allowed_gifts?.includes(giftName) ? { borderColor: 'var(--color-accent)', background: 'rgba(232, 211, 162, 0.1)' } : {}) }}>
                                                         <input

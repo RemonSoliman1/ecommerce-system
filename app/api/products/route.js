@@ -219,8 +219,21 @@ export async function POST(request) {
                 let pushTitle = '';
                 let pushBody = '';
 
+                const hasFreeShipping = newBadges.includes('freeshipping') || newBadges.includes('free shipping');
+                const getPromoStr = (variant) => {
+                    let str = '';
+                    if (variant.original_price > variant.price) {
+                        const pct = Math.round(((variant.original_price - variant.price) / variant.original_price) * 100);
+                        str += `🔥 ${pct}% OFF! Now EGP ${variant.price} (was ${variant.original_price})`;
+                    } else {
+                        str += `💵 Price: EGP ${variant.price}`;
+                    }
+                    if (hasFreeShipping) str += `\n🚚 + Free Shipping!`;
+                    return str;
+                };
+
                 if (newVariant) {
-                    telegramText = `✨ NEW SIZE ADDED: ${data.name} ✨\n\n📏 Vitola: ${newVariant.size}\n💵 Price: EGP ${newVariant.price}\n👉 ${siteUrl}/product/${data.id}`;
+                    telegramText = `✨ NEW SIZE ADDED: ${data.name} ✨\n\n📏 Vitola: ${newVariant.size}\n${getPromoStr(newVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `✨ New Size: ${data.name}`;
                     pushBody = `${newVariant.size} is now available!`;
                 } else if (freeShippingAdded) {
@@ -228,18 +241,18 @@ export async function POST(request) {
                     pushTitle = `🚚 Free Shipping: ${data.name}`;
                     pushBody = `Order now and get it delivered for free!`;
                 } else if (restockedVariant) {
-                    telegramText = `♻️ BACK IN STOCK: ${data.name} ♻️\n\n📏 Vitola: ${restockedVariant.size}\n👉 ${siteUrl}/product/${data.id}`;
+                    telegramText = `♻️ BACK IN STOCK: ${data.name} ♻️\n\n📏 Vitola: ${restockedVariant.size}\n${getPromoStr(restockedVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `♻️ Back in Stock: ${data.name}`;
                     pushBody = `${restockedVariant.size} is back in the humidor!`;
                 } else if (priceDropVariant) {
-                    telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size} is now EGP ${priceDropVariant.price}!\n👉 ${siteUrl}/product/${data.id}`;
+                    telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size}\n${getPromoStr(priceDropVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `📉 Price Drop: ${data.name}`;
                     pushBody = `${priceDropVariant.size} is now EGP ${priceDropVariant.price}!`;
                 } else if (discountAddedVariant) {
+                    telegramText = `🔥 SPECIAL DISCOUNT: ${data.name} 🔥\n\n📏 Vitola: ${discountAddedVariant.size}\n${getPromoStr(discountAddedVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     const discountPercent = Math.round(((discountAddedVariant.original_price - discountAddedVariant.price) / discountAddedVariant.original_price) * 100);
-                    telegramText = `🔥 SPECIAL DISCOUNT: ${data.name} 🔥\n\n📏 Vitola: ${discountAddedVariant.size} is now ${discountPercent}% OFF!\n💵 Only EGP ${discountAddedVariant.price} (was ${discountAddedVariant.original_price})\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `🔥 ${discountPercent}% OFF: ${data.name}`;
-                    pushBody = `${discountAddedVariant.size} is now ${discountPercent}% OFF! Only EGP ${discountAddedVariant.price}.`;
+                    pushBody = `${discountAddedVariant.size} is now ${discountPercent}% OFF!`;
                 }
                 
                 if (telegramText) {
