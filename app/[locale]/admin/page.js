@@ -439,8 +439,9 @@ export default function AdminPage() {
         } catch (e) {
             alert('Error cancelling order: ' + e.message);
         } finally {
-
-
+            setConfirmingOrder(null);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
