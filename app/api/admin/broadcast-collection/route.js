@@ -18,18 +18,20 @@ export async function POST(request) {
             throw new Error('Server misconfiguration: Admin client not available');
         }
 
-        const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        // 2. Fetch new products
+        // We use 2 hours instead of 48 hours temporarily to avoid the mass-migration items
+        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
         
         const { data: newProducts, error } = await supabaseAdmin
             .from('products')
             .select('*')
-            .or(`created_at.gte.${twoDaysAgo},updated_at.gte.${twoDaysAgo}`)
+            .or(`created_at.gte.${twoHoursAgo},updated_at.gte.${twoHoursAgo}`)
             .order('updated_at', { ascending: false, nullsFirst: false });
 
         if (error) throw error;
 
         if (!newProducts || newProducts.length === 0) {
-            return NextResponse.json({ success: false, message: 'No new products found in the last 48 hours to broadcast.' });
+            return NextResponse.json({ success: false, message: 'No new/updated products found in the last 2 hours to broadcast.' });
         }
 
         // 3. Format the message
@@ -68,16 +70,29 @@ export async function POST(request) {
             }
         ];
 
-        // The rest of the photos are the individual product images (up to 9, so total album is 10)
-        newProducts.slice(0, 9).forEach((p) => {
+        // Verify images via HEAD request so Telegram doesn't crash on 404s
+        const validImages = [];
+        for (const p of newProducts.slice(0, 9)) {
             if (p.image) {
                 const imgUrl = p.image.startsWith('http') ? p.image : `${siteUrl}${p.image.startsWith('/') ? '' : '/'}${p.image}`;
-                mediaArray.push({
-                    type: 'photo',
-                    media: imgUrl,
-                    parse_mode: 'HTML'
-                });
+                try {
+                    const res = await fetch(imgUrl, { method: 'HEAD' });
+                    if (res.ok) {
+                        validImages.push(imgUrl);
+                    }
+                } catch (e) {
+                    console.error("Image HEAD failed for", imgUrl, e);
+                }
             }
+        }
+
+        // The rest of the photos are the individual product images (up to 9, so total album is 10)
+        validImages.forEach((imgUrl) => {
+            mediaArray.push({
+                type: 'photo',
+                media: imgUrl,
+                parse_mode: 'HTML'
+            });
         });
 
         // 4. Dispatch
