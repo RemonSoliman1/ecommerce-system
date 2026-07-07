@@ -19,19 +19,18 @@ export async function POST(request) {
         }
 
         // 2. Fetch new products
-        // We use 2 hours instead of 48 hours temporarily to avoid the mass-migration items
-        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+        const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
         
         const { data: newProducts, error } = await supabaseAdmin
             .from('products')
             .select('*')
-            .or(`created_at.gte.${twoHoursAgo},updated_at.gte.${twoHoursAgo}`)
+            .or(`created_at.gte.${twoDaysAgo},updated_at.gte.${twoDaysAgo}`)
             .order('updated_at', { ascending: false, nullsFirst: false });
 
         if (error) throw error;
 
         if (!newProducts || newProducts.length === 0) {
-            return NextResponse.json({ success: false, message: 'No new/updated products found in the last 2 hours to broadcast.' });
+            return NextResponse.json({ success: false, message: 'No new/updated products found in the last 48 hours to broadcast.' });
         }
 
         // 3. Format the message
