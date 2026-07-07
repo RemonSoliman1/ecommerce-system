@@ -71,9 +71,10 @@ export async function POST(request) {
         // The rest of the photos are the individual product images (up to 9, so total album is 10)
         newProducts.slice(0, 9).forEach((p) => {
             if (p.image) {
+                const imgUrl = p.image.startsWith('http') ? p.image : `${siteUrl}${p.image.startsWith('/') ? '' : '/'}${p.image}`;
                 mediaArray.push({
                     type: 'photo',
-                    media: p.image,
+                    media: imgUrl,
                     parse_mode: 'HTML'
                 });
             }
@@ -92,7 +93,7 @@ export async function POST(request) {
             await sendPushNotification({
                 title: 'New Collection Alert! 🔥',
                 body: `${newProducts.length} items just updated/added in stock. Tap to view!`,
-                url: '/shop',
+                url: `/shop?products=${productIds.join(',')}`,
                 image: newProducts[0]?.image || null
             });
         } catch (err) {

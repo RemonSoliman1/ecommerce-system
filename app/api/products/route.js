@@ -179,7 +179,7 @@ export async function POST(request) {
             try {
                 let restockedVariant = null;
                 let newVariant = null;
-                let priceDropVariant = null;
+                let priceChangeVariant = null;
                 let discountAddedVariant = null;
                 let freeShippingAdded = false;
                 
@@ -202,8 +202,9 @@ export async function POST(request) {
                         if (Number(newMod.stock) > Number(oldMod.stock) && Number(oldMod.stock) === 0) {
                             restockedVariant = newMod;
                         }
-                        if (Number(newMod.price) < Number(oldMod.price)) {
-                            priceDropVariant = newMod;
+                        if (Number(newMod.price) !== Number(oldMod.price)) {
+                            priceChangeVariant = newMod;
+                            priceChangeVariant.isDrop = Number(newMod.price) < Number(oldMod.price);
                         }
                         // Detect newly added discount (original_price is newly set higher than price)
                         const oldHasDiscount = Number(oldMod.original_price) > Number(oldMod.price);
@@ -219,7 +220,6 @@ export async function POST(request) {
                 let pushTitle = '';
                 let pushBody = '';
 
-                const hasFreeShipping = newBadges.includes('freeshipping') || newBadges.includes('free shipping');
                 const getPromoStr = (variant) => {
                     let str = '';
                     if (variant.original_price > variant.price) {
@@ -228,7 +228,6 @@ export async function POST(request) {
                     } else {
                         str += `💵 Price: EGP ${variant.price}`;
                     }
-                    if (hasFreeShipping) str += `\n🚚 + Free Shipping!`;
                     return str;
                 };
 
@@ -244,10 +243,15 @@ export async function POST(request) {
                     telegramText = `♻️ BACK IN STOCK: ${data.name} ♻️\n\n📏 Vitola: ${restockedVariant.size}\n${getPromoStr(restockedVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     pushTitle = `♻️ Back in Stock: ${data.name}`;
                     pushBody = `${restockedVariant.size} is back in the humidor!`;
-                } else if (priceDropVariant) {
-                    telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceDropVariant.size}\n${getPromoStr(priceDropVariant)}\n👉 ${siteUrl}/product/${data.id}`;
-                    pushTitle = `📉 Price Drop: ${data.name}`;
-                    pushBody = `${priceDropVariant.size} is now EGP ${priceDropVariant.price}!`;
+                } else if (priceChangeVariant) {
+                    if (priceChangeVariant.isDrop) {
+                        telegramText = `📉 PRICE DROP: ${data.name} 📉\n\n📏 Vitola: ${priceChangeVariant.size}\n${getPromoStr(priceChangeVariant)}\n👉 ${siteUrl}/product/${data.id}`;
+                        pushTitle = `📉 Price Drop: ${data.name}`;
+                    } else {
+                        telegramText = `📈 PRICE UPDATE: ${data.name} 📈\n\n📏 Vitola: ${priceChangeVariant.size}\n${getPromoStr(priceChangeVariant)}\n👉 ${siteUrl}/product/${data.id}`;
+                        pushTitle = `📈 Price Update: ${data.name}`;
+                    }
+                    pushBody = `${priceChangeVariant.size} is now EGP ${priceChangeVariant.price}!`;
                 } else if (discountAddedVariant) {
                     telegramText = `🔥 SPECIAL DISCOUNT: ${data.name} 🔥\n\n📏 Vitola: ${discountAddedVariant.size}\n${getPromoStr(discountAddedVariant)}\n👉 ${siteUrl}/product/${data.id}`;
                     const discountPercent = Math.round(((discountAddedVariant.original_price - discountAddedVariant.price) / discountAddedVariant.original_price) * 100);

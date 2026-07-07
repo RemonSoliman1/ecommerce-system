@@ -1650,29 +1650,31 @@ export default function AdminPage() {
                                     {!currentModel.disable_gifts && (
                                         <>
                                             <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '10px' }}>Allowed Gifts for this Variant (Leave unchecked to allow ALL global gifts)</label>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '15px' }}>
                                                 {persistentAttributes.gift_option.map(giftName => (
-                                                    <label key={giftName} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', background: '#222', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #444', transition: 'all 0.2s', ...(currentModel.allowed_gifts?.includes(giftName) ? { borderColor: 'var(--color-accent)', background: 'rgba(232, 211, 162, 0.1)' } : {}) }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={currentModel.allowed_gifts?.includes(giftName) || false}
-                                                            onChange={(e) => {
-                                                                setCurrentModel(prev => {
-                                                                    const current = prev.allowed_gifts || [];
-                                                                    if (e.target.checked) return { ...prev, allowed_gifts: [...current, giftName] };
-                                                                    return { ...prev, allowed_gifts: current.filter(g => g !== giftName) };
-                                                                });
-                                                            }}
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
+                                                    <label key={giftName} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.9rem', textAlign: 'center', background: '#222', padding: '15px', borderRadius: '8px', cursor: 'pointer', border: '1px solid #444', transition: 'all 0.2s', position: 'relative', ...(currentModel.allowed_gifts?.includes(giftName) ? { borderColor: 'var(--color-accent)', background: 'rgba(232, 211, 162, 0.1)' } : {}) }}>
+                                                        <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={currentModel.allowed_gifts?.includes(giftName) || false}
+                                                                onChange={(e) => {
+                                                                    setCurrentModel(prev => {
+                                                                        const current = prev.allowed_gifts || [];
+                                                                        if (e.target.checked) return { ...prev, allowed_gifts: [...current, giftName] };
+                                                                        return { ...prev, allowed_gifts: current.filter(g => g !== giftName) };
+                                                                    });
+                                                                }}
+                                                                style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
+                                                            />
+                                                        </div>
                                                         {attributeMetadata[giftName]?.image && (
                                                             <img 
                                                                 src={attributeMetadata[giftName].image} 
                                                                 alt={giftName} 
-                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} 
+                                                                style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '4px', marginBottom: '5px' }} 
                                                             />
                                                         )}
-                                                        {giftName}
+                                                        <span style={{ fontWeight: 'bold' }}>{giftName}</span>
                                                         {currentModel.allowed_gifts?.includes(giftName) && (
                                                             <input
                                                                 type="number"
@@ -1689,7 +1691,7 @@ export default function AdminPage() {
                                                                     }));
                                                                 }}
                                                                 onClick={(e) => e.stopPropagation()}
-                                                                style={{ width: '80px', padding: '2px 5px', fontSize: '0.8rem', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: '4px', marginLeft: '5px' }}
+                                                                style={{ width: '100%', padding: '6px', fontSize: '0.85rem', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: '4px', marginTop: 'auto', textAlign: 'center' }}
                                                             />
                                                         )}
                                                     </label>
