@@ -44,7 +44,18 @@ export async function POST(request) {
         let collageCaption = `🔥 Check out the new collection! 🔥\n\n`;
         newProducts.slice(0, 9).forEach((p, index) => {
             const vitola = p.models && p.models.length > 0 ? p.models[0].size : 'Standard';
-            collageCaption += `<b>${index + 1}. ${p.name}</b> (${vitola})\n👉 ${siteUrl}/product/${p.id}\n\n`;
+            let promoStr = '';
+            const badges = (p.badges || []).map(b => typeof b === 'string' ? b.toLowerCase().replace(/\s+/g, '') : '');
+            const hasFreeShipping = badges.includes('freeshipping') || badges.includes('free shipping');
+            if (p.models && p.models.length > 0) {
+                const m = p.models[0];
+                if (m.original_price > m.price) {
+                    promoStr += ` (🔥 ${Math.round(((m.original_price - m.price) / m.original_price) * 100)}% OFF)`;
+                }
+            }
+            if (hasFreeShipping) promoStr += ` 🚚 Free Shipping!`;
+            
+            collageCaption += `<b>${index + 1}. ${p.name}</b> (${vitola})${promoStr}\n👉 ${siteUrl}/product/${p.id}\n\n`;
         });
 
         // The first photo in the album is the collage

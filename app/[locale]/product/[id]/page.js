@@ -617,6 +617,11 @@ export default function ProductPage({ params }) {
 
                             {/* Price Display */}
                             <div className={styles.priceDisplay}>
+                                {selectedHasDiscount && (
+                                    <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '10px', fontSize: '0.7em' }}>
+                                        EGP {(selectedOriginalPrice || 0).toLocaleString()}
+                                    </span>
+                                )}
                                 EGP {(selectedModel?.price || 0).toLocaleString()}
                                 <span className={styles.perUnit}>
                                     / {selectedModel?.name}
