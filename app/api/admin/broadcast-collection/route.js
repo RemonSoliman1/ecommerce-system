@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { sendTelegramMediaGroup } from '@/lib/telegram';
+import { sendTelegramMediaGroup, broadcastTelegramMediaGroup } from '@/lib/telegram';
+import { sendPushNotification } from '@/lib/push';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,14 +18,13 @@ export async function POST(request) {
             throw new Error('Server misconfiguration: Admin client not available');
         }
 
-        // 2. Query products from the last 48 hours
         const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
         
         const { data: newProducts, error } = await supabaseAdmin
             .from('products')
             .select('*')
-            .gte('created_at', twoDaysAgo)
-            .order('created_at', { ascending: false });
+            .or(`created_at.gte.${twoDaysAgo},updated_at.gte.${twoDaysAgo}`)
+            .order('updated_at', { ascending: false, nullsFirst: false });
 
         if (error) throw error;
 
@@ -71,11 +71,21 @@ export async function POST(request) {
         // 4. Dispatch
         // Await the broadcast so Vercel doesn't terminate the process before it finishes
         try {
-            const targetGroup = process.env.TELEGRAM_GROUP_ID || '-1003609408005';
-            await sendTelegramMediaGroup(mediaArray, targetGroup);
+            await broadcastTelegramMediaGroup(mediaArray);
         } catch (err) {
             console.error("Grouped broadcast failed:", err);
-            return NextResponse.json({ success: false, error: 'Telegram timeout/failure', details: err.message }, { status: 500 });
+            // We won't strictly fail the route if telegram fails, we want push to still try
+        }
+
+        try {
+            await sendPushNotification({
+                title: 'New Collection Alert! 🔥',
+                body: `${newProducts.length} items just updated/added in stock. Tap to view!`,
+                url: '/shop',
+                image: newProducts[0]?.image || null
+            });
+        } catch (err) {
+            console.error("Push broadcast failed:", err);
         }
 
         return NextResponse.json({ 

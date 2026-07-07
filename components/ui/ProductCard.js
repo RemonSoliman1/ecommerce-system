@@ -62,14 +62,14 @@ export default function ProductCard({ product }) {
             
             {/* Dynamic Animated Badges */}
             {(() => {
-                const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
+                const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !/%\s*off/i.test(b));
                 if (hasDiscount && discountPercent > 0) finalBadges.push(`${discountPercent}% OFF`);
                 
                 if (finalBadges.length > 0) {
                     return (
                         <div style={{ position: 'absolute', top: '10px', right: product.rating ? '65px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
                             {finalBadges.map((badge, idx) => {
-                                const isDiscount = typeof badge === 'string' && badge.includes('% OFF');
+                                const isDiscount = typeof badge === 'string' && /%\s*off/i.test(badge);
                                 return (
                                     <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
                                         {badge}

@@ -207,7 +207,7 @@ export default function AdminPage() {
         has_gifts: false
     };
 
-    const initialModelState = { name: '', size: '', dimensions: '', price: '', original_price: '', stock: '10', allowed_gifts: [], gift_overrides: {}, disable_gifts: false };
+    const initialModelState = { name: '', size: '', dimensions: '', price: '', original_price: '', stock: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false };
 
     const [formData, setFormData] = useState(initialFormState);
 
@@ -439,12 +439,207 @@ export default function AdminPage() {
         } catch (e) {
             alert('Error cancelling order: ' + e.message);
         } finally {
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [previewImage, setPreviewImage] = useState(null); // For modal preview
+    const [parsingDesc, setParsingDesc] = useState(false);
+    const [status, setStatus] = useState({ loading: false, error: '', success: '' });
+    const [confirmingOrder, setConfirmingOrder] = useState(null);
+    const [editModelIndex, setEditModelIndex] = useState(null);
+    const [currentModel, setCurrentModel] = useState({ name: '', size: '', dimensions: '', price: '', original_price: '', stock: '', image: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false });
+
+    const FLAVOR_OPTIONS = [
+        'Woody', 'Spicy', 'Earthy', 'Leather', 'Coffee', 'Cocoa',
+        'Nutty', 'Creamy', 'Sweet', 'Pepper', 'Cedar', 'Vanilla', 'Floral'
+    ];
+
+    const allFlavorOptions = useMemo(() => {
+        const unique = new Set([...FLAVOR_OPTIONS, ...(persistentAttributes.flavor || [])]);
+        return [...unique].sort();
+    }, [persistentAttributes.flavor]);
+
+    const handleAddFlavor = async (val) => {
+        if (!val) return;
+        const normalized = val.trim();
+        // Add to local form state
+        if (!formData.flavor_profile?.includes(normalized)) {
+            setFormData(prev => ({
+                ...prev,
+                flavor_profile: [...(prev.flavor_profile || []), normalized]
+            }));
+
+            // Persist if not in predefined or existing persistent list
+            if (!FLAVOR_OPTIONS.includes(normalized) && !persistentAttributes.flavor?.includes(normalized)) {
+                try {
+                    await fetch('/api/admin/attributes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ category: 'flavor', value: normalized })
+                    });
+                    // Optimistically update persistent attributes
+                    setPersistentAttributes(prev => ({
+                        ...prev,
+                        flavor: [...(prev.flavor || []), normalized].sort()
+                    }));
+                } catch (e) {
+                    console.error('Failed to persist flavor', e);
+                }
+            }
+        }
+    };
+
+    // Gift Option Form State
+    const [giftOptionForm, setGiftOptionForm] = useState({ name: '', price: '', description: '', image: '' });
+    const [uploadingGiftImage, setUploadingGiftImage] = useState(false);
+    const [editingGiftId, setEditingGiftId] = useState(null);
+    const [editingGiftOldName, setEditingGiftOldName] = useState(null);
+
+    // Editing Brand Modal State
+    const [editingBrand, setEditingBrand] = useState(null); // { category: 'brand', oldVal, value, image, isPersistent, id }
+    const handleGiftImageUpload = async (e) => {
+        let file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingGiftImage(true);
+        file = await compressImage(file);
+        const fb = new FormData();
+        fb.append('file', file);
+        try {
+            const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fb });
+            const data = await res.json();
+            if (data.url) {
+                setGiftOptionForm(prev => ({ ...prev, image: data.url }));
+            }
+        } catch (e) {
+            alert('Upload failed: ' + e.message);
+        }
+        setUploadingGiftImage(false);
+    };
+
+    const handleSaveGiftOption = async () => {
+        if (!giftOptionForm.name || !giftOptionForm.price || !giftOptionForm.image) {
+            alert('Name, Price, and Image are required for a Gift Option.');
+            return;
+        }
+
+        try {
+            const method = editingGiftId ? 'PUT' : 'POST';
+            const payload = {
+                category: 'gift_option',
+                value: giftOptionForm.name,
+                metadata: {
+                    price: parseFloat(giftOptionForm.price) || 0,
+                    description: giftOptionForm.description,
+                    image: giftOptionForm.image,
+                    is_manual: true
+                }
+            };
+            if (editingGiftId) payload.id = editingGiftId;
+
+            const res = await fetch('/api/admin/attributes', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                // Optimistically update
+                setPersistentAttributes(prev => {
+                    let existing = prev.gift_option || [];
+                    if (editingGiftId && editingGiftOldName && editingGiftOldName !== giftOptionForm.name) {
+                        existing = existing.filter(g => g !== editingGiftOldName);
+                    }
+                    if (!existing.includes(giftOptionForm.name)) {
+                        return { ...prev, gift_option: [...existing, giftOptionForm.name] };
+                    }
+                    return prev;
+                });
+                setAttributeMetadata(prev => {
+                    const newMeta = { ...prev };
+                    if (editingGiftId && editingGiftOldName && editingGiftOldName !== giftOptionForm.name) {
+                        delete newMeta[editingGiftOldName];
+                    }
+                    newMeta[giftOptionForm.name] = {
+                        ...payload.metadata,
+                        id: json.data?.id || editingGiftId
+                    };
+                    return newMeta;
+                });
+                // Reset form
+                setGiftOptionForm({ name: '', price: '', description: '', image: '' });
+                setEditingGiftId(null);
+                setEditingGiftOldName(null);
+                alert(editingGiftId ? 'Gift option updated successfully!' : 'Gift option added successfully!');
+            } else {
+                alert(`Failed to ${editingGiftId ? 'update' : 'add'} gift option: ` + json.error);
+            }
+        } catch (error) {
+            alert('Failed to connect to server.');
+        }
+    };
+
+    const handleConfirmOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to confirm this order and send an email to the customer?')) return;
+        setConfirmingOrder(orderId);
+        try {
+            const res = await fetch('/api/admin/orders/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, processedBy: user?.email?.split('@')[0] || 'admin' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Order confirmed and email sent!');
+                const timestamp = new Date().toISOString();
+                const processor = user?.email?.split('@')[0] || 'admin';
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { 
+                    ...o, 
+                    status: 'Confirmed',
+                    confirmed_at: timestamp,
+                    updated_at: timestamp,
+                    processed_by: processor
+                } : o));
+            } else {
+                alert('Failed to confirm order: ' + (data.error || 'Unknown error'));
+            }
+        } catch (e) {
+            alert('Error confirming order: ' + e.message);
+        } finally {
             setConfirmingOrder(null);
         }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to cancel this order? This will revert the stock for all items.')) return;
+        setConfirmingOrder(orderId); // reuse loading state
+        try {
+            const res = await fetch('/api/admin/orders/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, processedBy: user?.email?.split('@')[0] || 'admin' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Order cancelled and stock reverted successfully!');
+                const timestamp = new Date().toISOString();
+                const processor = user?.email?.split('@')[0] || 'admin';
+                setAdminOrders(adminOrders.map(o => o.id === orderId ? { 
+                    ...o, 
+                    status: 'cancelled',
+                    cancelled_at: timestamp,
+                    updated_at: timestamp,
+                    processed_by: processor
+                } : o));
+            } else {
+                alert('Failed to cancel order: ' + (data.error || 'Unknown error'));
+            }
+        } catch (e) {
+            alert('Error cancelling order: ' + e.message);
+        } finally {
+            setConfirmingOrder(null);
+        }
+    };
 
-    // ... (useEffect for auth check is fine) ...
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -452,10 +647,11 @@ export default function AdminPage() {
     };
 
     const DIM_MAP = {
-        'Robusto': '5 x 50', 'Toro': '6 x 52', 'Churchill': '7 x 48', 'Gordo': '6 x 60', 'Gordito': '5.5 x 60',
+        'robust': '5 x 50', 'Robusto': '5 x 50', 'Toro': '6 x 52', 'Churchill': '7 x 48', 'Gordo': '6 x 60', 'Gordito': '5.5 x 60',
         'Double Toro': '6 x 60', 'Perfecto': '6 x 54', 'Torpedo': '6.1 x 52', 'Belicoso': '5.5 x 52',
         'Corona': '5.5 x 42', 'Petit Robusto': '4.5 x 50', 'Double Corona': '7.5 x 50', 'Gran Robusto': '5.5 x 54',
-        'Lonsdale': '6.5 x 42', 'Lancero': '7.5 x 38', 'Panatela': '6 x 38', 'Figurado': '6 x 52'
+        'Lonsdale': '6.5 x 42', 'Lancero': '7.5 x 38', 'Panatela': '6 x 38', 'Figurado': '6 x 52',
+        '4x60 Assorted': '4 x 60', 'Assorted': 'Assorted', 'Freestanding': '', 'Large': '', 'Standard': '', 'Unknown': ''
     };
 
     const handleModelChange = (e) => {
@@ -497,7 +693,7 @@ export default function AdminPage() {
                 models: [...prev.models, modelToSave]
             }));
         }
-        setCurrentModel({ name: '', size: '', dimensions: '', price: '', original_price: '', stock: 10, image: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false });
+        setCurrentModel({ name: '', size: '', dimensions: '', price: '', original_price: '', stock: '', image: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false });
     };
 
     const removeModel = (index) => {
@@ -1626,7 +1822,7 @@ export default function AdminPage() {
                                         {editModelIndex !== null ? 'Update Variant' : 'Add Variant'}
                                     </button>
                                     {editModelIndex !== null && (
-                                        <button type="button" onClick={() => { setEditModelIndex(null); setCurrentModel({ name: '', size: '', dimensions: '', price: '', stock: 10, image: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false }); }} style={{ background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', padding: '0.4rem 1.5rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                        <button type="button" onClick={() => { setEditModelIndex(null); setCurrentModel({ name: '', size: '', dimensions: '', price: '', stock: '', image: '', allowed_gifts: [], gift_overrides: {}, disable_gifts: false }); }} style={{ background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', padding: '0.4rem 1.5rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                                             Cancel
                                         </button>
                                     )}

@@ -386,7 +386,7 @@ export default function ProductPage({ params }) {
 
                                 {/* Dynamic Animated Badges */}
                                 {(() => {
-                                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
+                                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !/%\s*off/i.test(b));
                                     const selectedOriginalPrice = selectedModel?.original_price;
                                     const selectedHasDiscount = selectedOriginalPrice && selectedOriginalPrice > selectedModel?.price;
                                     const selectedDiscountPercent = selectedHasDiscount ? Math.round(((selectedOriginalPrice - selectedModel.price) / selectedOriginalPrice) * 100) : 0;
@@ -399,7 +399,7 @@ export default function ProductPage({ params }) {
                                         return (
                                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '1rem' }}>
                                                 {finalBadges.map((badge, idx) => {
-                                                    const isDiscount = typeof badge === 'string' && badge.includes('% OFF');
+                                                    const isDiscount = typeof badge === 'string' && /%\s*off/i.test(badge);
                                                     return (
                                                         <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
                                                             {badge}

@@ -629,7 +629,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                 
                 {/* Dynamic Animated Badges */}
                 {(() => {
-                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !b.includes('% OFF'));
+                    const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !/%\s*off/i.test(b));
                     if (hasDiscount && discountPercent > 0) finalBadges.push(`${discountPercent}% OFF`);
                     if (hasPromo) finalBadges.push('PROMO');
                     
@@ -637,7 +637,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                         return (
                             <div style={{ position: 'absolute', top: '10px', right: product.rating ? '60px' : '10px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 15, alignItems: 'flex-end' }}>
                                 {finalBadges.map((badge, idx) => {
-                                    const isDiscount = typeof badge === 'string' && (badge.includes('% OFF') || badge === 'PROMO');
+                                    const isDiscount = typeof badge === 'string' && (/%\s*off/i.test(badge) || badge === 'PROMO');
                                     return (
                                         <span key={idx} className={isDiscount ? "badge-red" : "badge-wind"} style={{ animationDelay: `${idx * 0.3}s` }}>
                                             {badge}
