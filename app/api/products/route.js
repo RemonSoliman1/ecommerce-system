@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { sendPushNotification } from '@/lib/push';
-import { broadcastTelegramMessage, sendTelegramMediaGroup } from '@/lib/telegram';
+import { broadcastTelegramMessage, broadcastTelegramMediaGroup } from '@/lib/telegram';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -159,7 +159,7 @@ export async function POST(request) {
                             caption: index === 0 ? telegramText : undefined,
                             parse_mode: 'HTML'
                         }));
-                        await sendTelegramMediaGroup(mediaArray, targetGroup);
+                        await broadcastTelegramMediaGroup(mediaArray);
                     } else {
                         await broadcastTelegramMessage(telegramText, null);
                     }
@@ -254,7 +254,7 @@ export async function POST(request) {
                             caption: index === 0 ? telegramText : undefined,
                             parse_mode: 'HTML'
                         }));
-                        await sendTelegramMediaGroup(mediaArray, targetGroup);
+                        await broadcastTelegramMediaGroup(mediaArray);
                     } else {
                         await broadcastTelegramMessage(telegramText, null);
                     }
