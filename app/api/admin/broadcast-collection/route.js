@@ -38,9 +38,6 @@ export async function POST(request) {
         
         // We will construct a MediaGroup.
         // The first image will be a Collage of all the IDs.
-        const productIds = newProducts.map(p => p.id).slice(0, 9); // Max 9 for the collage
-        const collageUrl = `${siteUrl}/api/og/collage?ids=${productIds.join(',')}`;
-
         // Create the overarching caption containing links to ALL items
         let collageCaption = `🔥 Check out the new collection! 🔥\n\n`;
         newProducts.slice(0, 9).forEach((p, index) => {
@@ -59,16 +56,6 @@ export async function POST(request) {
             collageCaption += `<b>${index + 1}. ${p.name}</b> (${vitola})${promoStr}\n👉 ${siteUrl}/product/${p.id}\n\n`;
         });
 
-        // The first photo in the album is the collage
-        const mediaArray = [
-            {
-                type: 'photo',
-                media: collageUrl,
-                caption: collageCaption,
-                parse_mode: 'HTML'
-            }
-        ];
-
         // Verify images via HEAD request so Telegram doesn't crash on 404s
         const validImages = [];
         for (const p of newProducts.slice(0, 9)) {
@@ -85,19 +72,25 @@ export async function POST(request) {
             }
         }
 
-        // The rest of the photos are the individual product images (up to 9, so total album is 10)
-        validImages.forEach((imgUrl) => {
-            mediaArray.push({
-                type: 'photo',
-                media: imgUrl,
-                parse_mode: 'HTML'
-            });
-        });
-
-        // 4. Dispatch
-        // Await the broadcast so Vercel doesn't terminate the process before it finishes
+        // 4. Dispatch Telegram
         try {
-            await broadcastTelegramMediaGroup(mediaArray);
+            const { broadcastTelegramMediaGroup, broadcastTelegramMessage } = require('@/lib/telegram');
+            if (validImages.length >= 2) {
+                // Media Group requires at least 2 images
+                const mediaArray = validImages.map((imgUrl, i) => ({
+                    type: 'photo',
+                    media: imgUrl,
+                    caption: i === 0 ? collageCaption : undefined,
+                    parse_mode: 'HTML'
+                }));
+                await broadcastTelegramMediaGroup(mediaArray);
+            } else if (validImages.length === 1) {
+                // Single Photo
+                await broadcastTelegramMessage(collageCaption, validImages[0]);
+            } else {
+                // No valid images
+                await broadcastTelegramMessage(collageCaption);
+            }
         } catch (err) {
             console.error("Grouped broadcast failed:", err);
             // We won't strictly fail the route if telegram fails, we want push to still try
