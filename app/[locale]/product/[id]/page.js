@@ -255,6 +255,9 @@ export default function ProductPage({ params }) {
         setActiveImage(allImages[(idx + 1) % allImages.length]);
     };
 
+    const selectedOriginalPrice = selectedModel?.original_price;
+    const selectedHasDiscount = selectedOriginalPrice && selectedOriginalPrice > selectedModel?.price;
+
     return (
         <div className="container">
             <div className={styles.wrapper}>
@@ -387,8 +390,6 @@ export default function ProductPage({ params }) {
                                 {/* Dynamic Animated Badges */}
                                 {(() => {
                                     const finalBadges = (product.badges || []).filter(b => typeof b !== 'string' || !/%\s*off/i.test(b));
-                                    const selectedOriginalPrice = selectedModel?.original_price;
-                                    const selectedHasDiscount = selectedOriginalPrice && selectedOriginalPrice > selectedModel?.price;
                                     const selectedDiscountPercent = selectedHasDiscount ? Math.round(((selectedOriginalPrice - selectedModel.price) / selectedOriginalPrice) * 100) : 0;
                                     
                                     if (selectedHasDiscount && selectedDiscountPercent > 0) {
