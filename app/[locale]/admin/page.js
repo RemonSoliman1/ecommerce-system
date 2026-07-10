@@ -295,15 +295,20 @@ export default function AdminPage() {
     const [uploadingGiftImage, setUploadingGiftImage] = useState(false);
     const [editingGiftId, setEditingGiftId] = useState(null);
     const [editingGiftOldName, setEditingGiftOldName] = useState(null);
-
     // Editing Brand Modal State
     const [editingBrand, setEditingBrand] = useState(null); // { category: 'brand', oldVal, value, image, isPersistent, id }
+
     const handleGiftImageUpload = async (e) => {
         let file = e.target.files?.[0];
         if (!file) return;
 
         setUploadingGiftImage(true);
-        file = await compressImage(file);
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            setUploadingGiftImage(false);
+            return;
+        }
+        
         const fb = new FormData();
         fb.append('file', file);
         try {
@@ -317,8 +322,7 @@ export default function AdminPage() {
         }
         setUploadingGiftImage(false);
     };
-
-    const handleSaveGiftOption = async () => {
+const handleSaveGiftOption = async () => {
         if (!giftOptionForm.name || !giftOptionForm.price || !giftOptionForm.image) {
             alert('Name, Price, and Image are required for a Gift Option.');
             return;
