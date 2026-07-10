@@ -188,9 +188,10 @@ export default function ProductPage({ params }) {
 
         let giftPayload = null;
         if (selectedGiftOption) {
-            const overridePrice = selectedModel?.gift_overrides?.[selectedGiftOption.value];
-            const hasOverride = overridePrice !== undefined && overridePrice !== null;
-            const finalPrice = hasOverride ? overridePrice : parseFloat(selectedGiftOption.metadata?.price || 0);
+            const discountAmount = parseFloat(selectedModel?.gift_overrides?.[selectedGiftOption.value]);
+            const hasDiscount = !isNaN(discountAmount) && discountAmount > 0;
+            const originalPrice = parseFloat(selectedGiftOption.metadata?.price || 0);
+            const finalPrice = hasDiscount ? Math.max(0, originalPrice - discountAmount) : originalPrice;
 
             giftPayload = {
                 name: selectedGiftOption.value,
@@ -209,9 +210,10 @@ export default function ProductPage({ params }) {
 
         let giftPayload = null;
         if (selectedGiftOption) {
-            const overridePrice = selectedModel?.gift_overrides?.[selectedGiftOption.value];
-            const hasOverride = overridePrice !== undefined && overridePrice !== null;
-            const finalPrice = hasOverride ? overridePrice : parseFloat(selectedGiftOption.metadata?.price || 0);
+            const discountAmount = parseFloat(selectedModel?.gift_overrides?.[selectedGiftOption.value]);
+            const hasDiscount = !isNaN(discountAmount) && discountAmount > 0;
+            const originalPrice = parseFloat(selectedGiftOption.metadata?.price || 0);
+            const finalPrice = hasDiscount ? Math.max(0, originalPrice - discountAmount) : originalPrice;
 
             giftPayload = {
                 name: selectedGiftOption.value,
@@ -560,9 +562,10 @@ export default function ProductPage({ params }) {
                                                 const meta = option.metadata || {};
                                                 const isAllowed = !selectedModel?.allowed_gifts || selectedModel.allowed_gifts.length === 0 || selectedModel.allowed_gifts.includes(option.value);
 
-                                                const overridePrice = selectedModel?.gift_overrides?.[option.value];
-                                                const hasOverride = overridePrice !== undefined && overridePrice !== null;
-                                                const finalPrice = hasOverride ? overridePrice : parseFloat(meta.price || 0);
+                                                const discountAmount = parseFloat(selectedModel?.gift_overrides?.[option.value]);
+                                                const hasDiscount = !isNaN(discountAmount) && discountAmount > 0;
+                                                const originalPrice = parseFloat(meta.price || 0);
+                                                const finalPrice = hasDiscount ? Math.max(0, originalPrice - discountAmount) : originalPrice;
 
                                                 return (
                                                     <button
@@ -599,9 +602,9 @@ export default function ProductPage({ params }) {
                                                         <span style={{ marginTop: 'auto', paddingTop: '1rem', fontSize: '0.9rem', fontWeight: 'bold', color: finalPrice === 0 ? 'green' : 'var(--color-accent)' }}>
                                                             {finalPrice === 0 ? '✨ Exclusive Gift' : (
                                                                 <>
-                                                                    {hasOverride && parseFloat(meta.price) > finalPrice && (
+                                                                    {hasDiscount && (
                                                                         <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '6px', fontSize: '0.8rem' }}>
-                                                                            +EGP {meta.price}
+                                                                            +EGP {originalPrice}
                                                                         </span>
                                                                     )}
                                                                     + EGP {finalPrice}
@@ -654,7 +657,17 @@ export default function ProductPage({ params }) {
                                                     onClick={isOut ? handleNotifyMe : handleAddToCart}
                                                     style={isOut ? { background: 'var(--color-accent)', color: '#120C0A', border: 'none', fontWeight: 'bold', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' } : { background: 'var(--color-accent)', color: '#120C0A', border: 'none', fontWeight: 'bold', flex: 1, borderRadius: '2px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', transition: 'all 0.3s ease', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}
                                                 >
-                                                    {isOut ? t('notify_me') || 'Notify Me / Waitlist' : `${t('add_to_cart')} — EGP ${(((selectedModel?.price || 0) + (selectedGiftOption ? (selectedModel?.gift_overrides?.[selectedGiftOption.value] ?? parseFloat(selectedGiftOption.metadata?.price || 0)) : 0)) * quantity).toLocaleString()}`}
+                                                    {(() => {
+                                                        let currentGiftPrice = 0;
+                                                        if (selectedGiftOption) {
+                                                            const dAmount = parseFloat(selectedModel?.gift_overrides?.[selectedGiftOption.value]);
+                                                            const hDiscount = !isNaN(dAmount) && dAmount > 0;
+                                                            const oPrice = parseFloat(selectedGiftOption.metadata?.price || 0);
+                                                            currentGiftPrice = hDiscount ? Math.max(0, oPrice - dAmount) : oPrice;
+                                                        }
+                                                        const totalPrice = ((selectedModel?.price || 0) + currentGiftPrice) * quantity;
+                                                        return isOut ? t('notify_me') || 'Notify Me / Waitlist' : `${t('add_to_cart')} — EGP ${totalPrice.toLocaleString()}`;
+                                                    })()}
                                                 </button>
                                             </div>
                                         </>

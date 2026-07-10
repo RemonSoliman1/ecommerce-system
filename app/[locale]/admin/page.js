@@ -1682,7 +1682,7 @@ const handleSaveGiftOption = async () => {
                                                         {currentModel.allowed_gifts?.includes(giftName) && (
                                                             <input
                                                                 type="number"
-                                                                placeholder="Price (EGP)"
+                                                                placeholder="Discount (EGP)"
                                                                 value={currentModel.gift_overrides?.[giftName] ?? ''}
                                                                 onChange={(e) => {
                                                                     const val = e.target.value;
