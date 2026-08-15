@@ -5,6 +5,7 @@ import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
 
 const TourContext = createContext();
 
@@ -14,6 +15,7 @@ export function TourProvider({ children }) {
     const pathname = usePathname();
     const router = useRouter();
     const t = useTranslations('Tour');
+    const { user } = useAuth();
 
     const startTour = () => {
         localStorage.setItem('cigar_tour_step', '0');
@@ -133,68 +135,80 @@ export function TourProvider({ children }) {
         }
     }, [pathname]);
 
-    const getTourSteps = () => [
-        {
-            element: '#tour-nav-menu',
-            popover: { title: t('menu_title'), description: t('menu_desc'), side: 'bottom' },
-            actionEvent: 'mouseenter',
-            causesNavigation: false
-        },
-        {
-            element: '#tour-search',
-            popover: { title: t('search_title'), description: t('search_desc'), side: 'bottom' },
-            actionEvent: 'click',
-            causesNavigation: false
-        },
-        {
-            element: '.tour-wishlist-btn', 
-            popover: { title: t('wishlist_title'), description: t('wishlist_desc'), side: 'top' },
-            actionEvent: 'click',
-            causesNavigation: false
-        },
-        {
-            element: '.tour-view-details-btn', 
-            popover: { title: t('details_title'), description: t('details_desc'), side: 'top' },
-            actionEvent: 'click',
-            causesNavigation: true // Navigates to Product details
-        },
-        {
-            element: '#tour-cart-header', 
-            popover: { title: t('cart_title'), description: t('cart_desc'), side: 'bottom' },
-            actionEvent: 'click',
-            causesNavigation: true // Navigates to /cart
-        },
-        {
-            element: '#tour-account-btn', 
-            popover: { title: t('account_title'), description: t('account_desc'), side: 'bottom' },
-            actionEvent: 'click',
-            causesNavigation: true // Navigates to /account
-        },
-        {
-            element: '#tour-orders-tab', 
-            popover: { title: t('orders_title'), description: t('orders_desc'), side: 'right' },
-            actionEvent: 'click',
-            causesNavigation: false
-        },
-        {
-            element: '#tour-settings-tab', 
-            popover: { title: t('settings_title'), description: t('settings_desc'), side: 'right' },
-            actionEvent: 'click',
-            causesNavigation: false
-        },
-        {
-            element: '#tour-floating-chat', 
-            popover: { title: t('chat_title'), description: t('chat_desc'), side: 'left' },
-            actionEvent: 'click',
-            causesNavigation: false
-        },
-        {
-            element: '#tour-scroll-top', 
-            popover: { title: t('top_title'), description: t('top_desc'), side: 'top' },
-            actionEvent: 'click',
-            causesNavigation: false
+    const getTourSteps = () => {
+        const steps = [
+            {
+                element: '#tour-nav-menu',
+                popover: { title: t('menu_title'), description: t('menu_desc'), side: 'bottom' },
+                actionEvent: 'mouseenter',
+                causesNavigation: false
+            },
+            {
+                element: '#tour-search',
+                popover: { title: t('search_title'), description: t('search_desc'), side: 'bottom' },
+                actionEvent: 'click',
+                causesNavigation: false
+            },
+            {
+                element: '.tour-wishlist-btn', 
+                popover: { title: t('wishlist_title'), description: t('wishlist_desc'), side: 'top' },
+                actionEvent: 'click',
+                causesNavigation: false
+            },
+            {
+                element: '.tour-view-details-btn', 
+                popover: { title: t('details_title'), description: t('details_desc'), side: 'top' },
+                actionEvent: 'click',
+                causesNavigation: true
+            },
+            {
+                element: '#tour-cart-header', 
+                popover: { title: t('cart_title'), description: t('cart_desc'), side: 'bottom' },
+                actionEvent: 'click',
+                causesNavigation: true
+            },
+            {
+                element: '#tour-account-btn', 
+                popover: { title: t('account_title'), description: t('account_desc'), side: 'bottom' },
+                actionEvent: 'click',
+                causesNavigation: !!user // Only navigates if logged in
+            }
+        ];
+
+        if (user) {
+            steps.push(
+                {
+                    element: '#tour-orders-tab', 
+                    popover: { title: t('orders_title'), description: t('orders_desc'), side: 'right' },
+                    actionEvent: 'click',
+                    causesNavigation: false
+                },
+                {
+                    element: '#tour-settings-tab', 
+                    popover: { title: t('settings_title'), description: t('settings_desc'), side: 'right' },
+                    actionEvent: 'click',
+                    causesNavigation: false
+                }
+            );
         }
-    ];
+
+        steps.push(
+            {
+                element: '#tour-floating-chat', 
+                popover: { title: t('chat_title'), description: t('chat_desc'), side: 'top' },
+                actionEvent: 'click',
+                causesNavigation: false
+            },
+            {
+                element: '#tour-scroll-top', 
+                popover: { title: t('top_title'), description: t('top_desc'), side: 'top' },
+                actionEvent: 'click',
+                causesNavigation: false
+            }
+        );
+
+        return steps;
+    };
 
     return (
         <TourContext.Provider value={{ startTour, stopTour, isTourActive }}>

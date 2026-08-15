@@ -4,6 +4,7 @@ import { Link, usePathname, useRouter } from '@/lib/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useProducts } from '@/context/ProductContext';
+import { useTour } from '@/context/TourContext';
 import styles from './Header.module.css';
 
 import { useState, useEffect } from 'react';
@@ -14,6 +15,8 @@ import { useTelegram } from '@/context/TelegramContext';
 
 export default function Header() {
     const { isTelegram } = useTelegram();
+    const { showToast } = useToast();
+    const { isTourActive } = useTour();
     const pathname = usePathname();
     const router = useRouter();
     const { cart, updateQuantity, removeFromCart, cartSubtotal, cartTotal, discountAmount, promoCode } = useCart();
@@ -227,11 +230,11 @@ export default function Header() {
                     {/* DESKTOP ACTIONS (HIDDEN ON MOBILE) */}
                     <div className={`${styles.actions} ${styles.desktopOnly}`}>
                         {user ? (
-                            <Link href="/account" id="tour-account-btn" className={styles.iconBtn} aria-label="Account">
+                            <Link href="/account" id="tour-account-btn" className={styles.iconBtn} aria-label="Account" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
                                 <User size={24} />
                             </Link>
                         ) : (
-                            <Link href="/login" id="tour-account-btn" className={styles.iconBtn} aria-label="Login">
+                            <Link href="/login" id="tour-account-btn" className={styles.iconBtn} aria-label="Login" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
                                 <User size={24} />
                             </Link>
                         )}
@@ -243,7 +246,7 @@ export default function Header() {
                             </Link>
                         )}
 
-                        <Link href="/wishlist" className={styles.iconBtn} aria-label="Wishlist">
+                        <Link href="/wishlist" className={styles.iconBtn} aria-label="Wishlist" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
                             <Heart size={24} />
                         </Link>
 
