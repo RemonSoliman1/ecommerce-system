@@ -35,18 +35,20 @@ export default function AgeGate() {
         sessionStorage.setItem('age_verified', 'true');
         setIsVisible(false);
         
-        // Trigger PWA install for all users automatically
-        setTimeout(() => {
-            if (pwa && typeof pwa.promptInstall === 'function') {
-                pwa.promptInstall();
-            }
-        }, 1500);
+
 
         if (action === 'signin') {
             router.push(`/${selectedLocale}/login`);
         } else if (action === 'register') {
             router.push(`/${selectedLocale}/register`);
         } else if (action === 'guest') {
+            // Trigger PWA install for guest users automatically
+            setTimeout(() => {
+                if (pwa && typeof pwa.promptInstall === 'function') {
+                    pwa.promptInstall();
+                }
+            }, 1500);
+
             // Set flag for tour auto-start for first-time guests
             if (!localStorage.getItem('cigar_has_seen_tour')) {
                 localStorage.setItem('cigar_needs_tour', 'true');
