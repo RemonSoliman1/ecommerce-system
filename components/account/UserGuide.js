@@ -38,6 +38,10 @@ export default function UserGuide() {
                         </li>
                         <li style={{ position: 'relative', paddingLeft: '1.5rem', marginBottom: '1rem', color: '#ccc', lineHeight: '1.6' }}>
                             <span style={{ position: 'absolute', left: 0, color: 'var(--color-accent)' }}>•</span>
+                            <strong style={{ color: '#fff' }}>{t('web_shop_now') || 'Shop Now Button:'}</strong> {t('web_shop_now_desc') || 'Click the gold SHOP NOW button in the main menu to open a detailed catalog of our categories, brands, and collections.'}
+                        </li>
+                        <li style={{ position: 'relative', paddingLeft: '1.5rem', marginBottom: '1rem', color: '#ccc', lineHeight: '1.6' }}>
+                            <span style={{ position: 'absolute', left: 0, color: 'var(--color-accent)' }}>•</span>
                             <strong style={{ color: '#fff' }}>{t('web_profile')}</strong> {t('web_profile_desc')}
                         </li>
                         <li style={{ position: 'relative', paddingLeft: '1.5rem', marginBottom: '1rem', color: '#ccc', lineHeight: '1.6' }}>
