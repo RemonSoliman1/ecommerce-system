@@ -54,7 +54,7 @@ export default function usePWAInstall() {
     }, []);
     const [showAndroidModal, setShowAndroidModal] = useState(false);
 
-    const promptInstall = async () => {
+    const promptInstall = async (manual = false) => {
         if (installPrompt) {
             // Android flow
             installPrompt.prompt();
@@ -68,6 +68,9 @@ export default function usePWAInstall() {
             setShowIOSGuide(true);
         } else {
             console.log("Installation not supported or already installed.");
+            if (manual) {
+                alert("To install the app, look for the 'Install' icon in your browser's address bar (Chrome/Edge) or select 'Add to Home Screen' from your browser's menu.");
+            }
         }
     };
 

@@ -47,7 +47,11 @@ export default function AgeGate() {
         } else if (action === 'register') {
             router.push(`/${selectedLocale}/register`);
         } else if (action === 'guest') {
-            // just let them browse
+            // Set flag for tour auto-start for first-time guests
+            if (!localStorage.getItem('cigar_has_seen_tour')) {
+                localStorage.setItem('cigar_needs_tour', 'true');
+                localStorage.setItem('cigar_has_seen_tour', 'true');
+            }
             router.push(`/${selectedLocale}`);
         }
     };

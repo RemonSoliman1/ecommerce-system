@@ -77,7 +77,7 @@ export default function UserGuide() {
                     <h4 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>{t('desktop_title')}</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>{t('desktop_desc')}</p>
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <button onClick={() => pwa.promptInstall()} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-accent)', color: '#000', border: 'none', fontWeight: 'bold' }}>
+                        <button onClick={() => pwa.promptInstall(true)} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-accent)', color: '#000', border: 'none', fontWeight: 'bold' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                             {t('desktop_btn')}
                         </button>

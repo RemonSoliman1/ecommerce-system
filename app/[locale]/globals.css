@@ -268,3 +268,5 @@ option {
   letter-spacing: 1px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
+#tour-shop:hover, [class*='mobileShopBtn']:hover { box-shadow: 0 0 15px var(--color-accent); transition: box-shadow 0.3s ease; }
+
