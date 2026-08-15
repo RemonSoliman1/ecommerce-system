@@ -326,7 +326,7 @@ export default function Header() {
                     <div className={styles.nav}>
                         <Link href="/" className={styles.link}>{t('nav_home')}</Link>
                         <div className={styles.navItemContainer} id="tour-nav-menu" onMouseLeave={() => { setHoveredType(null); setHoveredBrand(null); }}>
-                            <Link href="/shop" className={styles.link} id="tour-shop">SHOP NOW</Link>
+                            <Link href="/shop" id="tour-shop" style={{ padding: '0.4rem 1.2rem', background: 'var(--color-accent)', color: '#000', borderRadius: '4px', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block' }}>SHOP NOW</Link>
                             <div className={styles.megaMenu}>
                                 <div className={styles.megaMenuInner}>
                                     {/* Column 1: Categories (Types) */}
