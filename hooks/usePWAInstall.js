@@ -63,14 +63,17 @@ export default function usePWAInstall() {
                 setInstallPrompt(null);
             }
             setShowAndroidModal(false); // Close our custom modal
+            return true; // Indicates native prompt was shown and resolved
         } else if (isIOS && !isStandalone) {
             // iOS flow
             setShowIOSGuide(true);
+            return false;
         } else {
             console.log("Installation not supported or already installed.");
             if (manual) {
                 alert("To install the app, look for the 'Install' icon in your browser's address bar (Chrome/Edge) or select 'Add to Home Screen' from your browser's menu.");
             }
+            return false;
         }
     };
 

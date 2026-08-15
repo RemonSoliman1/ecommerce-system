@@ -108,6 +108,13 @@ export function AuthProvider({ children }) {
                     } else {
                         pwa.promptInstall();
                     }
+                } else {
+                    // Trigger tour if it's their first time in the app
+                    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                    if (standalone && !localStorage.getItem('cigar_has_seen_app_tour')) {
+                        localStorage.setItem('cigar_needs_tour', 'true');
+                        localStorage.setItem('cigar_has_seen_app_tour', 'true');
+                    }
                 }
                 return { success: true };
             }
@@ -134,6 +141,13 @@ export function AuthProvider({ children }) {
                         pwa.setShowAndroidModal(true);
                     } else {
                         pwa.promptInstall();
+                    }
+                } else {
+                    // Trigger tour if it's their first time in the app
+                    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                    if (standalone && !localStorage.getItem('cigar_has_seen_app_tour')) {
+                        localStorage.setItem('cigar_needs_tour', 'true');
+                        localStorage.setItem('cigar_has_seen_app_tour', 'true');
                     }
                 }
                 return { success: true, message: 'Please verify your email.' };

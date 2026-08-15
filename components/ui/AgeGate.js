@@ -10,11 +10,15 @@ export default function AgeGate() {
     const [isVisible, setIsVisible] = useState(false);
     const [step, setStep] = useState('age'); // 'age' | 'auth'
     const [selectedLocale, setSelectedLocale] = useState('en');
+    const [isApp, setIsApp] = useState(false);
     const router = useRouter();
     const t = useTranslations('AgeGate');
     const pwa = usePWA();
 
     useEffect(() => {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        setIsApp(standalone);
+
         const hasVerified = sessionStorage.getItem('age_verified');
         if (!hasVerified) {
             setIsVisible(true);
@@ -42,19 +46,20 @@ export default function AgeGate() {
         } else if (action === 'register') {
             router.push(`/${selectedLocale}/register`);
         } else if (action === 'guest') {
-            // Trigger PWA install for guest users automatically
-            setTimeout(() => {
+            const startGuestFlow = async () => {
                 if (pwa && typeof pwa.promptInstall === 'function') {
-                    pwa.promptInstall();
+                    await pwa.promptInstall(); // Wait for PWA prompt to resolve (either native or modal closed)
                 }
-            }, 1500);
 
-            // Set flag for tour auto-start for first-time guests
-            if (!localStorage.getItem('cigar_has_seen_tour')) {
-                localStorage.setItem('cigar_needs_tour', 'true');
-                localStorage.setItem('cigar_has_seen_tour', 'true');
-            }
-            router.push(`/${selectedLocale}`);
+                // Set flag for tour auto-start for first-time guests
+                if (!localStorage.getItem('cigar_has_seen_tour')) {
+                    localStorage.setItem('cigar_needs_tour', 'true');
+                    localStorage.setItem('cigar_has_seen_tour', 'true');
+                }
+                router.push(`/${selectedLocale}`);
+            };
+            
+            startGuestFlow();
         }
     };
 
