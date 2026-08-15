@@ -115,6 +115,15 @@ export function TourProvider({ children }) {
 
     // Auto-resume on route change or mount
     useEffect(() => {
+        const needsTour = localStorage.getItem('cigar_needs_tour');
+        if (needsTour === 'true') {
+            localStorage.removeItem('cigar_needs_tour');
+            setTimeout(() => {
+                startTour();
+            }, 1000);
+            return;
+        }
+
         const savedStep = localStorage.getItem('cigar_tour_step');
         if (savedStep !== null) {
             const stepIdx = parseInt(savedStep, 10);

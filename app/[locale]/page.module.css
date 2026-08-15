@@ -7,6 +7,23 @@
   overflow: hidden;
   background: var(--color-bg);
 }
+.mobileShopBtn {
+  display: none;
+  background: var(--color-accent);
+  color: #000;
+  text-align: center;
+  padding: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .mobileShopBtn {
+    display: block;
+  }
+}
 .slide {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;

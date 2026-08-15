@@ -43,6 +43,7 @@ export default function VerifyPage() {
                 // Auto Login
                 if (data.user) {
                     localStorage.setItem('cigar_user_email', data.user.email);
+                    localStorage.setItem('cigar_needs_tour', 'true'); // Trigger tour
                     // Force a reload or redirect to account which will pick up the session
                     setTimeout(() => {
                         window.location.href = '/account';

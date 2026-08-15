@@ -101,7 +101,7 @@ export default function AgeGate() {
                                 <button onClick={() => finishFlow('signin')} className={styles.btnConfirm} style={{ width: '100%' }}>
                                     {t('sign_in')}
                                 </button>
-                                <button onClick={() => finishFlow('register')} className={styles.btnConfirm} style={{ width: '100%', background: 'transparent', border: '1px solid var(--color-accent)' }}>
+                                <button onClick={() => finishFlow('register')} className={styles.btnConfirm} style={{ width: '100%', background: 'transparent', border: '1px solid var(--color-accent)', color: 'var(--color-accent)' }}>
                                     {t('register')}
                                 </button>
                                 <button onClick={() => finishFlow('guest')} className={styles.btnDeny} style={{ width: '100%', marginTop: '1rem' }}>

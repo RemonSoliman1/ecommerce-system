@@ -247,8 +247,14 @@ export default function Home() {
   }, [slides.length]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));  return (
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  return (
     <div className={styles.home}>
+      {/* Mobile Only Shop Now Button */}
+      <Link href="/shop" className={styles.mobileShopBtn}>
+        {t('shop_now') || 'Shop Now'}
+      </Link>
+
       {/* 1. Hero Slideshow */}
       <section className={styles.sliderWrapper} style={{ position: 'relative' }}>
         {slides.map((slide, index) => (
