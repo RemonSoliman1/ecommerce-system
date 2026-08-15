@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
     try {
-        const { name, email, password, dob } = await request.json();
+        const { name, email, password, dob, phone } = await request.json();
 
         // 1. Check if user exists
         const { data: existingUser } = await supabase
@@ -22,7 +22,7 @@ export async function POST(request) {
                 // User exists but not verified -> Update their details (in case they fixed a typo/password)
                 const { error: updateError } = await supabase
                     .from('users')
-                    .update({ name, password, dob })
+                    .update({ name, password, dob, phone })
                     .eq('email', email);
 
                 if (updateError) {
@@ -40,6 +40,7 @@ export async function POST(request) {
                     email,
                     password, // TODO: Hash this in production!
                     dob,
+                    phone,
                     verified: false
                 }])
                 .select()

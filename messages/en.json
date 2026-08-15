@@ -250,7 +250,8 @@
             "saving": "Saving..."
         },
         "orders": {
-            "empty": "No orders yet. Discover our collection."
+            "empty": "No orders yet. Discover our collection.",
+            "order_id": "Order ID"
         },
         "tabs": {
             "profile": "Profile",
@@ -425,5 +426,12 @@
         "tabs_marketing": "Marketing",
         "back_to_shop": "Back to Shop",
         "add_edit_product": "Add / Edit Product"
+    },
+    "AgeGate": {
+        "auth_title": "Welcome to CigarLounge",
+        "auth_subtitle": "Please choose how you'd like to proceed.",
+        "sign_in": "Already a customer? Sign In",
+        "register": "Register New Customer",
+        "guest": "Continue as a Guest"
     }
 }

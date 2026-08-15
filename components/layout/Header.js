@@ -399,6 +399,7 @@ export default function Header() {
                             </div>
                         </div>
                         <Link href="/about" className={styles.link}>{t('nav_heritage')}</Link>
+                        <Link href="/shop" className="btn" style={{ marginLeft: '1rem', padding: '0.4rem 1.2rem', background: 'var(--color-accent)', color: '#000', borderRadius: '4px', fontWeight: 'bold' }}>SHOP NOW</Link>
                     </div>
                 </div>
             </nav>
@@ -430,7 +431,14 @@ export default function Header() {
                 <div className={styles.mobileDrawerContent}>
                     {activeMobileTab === 'menu' ? (
                         <div className={styles.mobileActions}>
+                            <Link href="/shop" className="btn" onClick={() => setMobileMenuOpen(false)} style={{ width: '100%', marginBottom: '1rem', background: 'var(--color-accent)', color: '#000', padding: '1rem', textAlign: 'center', fontWeight: 'bold', borderRadius: '4px' }}>SHOP NOW</Link>
                             <Link href="/" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('nav_home')}</Link>
+                            {user ? (
+                                <Link href="/account" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('my_account') || 'My Account'}</Link>
+                            ) : (
+                                <Link href="/login" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('login') || 'Sign In'}</Link>
+                            )}
+                            <Link href="/wishlist" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('wishlist') || 'Wishlist'}</Link>
                             <Link href="/shop" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('nav_products')}</Link>
                             <Link href="/shop?type=sampler" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('cat_samplers')}</Link>
                             <Link href="/shop?type=accessory" className={styles.mobilemylink} onClick={() => setMobileMenuOpen(false)}>{t('cat_accessories')}</Link>

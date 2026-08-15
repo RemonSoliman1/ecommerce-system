@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 export default function RegisterPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [dob, setDob] = useState('');
     const [error, setError] = useState('');
@@ -54,7 +55,7 @@ export default function RegisterPage() {
             return;
         }
 
-        const res = await register(name, email, password, dob);
+        const res = await register(name, email, password, dob, phone);
 
         if (res.success) {
             // 1. Sync to Supabase for Order History support
@@ -97,6 +98,14 @@ export default function RegisterPage() {
                     placeholder={t('email_placeholder')}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
+                    style={{ padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
+                    required
+                />
+                <input
+                    type="tel"
+                    placeholder="Phone Number (For future sign-in)"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
                     style={{ padding: '1rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: '#fff' }}
                     required
                 />

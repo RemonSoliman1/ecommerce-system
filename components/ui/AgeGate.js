@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import styles from './AgeGate.module.css';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { usePWA } from '@/context/PWAContext';
 
 export default function AgeGate() {
     const [isVisible, setIsVisible] = useState(false);
+    const [step, setStep] = useState('age'); // 'age' | 'auth'
+    const [selectedLocale, setSelectedLocale] = useState('en');
     const router = useRouter();
+    const t = useTranslations('AgeGate');
+    const pwa = usePWA();
 
     useEffect(() => {
         const hasVerified = sessionStorage.getItem('age_verified');
@@ -15,17 +21,35 @@ export default function AgeGate() {
         }
     }, []);
 
-    const handleVerify = (locale) => {
-        sessionStorage.setItem('age_verified', 'true');
-        // Set cookie so server knows too
+    const handleVerifyAge = (locale) => {
+        setSelectedLocale(locale);
         document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
-        
-        // Hide modal but stay on intended page
-        setIsVisible(false);
+        setStep('auth');
     };
 
     const handleReject = () => {
         window.location.href = 'https://google.com'; // Redirect away
+    };
+
+    const finishFlow = (action) => {
+        sessionStorage.setItem('age_verified', 'true');
+        setIsVisible(false);
+        
+        // Trigger PWA install for all users automatically
+        setTimeout(() => {
+            if (pwa && typeof pwa.promptInstall === 'function') {
+                pwa.promptInstall();
+            }
+        }, 1500);
+
+        if (action === 'signin') {
+            router.push(`/${selectedLocale}/login`);
+        } else if (action === 'register') {
+            router.push(`/${selectedLocale}/register`);
+        } else if (action === 'guest') {
+            // just let them browse
+            router.push(`/${selectedLocale}`);
+        }
     };
 
     if (!isVisible) return null;
@@ -34,32 +58,59 @@ export default function AgeGate() {
         <div className={styles.overlay} style={{ zIndex: 9999 }}>
             <div className={styles.modal}>
                 <div className={styles.content}>
-                    <h1 className={styles.title} style={{ marginBottom: '0.5rem' }}>Age Verification</h1>
-                    <h2 className={styles.title} style={{ fontSize: '1.2rem', marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}>التحقق من العمر</h2>
+                    
+                    {step === 'age' && (
+                        <>
+                            <h1 className={styles.title} style={{ marginBottom: '0.5rem' }}>Age Verification</h1>
+                            <h2 className={styles.title} style={{ fontSize: '1.2rem', marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}>التحقق من العمر</h2>
 
-                    <p className={styles.text}>
-                        You must be of legal smoking age (18+) to enter this site.
-                    </p>
-                    <p className={styles.text} style={{ direction: 'rtl' }}>
-                        يجب أن تكون في السن القانوني للتدخين (18+) لدخول هذا الموقع.
-                    </p>
+                            <p className={styles.text}>
+                                You must be of legal smoking age (18+) to enter this site.
+                            </p>
+                            <p className={styles.text} style={{ direction: 'rtl' }}>
+                                يجب أن تكون في السن القانوني للتدخين (18+) لدخول هذا الموقع.
+                            </p>
 
-                    <div className={styles.actions} style={{ flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                            <button onClick={() => handleVerify('en')} className={styles.btnConfirm}>Enter Site (English)</button>
-                            <button onClick={() => handleVerify('ar')} className={styles.btnConfirm}>دخول الموقع (العربية)</button>
-                        </div>
-                        <button onClick={handleReject} className={styles.btnDeny} style={{ width: '100%' }}>I am under 18 / أنا تحت 18</button>
-                    </div>
+                            <div className={styles.actions} style={{ flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                                    <button onClick={() => handleVerifyAge('en')} className={styles.btnConfirm}>Enter Site (English)</button>
+                                    <button onClick={() => handleVerifyAge('ar')} className={styles.btnConfirm}>دخول الموقع (العربية)</button>
+                                </div>
+                                <button onClick={handleReject} className={styles.btnDeny} style={{ width: '100%' }}>I am under 18 / أنا تحت 18</button>
+                            </div>
 
-                    <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#888' }}>
-                        <p className={styles.subtext}>
-                            Surgeon General Warning: Cigar Smoking Can Cause Cancers Of The Mouth And Throat, Even If You Do Not Inhale.
-                        </p>
-                        <p className={styles.subtext} style={{ direction: 'rtl', marginTop: '0.5rem' }}>
-                            تحذير: تدخين السيجار قد يسبب سرطانات الفم والحلق، حتى لو لم يتم استنشاقه.
-                        </p>
-                    </div>
+                            <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#888' }}>
+                                <p className={styles.subtext}>
+                                    Surgeon General Warning: Cigar Smoking Can Cause Cancers Of The Mouth And Throat, Even If You Do Not Inhale.
+                                </p>
+                                <p className={styles.subtext} style={{ direction: 'rtl', marginTop: '0.5rem' }}>
+                                    تحذير: تدخين السيجار قد يسبب سرطانات الفم والحلق، حتى لو لم يتم استنشاقه.
+                                </p>
+                            </div>
+                        </>
+                    )}
+
+                    {step === 'auth' && (
+                        <>
+                            <h1 className={styles.title} style={{ marginBottom: '0.5rem' }}>{t('auth_title')}</h1>
+                            <p className={styles.text} style={{ marginBottom: '2rem' }}>
+                                {t('auth_subtitle')}
+                            </p>
+
+                            <div className={styles.actions} style={{ flexDirection: 'column', gap: '1rem' }}>
+                                <button onClick={() => finishFlow('signin')} className={styles.btnConfirm} style={{ width: '100%' }}>
+                                    {t('sign_in')}
+                                </button>
+                                <button onClick={() => finishFlow('register')} className={styles.btnConfirm} style={{ width: '100%', background: 'transparent', border: '1px solid var(--color-accent)' }}>
+                                    {t('register')}
+                                </button>
+                                <button onClick={() => finishFlow('guest')} className={styles.btnDeny} style={{ width: '100%', marginTop: '1rem' }}>
+                                    {t('guest')}
+                                </button>
+                            </div>
+                        </>
+                    )}
+
                 </div>
             </div>
         </div>

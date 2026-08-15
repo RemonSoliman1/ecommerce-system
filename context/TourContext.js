@@ -37,6 +37,7 @@ export function TourProvider({ children }) {
         }
 
         const step = steps[stepIndex];
+        let isProgrammaticDestroy = false;
 
         let attempts = 0;
         const checkElement = setInterval(() => {
@@ -71,7 +72,7 @@ export function TourProvider({ children }) {
                         }
                     ],
                     onDestroyStarted: () => {
-                        if (driverRef.current?.hasNextStep?.() || !driverRef.current?.isActivated) {
+                        if (isProgrammaticDestroy || driverRef.current?.hasNextStep?.() || !driverRef.current?.isActivated) {
                            driverRef.current.destroy();
                         } else {
                            stopTour(); // User clicked close
@@ -87,8 +88,9 @@ export function TourProvider({ children }) {
                     setTimeout(() => {
                         el.removeEventListener(step.actionEvent || 'click', handleInteract);
                         if (step.actionEvent === 'mouseenter') el.removeEventListener('click', handleInteract);
-                        if (step.actionEvent === 'input') el.removeEventListener('input', handleInteract);
+                        if (step.actionEvent === 'input') el.removeEventListener('click', handleInteract);
 
+                        isProgrammaticDestroy = true;
                         if (driverRef.current) driverRef.current.destroy();
                         
                         const nextStep = stepIndex + 1;

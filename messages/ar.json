@@ -431,5 +431,12 @@
         "tabs_marketing": "التسويق",
         "back_to_shop": "العودة للمتجر",
         "add_edit_product": "إضافة / تعديل منتج"
+    },
+    "AgeGate": {
+        "auth_title": "مرحباً بك في CigarLounge",
+        "auth_subtitle": "يرجى اختيار كيف ترغب في المتابعة.",
+        "sign_in": "هل أنت عميل مسجل؟ تسجيل الدخول",
+        "register": "تسجيل عميل جديد",
+        "guest": "الاستمرار كزائر"
     }
 }

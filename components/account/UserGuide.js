@@ -1,10 +1,12 @@
 import styles from '../../app/[locale]/account/account.module.css';
 import { useTour } from '@/context/TourContext';
 import { useTranslations } from 'next-intl';
+import { usePWA } from '@/context/PWAContext';
 
 export default function UserGuide() {
     const { startTour } = useTour();
     const t = useTranslations('Guide');
+    const pwa = usePWA();
     return (
         <div className={styles.section} style={{ padding: '0 1rem' }}>
             <h2 style={{ color: 'var(--color-accent)', marginBottom: '1rem', borderBottom: '1px solid rgba(198, 168, 124, 0.2)', paddingBottom: '1rem' }}>{t('title')}</h2>
@@ -70,10 +72,10 @@ export default function UserGuide() {
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
                     <h4 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>{t('desktop_title')}</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>{t('desktop_desc')}</p>
-                    <a href="/downloads/CigarLounge-Setup.exe" className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#333', color: '#fff', border: '1px solid #555' }}>
+                    <button onClick={() => pwa.promptInstall()} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#333', color: '#fff', border: '1px solid #555' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                         {t('desktop_btn')}
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -132,9 +134,9 @@ export default function UserGuide() {
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
                     <h4 style={{ color: 'var(--color-accent)', marginBottom: '1rem' }}>{t('bot_connect')}</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>{t('bot_connect_desc')}</p>
-                    <a href="https://t.me/CigarLoungeBot" target="_blank" rel="noopener noreferrer" className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#229ED9', color: '#fff', border: 'none' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                        {t('bot_open_btn')}
+                    <a href="https://t.me/GoCigarBot" target="_blank" rel="noopener noreferrer" className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#229ED9', color: '#fff', border: 'none' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2 2 11l6 2v6l3-4 5 5 4.5-18z"/></svg>
+                        {t('bot_btn')}
                     </a>
                 </div>
             </div>
