@@ -233,7 +233,17 @@ export function PWAProvider({ children }) {
                         
                         <div className={styles.actions}>
                             <button 
-                                onClick={() => pwa.setShowInstalledModal(false)}
+                                onClick={() => {
+                                    pwa.setShowInstalledModal(false);
+                                    if (localStorage.getItem('cigar_needs_tour_after_install_modal')) {
+                                        localStorage.removeItem('cigar_needs_tour_after_install_modal');
+                                        if (!localStorage.getItem('cigar_has_seen_tour')) {
+                                            localStorage.setItem('cigar_needs_tour', 'true');
+                                            localStorage.setItem('cigar_has_seen_tour', 'true');
+                                            window.dispatchEvent(new Event('cigar_start_tour_now'));
+                                        }
+                                    }
+                                }}
                                 className={styles.btnConfirm}
                             >
                                 Excellent

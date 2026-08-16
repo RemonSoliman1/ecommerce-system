@@ -120,20 +120,33 @@ export function TourProvider({ children }) {
         const needsTour = localStorage.getItem('cigar_needs_tour');
         if (needsTour === 'true') {
             localStorage.removeItem('cigar_needs_tour');
-            setTimeout(() => {
-                startTour();
-            }, 1000);
+            // Check if we are waiting for the PWA install success modal instead
+            if (!localStorage.getItem('cigar_needs_tour_after_install_modal')) {
+                setTimeout(() => {
+                    startTour();
+                }, 1000);
+            }
             return;
         }
 
-        const savedStep = localStorage.getItem('cigar_tour_step');
-        if (savedStep !== null) {
-            const stepIdx = parseInt(savedStep, 10);
+        const stepIdx = localStorage.getItem('cigar_tour_step');
+        if (stepIdx !== null && !isTourActive) {
             setIsTourActive(true);
             // Delay to let the new page DOM render
-            setTimeout(() => runTourStep(stepIdx), 500);
+            setTimeout(() => runTourStep(parseInt(stepIdx)), 500);
         }
     }, [pathname]);
+
+    useEffect(() => {
+        const listener = () => {
+            if (localStorage.getItem('cigar_needs_tour') === 'true') {
+                localStorage.removeItem('cigar_needs_tour');
+                startTour();
+            }
+        };
+        window.addEventListener('cigar_start_tour_now', listener);
+        return () => window.removeEventListener('cigar_start_tour_now', listener);
+    }, []);
 
     const getTourSteps = () => {
         const steps = [

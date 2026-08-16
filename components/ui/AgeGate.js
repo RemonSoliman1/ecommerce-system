@@ -47,16 +47,23 @@ export default function AgeGate() {
             router.push(`/${selectedLocale}/register`);
         } else if (action === 'guest') {
             const startGuestFlow = async () => {
+                let outcome = 'unsupported';
                 if (pwa && typeof pwa.promptInstall === 'function') {
-                    await pwa.promptInstall(); // Wait for PWA prompt to resolve (either native or modal closed)
+                    outcome = await pwa.promptInstall(); // Wait for PWA prompt to resolve
                 }
 
-                // Set flag for tour auto-start for first-time guests
-                if (!localStorage.getItem('cigar_has_seen_tour')) {
-                    localStorage.setItem('cigar_needs_tour', 'true');
-                    localStorage.setItem('cigar_has_seen_tour', 'true');
+                if (outcome === 'accepted') {
+                    // Wait for the appinstalled event AND the modal dismissal before starting tour.
+                    localStorage.setItem('cigar_needs_tour_after_install_modal', 'true');
+                    router.push(`/${selectedLocale}`);
+                } else {
+                    // Set flag for tour auto-start for first-time guests
+                    if (!localStorage.getItem('cigar_has_seen_tour')) {
+                        localStorage.setItem('cigar_needs_tour', 'true');
+                        localStorage.setItem('cigar_has_seen_tour', 'true');
+                    }
+                    router.push(`/${selectedLocale}`);
                 }
-                router.push(`/${selectedLocale}`);
             };
             
             startGuestFlow();
