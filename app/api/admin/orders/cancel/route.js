@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,9 @@ const getSupabaseAdmin = () => {
 };
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { orderId, processedBy } = body;
@@ -83,7 +87,7 @@ export async function POST(request) {
                 status: 'cancelled',
                 cancelled_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-                processed_by: processedBy || 'admin'
+                processed_by: processedBy || auth.user.email || 'admin'
             })
             .eq('id', orderId);
 

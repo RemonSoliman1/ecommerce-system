@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function GET(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
 

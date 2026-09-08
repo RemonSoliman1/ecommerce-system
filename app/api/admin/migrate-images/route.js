@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
+// SEC-3: Admin secret is now read from environment variable, never hardcoded.
+// Set ADMIN_SECRET in your .env.local / Vercel environment variables.
+// Call this endpoint with: POST /api/admin/migrate-images  { "admin_secret": "<your-secret>" }
 export async function POST(request) {
     try {
         const body = await request.json().catch(() => ({}));
-        if (body.admin_secret !== 'admin@129') {
+
+        if (!process.env.ADMIN_SECRET || body.admin_secret !== process.env.ADMIN_SECRET) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

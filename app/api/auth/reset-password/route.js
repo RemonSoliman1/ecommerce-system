@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { Resend } from 'resend';
+import bcrypt from 'bcryptjs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,13 +13,18 @@ export async function POST(request) {
             return Response.json({ success: false, error: 'Missing required fields' }, { status: 400 });
         }
 
+        // SEC-1: Enforce minimum password length server-side
+        if (newPassword.length < 8) {
+            return Response.json({ success: false, error: 'Password must be at least 8 characters long' }, { status: 400 });
+        }
+
         // 1. Verify Token
         const { data: tokenData } = await supabase
             .from('verification_tokens')
             .select('*')
             .eq('email', email)
             .eq('token', code)
-            .eq('type', 'password_reset') // Ensure it's a reset token
+            .eq('type', 'password_reset')
             .gt('expires_at', new Date().toISOString()) // Check expiration
             .single();
 
@@ -26,11 +32,12 @@ export async function POST(request) {
             return Response.json({ success: false, error: 'Invalid or expired code.' }, { status: 400 });
         }
 
-        // 2. Update Password
-        // Note: hashing should happen here in production
+        // 2. SEC-1: Hash the new password before storing
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+
         const { error: updateError } = await supabase
             .from('users')
-            .update({ password: newPassword })
+            .update({ password: hashedPassword })
             .eq('email', email);
 
         if (updateError) {
@@ -38,7 +45,7 @@ export async function POST(request) {
             return Response.json({ success: false, error: 'Failed to update password' }, { status: 500 });
         }
 
-        // 3. Delete USED Token
+        // 3. Delete used token (prevents replay)
         await supabase
             .from('verification_tokens')
             .delete()
@@ -59,7 +66,7 @@ export async function POST(request) {
                     </p>
                 </div>
             `
-        });
+        }).catch(err => console.error('Confirmation email failed:', err));
 
         return Response.json({ success: true });
 

@@ -1,29 +1,49 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { Resend } from 'resend';
+import bcrypt from 'bcryptjs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Basic email format validation
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export async function POST(request) {
     try {
         const { name, email, password, dob, phone } = await request.json();
 
+        // --- Server-side input validation ---
+        if (!name || !email || !password) {
+            return Response.json({ success: false, error: 'Name, email, and password are required' }, { status: 400 });
+        }
+        if (!isValidEmail(email)) {
+            return Response.json({ success: false, error: 'Please enter a valid email address' }, { status: 400 });
+        }
+        if (password.length < 8) {
+            return Response.json({ success: false, error: 'Password must be at least 8 characters long' }, { status: 400 });
+        }
+
+        // SEC-1: Hash the password before storing
+        const hashedPassword = await bcrypt.hash(password, 12);
+
         // 1. Check if user exists
         const { data: existingUser } = await supabase
             .from('users')
-            .select('*')
-            .eq('email', email)
-            .single();
+            .select('id, verified')
+            .eq('email', email.trim().toLowerCase())
+            .maybeSingle();
 
         if (existingUser) {
             if (existingUser.verified) {
                 return Response.json({ success: false, error: 'Email already exists. Please login.' }, { status: 400 });
             } else {
-                // User exists but not verified -> Update their details (in case they fixed a typo/password)
+                // User exists but not verified — update their details (in case they fixed a typo/password)
                 const { error: updateError } = await supabase
                     .from('users')
-                    .update({ name, password, dob, phone })
-                    .eq('email', email);
+                    .update({ name, password: hashedPassword, dob, phone })
+                    .eq('email', email.trim().toLowerCase());
 
                 if (updateError) {
                     console.error('Update User Error:', updateError);
@@ -31,14 +51,13 @@ export async function POST(request) {
                 }
             }
         } else {
-            // 2. Create User
-            // Note: In a real app, hash the password! 
+            // 2. Create User with hashed password
             const { data: newUser, error: createError } = await supabase
                 .from('users')
                 .insert([{
                     name,
-                    email,
-                    password, // TODO: Hash this in production!
+                    email: email.trim().toLowerCase(),
+                    password: hashedPassword,
                     dob,
                     phone,
                     verified: false
@@ -52,13 +71,13 @@ export async function POST(request) {
             }
         }
 
-        // 3. Generate Token (6-digit code for this demo)
-        const token = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit code
+        // 3. Generate Token (6-digit code)
+        const token = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Store Token
         const { error: tokenError } = await supabase
             .from('verification_tokens')
-            .insert([{ email, token }]);
+            .insert([{ email: email.trim().toLowerCase(), token }]);
 
         if (tokenError) {
             console.error('Save Token Error:', tokenError);
@@ -66,15 +85,18 @@ export async function POST(request) {
         }
 
         // 4. Send Email
-        // Mock sending if no API KEY
+        // SEC-7: Only expose token in non-production environments (no email key = dev mode)
         if (!process.env.RESEND_API_KEY) {
-            console.log(`[MOCK EMAIL] To: ${email}, Code: ${token}`);
-            return Response.json({ success: true, mock: true, token }); // Return token for testing
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(`[DEV MOCK EMAIL] To: ${email}, Code: ${token}`);
+                return Response.json({ success: true, mock: true, token }); // Dev only
+            }
+            return Response.json({ success: false, error: 'Email service is not configured' }, { status: 500 });
         }
 
         const verifyLink = `${process.env.NEXT_PUBLIC_SITE_URL}/verify?token=${token}&email=${encodeURIComponent(email)}`;
 
-        const { data: emailData, error: emailError } = await resend.emails.send({
+        const { error: emailError } = await resend.emails.send({
             from: 'Cigar Lounge <onboarding@resend.dev>',
             to: email,
             subject: 'Verify your Account - Cigar Lounge',
@@ -99,14 +121,13 @@ export async function POST(request) {
         if (emailError) {
             console.error('Resend Error:', emailError);
 
-            // GRACEFUL FALLBACK FOR RESEND FREE TIER
-            // If the error is about "testing emails", we assume this is a dev/demo env.
-            // We return the token so the UI can still proceed.
-            if (emailError.statusCode === 403 || emailError.name === 'validation_error') {
+            // SEC-7: GRACEFUL FALLBACK — only return token in non-production
+            if (process.env.NODE_ENV !== 'production' &&
+                (emailError.statusCode === 403 || emailError.name === 'validation_error')) {
                 return Response.json({
                     success: true,
-                    token, // Return token to client
-                    warning: 'Resend Free Tier: Email not sent to unverified address. Code returned for testing.'
+                    token, // Dev/staging only
+                    warning: 'Resend Free Tier: Email not sent. Code returned for local testing only.'
                 });
             }
 

@@ -3,13 +3,15 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import products from '@/data/products.json';
 import { BRANDS } from '@/lib/data';
 
+// SEC-3: Admin secret is now read from environment variable, never hardcoded.
+// Set ADMIN_SECRET in your .env.local / Vercel environment variables.
+// Call this endpoint with: POST /api/admin/seed  { "admin_secret": "<your-secret>" }
 export async function POST(request) {
     try {
-        // Optional: Secure this with the same admin secret if deployed
         const body = await request.json().catch(() => ({}));
-        const adminSecret = body.admin_secret || 'admin@129'; // Default for easy testing via browser/curl if needed, but best to POST
+        const adminSecret = body.admin_secret;
 
-        if (adminSecret !== 'admin@129') {
+        if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

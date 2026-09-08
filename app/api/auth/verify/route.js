@@ -38,14 +38,15 @@ export async function POST(request) {
             .delete()
             .eq('token', token);
 
-        // 4. Return User Data for Auto-Login
+        // 4. Return User Data for Auto-Login (exclude password)
         const { data: userData } = await supabase
             .from('users')
             .select('*')
             .eq('email', email)
             .single();
 
-        return Response.json({ success: true, user: userData });
+        const { password: _, ...userWithoutPassword } = userData || {};
+        return Response.json({ success: true, user: userWithoutPassword });
 
     } catch (error) {
         return Response.json({ success: false, error: 'Internal Server Error' }, { status: 500 });

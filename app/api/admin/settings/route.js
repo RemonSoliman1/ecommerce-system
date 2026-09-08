@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function GET(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const { data, error } = await supabaseAdmin.from('system_settings').select('*');
         if (error) throw error;
@@ -18,12 +22,10 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    try {
-        // Basic auth check
-        if (request.headers.get('authorization') !== `Bearer admin@129`) {
-             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
 
+    try {
         const { key, value } = await request.json();
 
         const { error } = await supabaseAdmin.from('system_settings')

@@ -3,12 +3,13 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { sendPushNotification } from '@/lib/push';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 const getSupabaseAdmin = () => {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!serviceKey) throw new Error('SUPABASE_KEY is missing');
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing');
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         serviceKey,
@@ -26,6 +27,9 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { orderId, processedBy } = body;
@@ -55,7 +59,7 @@ export async function POST(request) {
                 status: 'Confirmed',
                 confirmed_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-                processed_by: processedBy || 'admin'
+                processed_by: processedBy || auth.user.email || 'admin'
             })
             .eq('id', orderId);
 
@@ -92,7 +96,7 @@ export async function POST(request) {
         if (resend && customerEmail) {
             try {
                 await resend.emails.send({
-                    from: 'orders@cigarlounge.com', // Best practice is a verified domain
+                    from: 'orders@cigarlounge.com',
                     to: customerEmail,
                     subject: `Order #${orderId} Confirmed - Cigar Lounge`,
                     html: `
@@ -113,7 +117,6 @@ export async function POST(request) {
                 console.log(`Confirmation email dispatched successfully to ${customerEmail}`);
             } catch (emailErr) {
                 console.error("Resend delivery failed:", emailErr);
-                // Return success anyway, as the DB was updated, just notify them email failed.
                 return NextResponse.json({ success: true, warning: 'DB updated, but email failed to send (check Resend configuration). Telegram (if applicable) was sent.', orderId });
             }
         } else if (!resend) {

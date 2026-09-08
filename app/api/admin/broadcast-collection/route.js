@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { sendTelegramMediaGroup, broadcastTelegramMediaGroup } from '@/lib/telegram';
-import { sendPushNotification } from '@/lib/push';
+import { broadcastTelegramMessage } from '@/lib/telegram';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
-
-        // 1. Authorization Check
-        if (body.admin_secret !== 'admin@129') {
-            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-        }
 
         if (!supabaseAdmin) {
             throw new Error('Server misconfiguration: Admin client not available');
@@ -36,9 +34,6 @@ export async function POST(request) {
         // 3. Format the message
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cigar-lounge-one.vercel.app';
         
-        // We will construct a MediaGroup.
-        // The first image will be a Collage of all the IDs.
-        // Create the overarching caption containing links to ALL items
         let collageCaption = `🔥 Check out the new collection! 🔥\n\n`;
         newProducts.slice(0, 9).forEach((p, index) => {
             const vitola = p.models && p.models.length > 0 ? p.models[0].size : 'Standard';
@@ -76,7 +71,6 @@ export async function POST(request) {
         try {
             const { broadcastTelegramMediaGroup, broadcastTelegramMessage } = require('@/lib/telegram');
             if (validImages.length >= 2) {
-                // Media Group requires at least 2 images
                 const mediaArray = validImages.map((imgUrl, i) => ({
                     type: 'photo',
                     media: imgUrl,
@@ -85,18 +79,17 @@ export async function POST(request) {
                 }));
                 await broadcastTelegramMediaGroup(mediaArray);
             } else if (validImages.length === 1) {
-                // Single Photo
                 await broadcastTelegramMessage(collageCaption, validImages[0]);
             } else {
-                // No valid images
                 await broadcastTelegramMessage(collageCaption);
             }
         } catch (err) {
             console.error("Grouped broadcast failed:", err);
-            // We won't strictly fail the route if telegram fails, we want push to still try
         }
 
         try {
+            const { sendPushNotification } = await import('@/lib/push');
+            const productIds = newProducts.map(p => p.id);
             await sendPushNotification({
                 title: 'New Collection Alert! 🔥',
                 body: `${newProducts.length} items just updated/added in stock. Tap to view!`,

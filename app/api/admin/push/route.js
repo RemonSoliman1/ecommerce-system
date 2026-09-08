@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { sendPushNotification } from '@/lib/push';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { title, body: messageBody, icon, url, targetType, targetEmails, targetTiers } = body;
-
-        // Verify Admin Authorization (simplified for now)
-        if (request.headers.get('authorization') !== `Bearer admin@129` && body.admin_secret !== 'admin@129') {
-             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
 
         const result = await sendPushNotification({
             title,

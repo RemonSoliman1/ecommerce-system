@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { broadcastTelegramMessage } from '@/lib/telegram';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export async function GET(request) {
-    try {
-        if (request.headers.get('authorization') !== `Bearer admin@129`) {
-             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
 
+    try {
         const { data, error } = await supabaseAdmin.from('promotions').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
@@ -18,11 +18,10 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    try {
-        if (request.headers.get('authorization') !== `Bearer admin@129`) {
-             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
 
+    try {
         const body = await request.json();
         
         // Basic validation
@@ -41,7 +40,6 @@ export async function POST(request) {
         try {
             if (data && data[0] && data[0].is_active) {
                 const promo = data[0];
-                // Only broadcast generic promos that are active
                 let promoText = `🎉 NEW EXCLUSIVE OFFER: ${promo.code}\n`;
                 if (promo.discount_type === 'percentage') {
                     promoText += `Get ${promo.discount_value}% OFF`;
@@ -79,11 +77,10 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-    try {
-        if (request.headers.get('authorization') !== `Bearer admin@129`) {
-             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
 
+    try {
         const body = await request.json();
         
         if (!body.id) {
@@ -106,14 +103,12 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-        const adminSecret = request.headers.get('authorization');
-
-        if (adminSecret !== `Bearer admin@129`) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
 
         if (!id) {
             return NextResponse.json({ error: 'Promo ID required' }, { status: 400 });

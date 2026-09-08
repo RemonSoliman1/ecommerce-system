@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { requireAdmin } from '@/lib/adminAuth';
 import mammoth from 'mammoth';
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const formData = await request.formData();
         const file = formData.get('file');

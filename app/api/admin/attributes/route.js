@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/adminAuth';
 
 // Force dynamic to avoid build-time execution issues with missing env vars
 export const dynamic = 'force-dynamic';
@@ -24,6 +25,9 @@ const getSupabaseAdmin = () => {
 };
 
 export async function GET(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
@@ -45,6 +49,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { category, value, metadata } = body;
@@ -89,6 +96,9 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
@@ -115,6 +125,9 @@ export async function DELETE(request) {
 }
 
 export async function PUT(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { id, category, value, metadata } = body;

@@ -4,6 +4,10 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export async function POST(request) {
     try {
         const { email } = await request.json();
@@ -12,19 +16,21 @@ export async function POST(request) {
             return Response.json({ success: false, error: 'Email is required' }, { status: 400 });
         }
 
+        if (!isValidEmail(email)) {
+            return Response.json({ success: false, error: 'Please enter a valid email address' }, { status: 400 });
+        }
+
         // 1. Check if user exists
         const { data: user } = await supabase
             .from('users')
-            .select('*')
-            .eq('email', email)
-            .single();
+            .select('id')
+            .eq('email', email.trim().toLowerCase())
+            .maybeSingle();
 
         if (!user) {
-            // Security: Don't reveal if user exists or not, but for UX in this specific app...
-            // Let's return success even if user doesn't exist to prevent enumeration, 
-            // OR finding the user is harmless here since it's a niche shop.
-            // Let's return error for now to be helpful to the legitimate user.
-            return Response.json({ success: false, error: 'No account found with this email.' }, { status: 404 });
+            // Security: Don't reveal if email exists — return success either way
+            // This prevents email enumeration attacks
+            return Response.json({ success: true });
         }
 
         // 2. Generate Reset Token (6-digit code)
@@ -34,10 +40,10 @@ export async function POST(request) {
         const { error: tokenError } = await supabase
             .from('verification_tokens')
             .insert([{
-                email,
+                email: email.trim().toLowerCase(),
                 token,
                 type: 'password_reset',
-                expires_at: new Date(Date.now() + 3600000).toISOString() // 1 hour form now
+                expires_at: new Date(Date.now() + 3600000).toISOString() // 1 hour from now
             }]);
 
         if (tokenError) {
@@ -46,9 +52,17 @@ export async function POST(request) {
         }
 
         // 4. Send Email
+        if (!process.env.RESEND_API_KEY) {
+            if (process.env.NODE_ENV !== 'production') {
+                // SEC-7: Dev mode only — log token to console, never to response
+                console.log(`[DEV] Password reset token for ${email}: ${token}`);
+            }
+            return Response.json({ success: true });
+        }
+
         const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password?email=${encodeURIComponent(email)}&code=${token}`;
 
-        const { data: emailData, error: emailError } = await resend.emails.send({
+        const { error: emailError } = await resend.emails.send({
             from: 'Cigar Lounge <onboarding@resend.dev>',
             to: email,
             subject: 'Reset Your Password - Cigar Lounge',
@@ -70,9 +84,11 @@ export async function POST(request) {
 
         if (emailError) {
             console.error('Resend Error:', emailError);
-            // Return success with token if dev mode/free tier restriction
-            if (emailError.statusCode === 403 || emailError.name === 'validation_error') {
-                return Response.json({ success: true, token, warning: 'Email not sent (Resend Free Tier). Code is provided for testing.' });
+            // SEC-7: Never return the token in production
+            if (process.env.NODE_ENV !== 'production' &&
+                (emailError.statusCode === 403 || emailError.name === 'validation_error')) {
+                console.log(`[DEV] Reset token for ${email}: ${token}`);
+                return Response.json({ success: true, warning: 'Email not sent (Resend Free Tier). Check server console for token.' });
             }
             return Response.json({ success: false, error: 'Failed to send reset email' }, { status: 500 });
         }

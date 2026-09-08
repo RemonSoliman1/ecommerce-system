@@ -7,25 +7,29 @@ let isWebPushInitialized = false;
 
 function initWebPush() {
     if (!isWebPushInitialized) {
+        const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        const privateKey = process.env.VAPID_PRIVATE_KEY;
+        const subject = process.env.VAPID_SUBJECT || 'mailto:admin@cigarlounge.com';
+
+        if (!publicKey || !privateKey) {
+            throw new Error('NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are required for push notifications.');
+        }
+
         try {
-            webpush.setVapidDetails(
-                process.env.VAPID_SUBJECT || 'mailto:admin@cigarlounge.com',
-                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BIM_6RpJruOaN5YKWMiE_KGvC1f95wcjlNJFS643-QSSM4HMVuehQthclAzYaBu-G9v_QRoFcXuvqEhcNTQiQ2w',
-                process.env.VAPID_PRIVATE_KEY || 'WVaaFfkBuwW30Xpv8P32_trc2F2ccajGI3ita2cnbZg'
-            );
+            webpush.setVapidDetails(subject, publicKey, privateKey);
             isWebPushInitialized = true;
         } catch (e) {
             console.error("Failed to initialize webpush:", e.message);
+            throw e;
         }
     }
 }
 
 export async function GET(request) {
-    // Vercel Cron sends a secure header we can check
+    // SEC-8: Verify Vercel Cron secret header
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.NODE_ENV === 'production') {
-        // Return 401 if unauthorized in prod
-        // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {

@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 const getSupabaseAdmin = () => {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!serviceKey) throw new Error('SUPABASE_KEY is missing');
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing');
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         serviceKey,
@@ -19,6 +20,9 @@ const getSupabaseAdmin = () => {
 };
 
 export async function PUT(request) {
+    const auth = await requireAdmin(request);
+    if (auth.error) return auth.error;
+
     try {
         const body = await request.json();
         const { id, email, updates } = body;
