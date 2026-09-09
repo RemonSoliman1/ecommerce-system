@@ -1,9 +1,15 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { createSessionCookie } from '@/lib/session';
+import { rateLimit } from '@/lib/rateLimit';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
+    const limiter = rateLimit(request, 5, 60000);
+    if (!limiter.success) {
+        return Response.json({ success: false, error: 'Too many login attempts. Please try again later.' }, { status: 429 });
+    }
+
     try {
         let { email, password } = await request.json();
 

@@ -89,7 +89,6 @@ export default function AdminPage() {
         category: [],
         flavor: [],
         gift_option: [],
-        gift_option: [],
         series: []
     });
     const [hiddenAttributes, setHiddenAttributes] = useState({

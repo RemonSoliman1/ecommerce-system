@@ -15,6 +15,32 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Simple In-Memory Rate Limiting
 const rateLimitMap = new Map();
 
+// Helper to fuzzy match variants
+function findVariantIndex(models, cItem) {
+    let matchIdx = models.findIndex(m => {
+        const mName = (m.name || '').trim().toLowerCase();
+        const mSize = (m.size || '').trim().toLowerCase();
+        const cartSize = (cItem.selectedSize || cItem.size || '').trim().toLowerCase();
+        const cartVariant = (cItem.variant || cItem.modelName || '').trim().toLowerCase();
+        const cartName = (cItem.name || '').trim().toLowerCase();
+
+        if (cartVariant && cartVariant === mName && cartSize === mSize) return true;
+        if (cartVariant && cartVariant === mName && !mSize) return true;
+        
+        const cStr = (cartVariant + ' ' + cartSize + ' ' + cartName).trim();
+        if (cStr === mName || cStr === mSize) return true;
+        if (mName && cStr.includes(mName)) return true;
+        
+        const cTokens = cStr.split(/[\s()]+/).filter(t => t.length > 2);
+        const mTokens = (mName + ' ' + mSize).split(/[\s()]+/).filter(t => t.length > 2);
+        return cTokens.some(t => mTokens.includes(t)) && mTokens.some(t => cTokens.includes(t));
+    });
+
+    if (matchIdx === -1 && models.length === 1) matchIdx = 0;
+    return matchIdx;
+}
+
+
 export async function POST(request) {
     try {
         const body = await request.json();
@@ -61,24 +87,7 @@ export async function POST(request) {
                 return NextResponse.json({ error: `Product ${cItem.name} no longer exists.` }, { status: 400 });
             }
 
-            let matchIdx = dbProd.models.findIndex(m => {
-                const mName = (m.name || '').trim().toLowerCase();
-                const mSize = (m.size || '').trim().toLowerCase();
-                const cartSize = (cItem.selectedSize || cItem.size || '').trim().toLowerCase();
-                const cartVariant = (cItem.variant || cItem.modelName || '').trim().toLowerCase();
-                const cartName = (cItem.name || '').trim().toLowerCase();
-
-                if (cartVariant && cartVariant === mName && cartSize === mSize) return true;
-                if (cartVariant && cartVariant === mName && !mSize) return true;
-                const cStr = (cartVariant + ' ' + cartSize + ' ' + cartName).trim();
-                if (cStr === mName || cStr === mSize) return true;
-                if (mName && cStr.includes(mName)) return true;
-                const cTokens = cStr.split(/[\s()]+/).filter(t => t.length > 2);
-                const mTokens = (mName + ' ' + mSize).split(/[\s()]+/).filter(t => t.length > 2);
-                return cTokens.some(t => mTokens.includes(t)) && mTokens.some(t => cTokens.includes(t));
-            });
-
-            if (matchIdx === -1 && dbProd.models.length === 1) matchIdx = 0;
+            let matchIdx = findVariantIndex(dbProd.models, cItem);
 
             if (matchIdx === -1) {
                 return NextResponse.json({ error: `Variant for ${cItem.name} not found.` }, { status: 400 });
@@ -253,31 +262,7 @@ export async function POST(request) {
 
                             const pdItems = items.filter(i => i.id === dbProd.id);
                             for (let cItem of pdItems) {
-                                let matchIdx = newModels.findIndex(m => {
-                                    const mName = (m.name || '').trim().toLowerCase();
-                                    const mSize = (m.size || '').trim().toLowerCase();
-                                    const cartSize = (cItem.selectedSize || cItem.size || '').trim().toLowerCase();
-                                    const cartVariant = (cItem.variant || cItem.modelName || '').trim().toLowerCase();
-                                    const cartName = (cItem.name || '').trim().toLowerCase();
-
-                                    // 1. Strict Structural Match (New Standard)
-                                    if (cartVariant && cartVariant === mName && cartSize === mSize) return true;
-
-                                    // 2. Strict Structural Name Fallback
-                                    if (cartVariant && cartVariant === mName && !mSize) return true;
-
-                                    // 3. Fallback Legacy Fuzzy Intersection
-                                    const cStr = (cartVariant + ' ' + cartSize + ' ' + cartName).trim();
-                                    if (cStr === mName || cStr === mSize) return true;
-                                    if (mName && cStr.includes(mName)) return true;
-
-                                    // 4. Tokenized Deep Search
-                                    const cTokens = cStr.split(/[\s()]+/).filter(t => t.length > 2);
-                                    const mTokens = (mName + ' ' + mSize).split(/[\s()]+/).filter(t => t.length > 2);
-                                    return cTokens.some(t => mTokens.includes(t)) && mTokens.some(t => cTokens.includes(t));
-                                });
-
-                                if (matchIdx === -1 && newModels.length === 1) matchIdx = 0;
+                                let matchIdx = findVariantIndex(newModels, cItem);
 
                                 if (matchIdx !== -1) {
                                     console.log("MATCH FOUND inside Model array at index", matchIdx, "for", cItem.name);

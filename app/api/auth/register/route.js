@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { Resend } from 'resend';
+import { rateLimit } from '@/lib/rateLimit';
 import bcrypt from 'bcryptjs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -11,6 +12,11 @@ function isValidEmail(email) {
 }
 
 export async function POST(request) {
+    const limiter = rateLimit(request, 3, 60000);
+    if (!limiter.success) {
+        return Response.json({ success: false, error: 'Too many registration attempts. Please try again later.' }, { status: 429 });
+    }
+
     try {
         const { name, email, password, dob, phone } = await request.json();
 

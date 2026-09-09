@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { rateLimit } from '@/lib/rateLimit';
+
+// Basic email format validation
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export async function POST(request) {
+    const limiter = rateLimit(request, 3, 60000);
+    if (!limiter.success) {
+        return NextResponse.json({ error: 'Too many subscription attempts. Please try again later.' }, { status: 429 });
+    }
+
     try {
         const { email } = await request.json();
 
-        if (!email || !email.includes('@')) {
+        if (!email || !isValidEmail(email)) {
             return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
         }
 
