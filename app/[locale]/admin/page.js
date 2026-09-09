@@ -1159,7 +1159,7 @@ const handleSaveGiftOption = async () => {
             </div>
 
             {activeTab === 'products' && (
-                <AdminProductsTab 
+                <AdminProductsTab CreatableSelect={CreatableSelect}
                     t={t} user={user} products={products} refreshProducts={refreshProducts} 
                     toggleProductVisibilityOptimistically={toggleProductVisibilityOptimistically}
                     adminSearch={adminSearch} setAdminSearch={setAdminSearch}

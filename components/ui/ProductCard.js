@@ -135,17 +135,23 @@ export default function ProductCard({ product }) {
                 </div>
             </div>
         </Link>
-        {!isOut && (
+        {isOut ? (
             <button
-                className="tour-add-to-cart-btn"
-                style={{ position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 30px)', zIndex: 20, background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '10px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}
+                className="tour-add-to-cart-btn quickAddBtn outOfStock"
+                disabled
+            >
+                {t('sold_out') || 'OUT OF STOCK'}
+            </button>
+        ) : (
+            <button
+                className="tour-add-to-cart-btn quickAddBtn"
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowQuickAdd(true);
                 }}
             >
-                {t('add_to_cart') || 'Add to Cart'}
+                {t('add_to_cart') || 'ADD TO CART'}
             </button>
         )}
         {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}

@@ -17,8 +17,8 @@ export default function AdminProductsTab({
     handleAddFlavor, handleInputChange, handleModelChange, handleNameBlur,
     handleGenerateId, handleLoadProduct, handleImageUpload, handleAddImageUrl,
     handleRemoveImage, handleSetMainImage, handleDescriptionUpload, handleSubmitProduct,
-    handleSaveGiftOption, handleGiftImageUpload
-
+    handleSaveGiftOption, handleGiftImageUpload,
+    CreatableSelect
 }) {
     const handleBroadcastCollection = async () => {
         const confirmMsg = "Are you sure you want to broadcast this collection to all users on Telegram?\n\nThis will send a single message with the collection image and inline buttons for each item.";
