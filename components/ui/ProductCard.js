@@ -131,21 +131,22 @@ export default function ProductCard({ product }) {
                             <span className={styles.price}>{t('from')} EGP {startPrice.toLocaleString()}</span>
                         )}
                     </div>
-                    {!isOut && (
-                        <button
-                            style={{ background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setShowQuickAdd(true);
-                            }}
-                        >
-                            {t('add_to_cart') || 'Add +'}
-                        </button>
-                    )}
+                    
                 </div>
             </div>
         </Link>
+        {!isOut && (
+            <button
+                style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 20, background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowQuickAdd(true);
+                }}
+            >
+                {t('add_to_cart') || 'Add +'}
+            </button>
+        )}
         {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}
         </div>
     );
