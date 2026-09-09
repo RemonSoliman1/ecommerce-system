@@ -175,6 +175,12 @@ export function TourProvider({ children }) {
                 causesNavigation: true
             },
             {
+                element: '.tour-add-to-cart-btn', 
+                popover: { title: t('quick_add_title') || 'Quick Add', description: t('quick_add_desc') || 'Quickly add items to your cart without leaving the page.', side: 'top' },
+                actionEvent: 'click',
+                causesNavigation: false
+            },
+            {
                 element: '#tour-cart-header', 
                 popover: { title: t('cart_title'), description: t('cart_desc'), side: 'bottom' },
                 actionEvent: 'click',

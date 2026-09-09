@@ -675,8 +675,8 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                         Includes: {product.sampler_series}
                     </p>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', marginTop: 'auto', paddingBottom: '50px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {hasDiscount ? (
                         <>
                             <span style={{ textDecoration: 'line-through', color: '#aaa', fontSize: '0.8rem' }}>EGP {originalPrice.toLocaleString()}</span>
@@ -692,14 +692,15 @@ function ShopProductCard({ product, t, activePromos = [] }) {
         </Link>
         {!isOut && (
             <button
-                style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 20, background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                className="tour-add-to-cart-btn"
+                style={{ position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 30px)', zIndex: 20, background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '10px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowQuickAdd(true);
                 }}
             >
-                {t('add_to_cart') || 'Add +'}
+                {t('add_to_cart') || 'Add to Cart'}
             </button>
         )}
         {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}
