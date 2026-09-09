@@ -11,7 +11,7 @@ export async function POST(request) {
     }
 
     try {
-        let { email, password } = await request.json();
+        let { email, password, rememberMe = false } = await request.json();
 
         // --- Input validation ---
         if (!email || !password) {
@@ -64,7 +64,7 @@ export async function POST(request) {
         supabase.from('weekly_visit_buffer').insert([{ user_id: user.id, visited_at: new Date().toISOString() }]).then();
 
         // 4. SEC-5: Issue an HTTP-only session cookie
-        const sessionCookie = createSessionCookie(user.id);
+        const sessionCookie = createSessionCookie(user.id, rememberMe);
 
         return new Response(
             JSON.stringify({ success: true, user: userWithoutPassword, username: user.name || 'Aficionado' }),

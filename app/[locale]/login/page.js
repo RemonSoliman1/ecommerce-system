@@ -22,7 +22,7 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const res = await login(identifier, password);
+        const res = await login(identifier, password, rememberMe);
         if (res.success) {
             const firstName = res.username && res.username !== 'Aficionado' ? res.username.split(' ')[0] : '';
             showToast(`Welcome back, Aficionado ${firstName}`.trim() + '!');

@@ -86,12 +86,12 @@ export function AuthProvider({ children }) {
         checkSession();
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (email, password, rememberMe = false) => {
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password, rememberMe })
             });
             const data = await res.json();
 
