@@ -592,10 +592,10 @@ function ShopProductCard({ product, t, activePromos = [] }) {
     const discountPercent = hasDiscount ? Math.round(((originalPrice - startPrice) / originalPrice) * 100) : 0;
     const brandName = brands.find(b => b.id === (product.brandId || product.brand_id))?.name;
     const totalStock = product.models ? product.models.reduce((acc, m) => {
-        if (m.stock === undefined || m.stock === null || m.stock === '') return acc + Infinity;
-        const s = parseInt(m.stock);
+        const stockStr = m.stock === undefined || m.stock === null || m.stock === '' ? '0' : m.stock;
+        const s = parseInt(stockStr);
         return acc + (isNaN(s) ? 0 : s);
-    }, 0) : Infinity;
+    }, 0) : 0;
     const isOut = totalStock <= 0;
     const isLowStock = !isOut && totalStock <= 3;
     

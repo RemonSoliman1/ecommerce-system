@@ -276,9 +276,11 @@ option {
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 30px);
+    width: max-content;
+    padding: 10px 24px;
+    white-space: nowrap;
     z-index: 20;
-    background: linear-gradient(135deg, var(--color-accent) 0%, #f9e2aa 50%, var(--color-accent) 100%);
+    background: linear-gradient(135deg, #a68b53 0%, #d8b871 50%, #a68b53 100%);
     background-size: 200% auto;
     color: #120c0a;
     border: none;
