@@ -69,9 +69,10 @@ export default async function RootLayout({ children, params }) {
         <NextIntlClientProvider messages={messages}>
           <TelegramProvider>
             <PWAProvider>
-              <TourProvider>
+              
                 <ToastProvider>
                   <AuthProvider>
+                  <TourProvider>
                     <LoyaltyProvider>
                       <ProductProvider>
                         <CartProvider>
@@ -89,9 +90,10 @@ export default async function RootLayout({ children, params }) {
                         </CartProvider>
                       </ProductProvider>
                     </LoyaltyProvider>
+                  </TourProvider>
                   </AuthProvider>
                 </ToastProvider>
-              </TourProvider>
+              
             </PWAProvider>
           </TelegramProvider>
         </NextIntlClientProvider>

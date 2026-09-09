@@ -12,6 +12,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { User, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 
 import { useTelegram } from '@/context/TelegramContext';
+import { useToast } from '@/context/ToastContext';
 
 export default function Header() {
     const { isTelegram } = useTelegram();
