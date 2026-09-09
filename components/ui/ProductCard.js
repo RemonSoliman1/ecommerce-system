@@ -8,6 +8,7 @@ import { Star } from 'lucide-react';
 // ... (comments)
 
 import { useState } from 'react';
+import QuickAddModal from './QuickAddModal';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -18,6 +19,7 @@ export default function ProductCard({ product }) {
     const hasDiscount = originalPrice && originalPrice > startPrice;
     const discountPercent = hasDiscount ? Math.round(((originalPrice - startPrice) / originalPrice) * 100) : 0;
     const [imgError, setImgError] = useState(false);
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
     const t = useTranslations('Product');
     const isOut = product.models?.every(m => parseInt(m.stock || 0) <= 0) ?? false;
 
@@ -41,7 +43,8 @@ export default function ProductCard({ product }) {
     };
 
     return (
-        <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative', display: 'block', textDecoration: 'none', color: 'inherit' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative', display: 'block', textDecoration: 'none', color: 'inherit' }}>
             {isOut ? (
                 <div style={{ position: 'absolute', top: 10, left: 10, background: 'linear-gradient(135deg, rgba(208, 200, 185, 0.9), rgba(197, 163, 92, 0.9))', color: '#120C0A', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '2px', zIndex: 10, textTransform: 'uppercase', pointerEvents: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '1px' }}>
                     {t('sold_out') || 'Sold Out'}
@@ -117,7 +120,7 @@ export default function ProductCard({ product }) {
                         Includes: {product.sampler_series}
                     </p>
                 )}
-                <div className={styles.cardFooter} style={{ alignItems: 'flex-start' }}>
+                <div className={styles.cardFooter} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: '10px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {hasDiscount ? (
                             <>
@@ -128,8 +131,22 @@ export default function ProductCard({ product }) {
                             <span className={styles.price}>{t('from')} EGP {startPrice.toLocaleString()}</span>
                         )}
                     </div>
+                    {!isOut && (
+                        <button
+                            style={{ background: 'var(--color-accent)', color: '#120c0a', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setShowQuickAdd(true);
+                            }}
+                        >
+                            {t('add_to_cart') || 'Add +'}
+                        </button>
+                    )}
                 </div>
             </div>
         </Link>
+        {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}
+        </div>
     );
 }
