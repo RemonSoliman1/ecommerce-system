@@ -699,6 +699,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
                     </button>
                 )}
             </div>
+            </div>
         </Link>
         {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}
         </div>
