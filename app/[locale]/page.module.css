@@ -152,7 +152,7 @@
   transition: transform 0.3s, border-color 0.3s;
   border: 1px solid transparent;
 }
-.simpleCard:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); border-color: var(--color-accent); }
+.simpleCard:hover { box-shadow: 0 8px 30px rgba(197, 163, 92, 0.15); box-shadow: 0 8px 25px rgba(0,0,0,0.4); border-color: var(--color-accent); }
 .simpleCard img { height: 180px; width: 100%; object-fit: contain; margin-bottom: 1.5rem; transition: transform 0.3s; }
 .simpleCard:hover img { transform: scale(1.05); }
 .simpleCardTitle { color: #fff; font-family: var(--font-sans); font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; }

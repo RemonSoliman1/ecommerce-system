@@ -256,7 +256,7 @@
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(197, 163, 92, 0.15);
     border-color: var(--color-accent);
 }
 

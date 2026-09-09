@@ -665,7 +665,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
             <div className={styles.cardContent}>
                 <span className={styles.brand}>{brandName}</span>
                 <h3 className={styles.name}>{product.name}</h3>
-                <div className={styles.cardHoverInfo}>
+                <div style={{ marginTop: "5px", color: "#aaa", fontSize: "0.85rem" }}>
                     <p className={styles.cardMeta}>{product.strength ? `${product.strength} • ` : ''}{product.origin || 'Imported'}</p>
                 </div>
 
