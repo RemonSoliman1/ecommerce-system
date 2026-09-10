@@ -255,10 +255,12 @@
     height: 100%;
 }
 
-.card:hover {
-    box-shadow: 0 8px 30px rgba(197, 163, 92, 0.15);
-    border-color: var(--color-accent);
-}
+.expandedCard {
+      box-shadow: 0 8px 30px rgba(197, 163, 92, 0.15);
+      transform: translateY(-5px);
+  }
+
+
 
 .imageContainer {
     position: relative;
@@ -524,22 +526,17 @@
 }
 
 .cardHoverInfo {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(transparent, rgba(18,12,10,0.95) 40%, #120c0a);
-    padding: 10px;
+    max-height: 0;
     opacity: 0;
-    transform: translateY(10px);
+    overflow: hidden;
     transition: all 0.3s ease;
-    pointer-events: none;
-    z-index: 5;
+    margin-bottom: 0px;
 }
 
-.card:hover:not(:has(.quickAddBtnArea:hover)) .cardHoverInfo {
+.expandedInfo {
+    max-height: 50px;
     opacity: 1;
-    transform: translateY(0);
+    margin-bottom: 10px;
 }
 
 .cardMeta {

@@ -586,12 +586,13 @@ function ShopContent() {
 function ShopProductCard({ product, t, activePromos = [] }) {
     const { brands } = useProducts();
     const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [isHoverExpanded, setIsHoverExpanded] = useState(false);
     const startPrice = product.models?.[0]?.price || 0;
     const originalPrice = product.models?.[0]?.original_price;
     const hasDiscount = originalPrice && originalPrice > startPrice;
     const discountPercent = hasDiscount ? Math.round(((originalPrice - startPrice) / originalPrice) * 100) : 0;
     const brandName = brands.find(b => b.id === (product.brandId || product.brand_id))?.name;
-    const totalStock = product.models ? product.models.reduce((acc, m) => {
+  const totalStock = product.models ? product.models.reduce((acc, m) => {
         const stockStr = m.stock === undefined || m.stock === null || m.stock === '' ? '0' : m.stock;
         const s = parseInt(stockStr);
         return acc + (isNaN(s) ? 0 : s);
@@ -665,7 +666,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
             <div className={styles.cardContent}>
                 <span className={styles.brand}>{brandName}</span>
                 <h3 className={styles.name}>{product.name}</h3>
-                <div className={styles.cardHoverInfo}>
+                <div className={`${styles.cardHoverInfo} ${isHoverExpanded ? styles.expandedInfo : ""}`}>
                     <p className={styles.cardMeta}>{product.strength ? `${product.strength} • ` : ''}{product.origin || 'Imported'}</p>
                 </div>
 
