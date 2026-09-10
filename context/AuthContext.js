@@ -98,7 +98,11 @@ export function AuthProvider({ children }) {
 
             if (data.success) {
                 setUser(data.user);
-                localStorage.setItem('cigar_user_email', data.user.email); // Restored
+                if (rememberMe) {
+                    localStorage.setItem('cigar_user_email', data.user.email);
+                } else {
+                    sessionStorage.setItem('cigar_user_email', data.user.email);
+                }
                 
                 // Auto-subscribe to push notifications quietly or ask permission
                 subscribeToPushNotifications(data.user.id);
@@ -162,7 +166,8 @@ export function AuthProvider({ children }) {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('cigar_user_email');
-        localStorage.removeItem('cigar_user'); // Cleanup old key
+        sessionStorage.removeItem('cigar_user_email');
+        localStorage.removeItem('cigar_user');
     };
 
     return (
