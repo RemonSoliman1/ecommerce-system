@@ -608,8 +608,11 @@ function ShopProductCard({ product, t, activePromos = [] }) {
     });
 
     return (
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Link href={`/product/${product.id}`} className={styles.card} style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}
+        onMouseLeave={() => setIsHoverExpanded(false)}
+        >
+        <Link href={`/product/${product.id}`} className={`${styles.card} ${isHoverExpanded ? styles.expandedCard : ""}`} style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}
+          onMouseEnter={() => setIsHoverExpanded(true)}>
             <div className={styles.imageContainer}>
                 {isOut && (
                     <div style={{ position: 'absolute', top: 10, left: 10, background: 'linear-gradient(135deg, rgba(208, 200, 185, 0.9), rgba(197, 163, 92, 0.9))', color: '#120C0A', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '2px', zIndex: 10, textTransform: 'uppercase', pointerEvents: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.5)', letterSpacing: '1px' }}>
