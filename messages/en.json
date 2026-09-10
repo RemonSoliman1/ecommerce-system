@@ -236,8 +236,7 @@
         "title": "My Account",
         "welcome": "Welcome back, {name}",
         "tabs": {
-            "profile": "Profile Settings",
-            "orders": "Order History",
+            "profile": "Profile",
             "guide": "User Guide"
         },
         "profile": {
@@ -251,11 +250,8 @@
         },
         "orders": {
             "empty": "No orders yet. Discover our collection.",
-            "order_id": "Order ID"
-        },
-        "tabs": {
-            "profile": "Profile",
-            "guide": "User Guide"
+            "order_id": "Order ID",
+            "order_again": "Order Again"
         },
         "dashboard_overview": "Dashboard Overview",
         "total_orders": "TOTAL ORDERS",

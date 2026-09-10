@@ -151,7 +151,7 @@ export default function Home() {
   }, [user]);
 
   useEffect(() => {
-    fetch('/api/admin/attributes?category=home_promotion')
+    fetch('/api/attributes?category=home_promotion')
         .then(res => res.json())
         .then(json => {
             if (json.success && json.data) {

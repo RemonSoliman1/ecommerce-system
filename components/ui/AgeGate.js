@@ -20,7 +20,7 @@ export default function AgeGate() {
         setIsApp(standalone);
 
         const hasVerified = sessionStorage.getItem('age_verified');
-        if (!hasVerified) {
+        if (!hasVerified && !localStorage.getItem('cigar_user_email')) {
             setIsVisible(true);
         }
     }, []);
