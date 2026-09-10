@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const checkSession = async () => {
-            const storedEmail = localStorage.getItem('cigar_user_email');
+            const storedEmail = localStorage.getItem('cigar_user_email') || sessionStorage.getItem('cigar_user_email');
             if (storedEmail) {
                 try {
                     const res = await fetch(`/api/auth/me?email=${encodeURIComponent(storedEmail)}`);
@@ -75,7 +75,8 @@ export function AuthProvider({ children }) {
                         // Auto-subscribe to push notifications quietly or ask permission
                         subscribeToPushNotifications(data.user.id);
                     } else {
-                        localStorage.removeItem('cigar_user_email'); // Invalid session
+                        localStorage.removeItem('cigar_user_email');
+                        sessionStorage.removeItem('cigar_user_email');
                     }
                 } catch (e) {
                     console.error("Session check failed", e);
