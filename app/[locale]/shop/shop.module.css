@@ -337,6 +337,7 @@
 }
 
 .cardContent {
+    position: relative;
     padding: 1.5rem;
     text-align: center;
 }
@@ -523,17 +524,22 @@
 }
 
 .cardHoverInfo {
-    max-height: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(transparent, rgba(18,12,10,0.95) 40%, #120c0a);
+    padding: 10px;
     opacity: 0;
-    overflow: hidden;
+    transform: translateY(10px);
     transition: all 0.3s ease;
-    margin-bottom: 0px;
+    pointer-events: none;
+    z-index: 5;
 }
 
-.card:hover .cardHoverInfo {
-    max-height: 50px;
+.card:hover:not(:has(.quickAddBtnArea:hover)) .cardHoverInfo {
     opacity: 1;
-    margin-bottom: 10px;
+    transform: translateY(0);
 }
 
 .cardMeta {

@@ -665,7 +665,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
             <div className={styles.cardContent}>
                 <span className={styles.brand}>{brandName}</span>
                 <h3 className={styles.name}>{product.name}</h3>
-                <div style={{ marginTop: "5px", color: "#aaa", fontSize: "0.85rem" }}>
+                <div className={styles.cardHoverInfo}>
                     <p className={styles.cardMeta}>{product.strength ? `${product.strength} • ` : ''}{product.origin || 'Imported'}</p>
                 </div>
 
@@ -691,15 +691,18 @@ function ShopProductCard({ product, t, activePromos = [] }) {
             </div>
         </Link>
         {isOut ? (
+            <div className="quickAddBtnArea" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '80px', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <button
-                className="tour-add-to-cart-btn quickAddBtn outOfStock"
+                className="tour-add-to-cart-btn quickAddBtn outOfStock" style={{ position: 'static', transform: 'none' }}
                 disabled
             >
                 {t('sold_out') || 'OUT OF STOCK'}
             </button>
+        </div>
         ) : (
+            <div className="quickAddBtnArea" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '80px', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <button
-                className="tour-add-to-cart-btn quickAddBtn"
+                className="tour-add-to-cart-btn quickAddBtn" style={{ position: 'static', transform: 'none' }}
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -708,6 +711,7 @@ function ShopProductCard({ product, t, activePromos = [] }) {
             >
                 {t('add_to_cart') || 'ADD TO CART'}
             </button>
+        </div>
         )}
         {showQuickAdd && <QuickAddModal product={product} onClose={() => setShowQuickAdd(false)} />}
         </div>
