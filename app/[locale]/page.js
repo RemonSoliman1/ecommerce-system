@@ -8,6 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useLoyalty } from '@/context/LoyaltyContext';
 import { useProducts } from '@/context/ProductContext';
 import { useTranslations } from 'next-intl';
+import TourTrigger from '@/components/tour/TourTrigger';
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Move ProductSimpleCard OUTSIDE the Home component to avoid Vercel/Next.js inner-component minification errors (ReferenceError limits)

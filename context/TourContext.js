@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 
@@ -11,226 +11,36 @@ const TourContext = createContext();
 
 export function TourProvider({ children }) {
     const [isTourActive, setIsTourActive] = useState(false);
-    const driverRef = useRef(null);
     const pathname = usePathname();
-    const router = useRouter();
     const t = useTranslations('Tour');
     const { user } = useAuth();
 
-    const startTour = () => {
-        localStorage.setItem('cigar_tour_step', '0');
+    const startTour = (tourName, steps) => {
+        if (localStorage.getItem(`cigar_tour_${tourName}_done`)) return;
+        
         setIsTourActive(true);
-        runTourStep(0);
-    };
-
-    const stopTour = () => {
-        localStorage.removeItem('cigar_tour_step');
-        setIsTourActive(false);
-        if (driverRef.current) {
-            driverRef.current.destroy();
-        }
-    };
-
-    const runTourStep = (stepIndex) => {
-        const steps = getTourSteps();
-        if (stepIndex >= steps.length) {
-            stopTour();
-            return;
-        }
-
-        const step = steps[stepIndex];
-        let isProgrammaticDestroy = false;
-
-        let attempts = 0;
-        const checkElement = setInterval(() => {
-            attempts++;
-            const el = document.querySelector(step.element);
-            
-            // If we find the element OR we timeout after 20 attempts (10 seconds)
-            if (el || attempts > 20) {
-                clearInterval(checkElement);
-                
-                if (!el) {
-                    console.warn(`Tour failed to find element: ${step.element}`);
-                    // If it fails, silently stop or skip to next? 
-                    // We'll just stop the tour so it doesn't get stuck forever.
-                    stopTour();
-                    return;
-                }
-                
-                driverRef.current = driver({
-                    showProgress: false,
-                    allowClose: false,
-                    overlayColor: 'rgba(18, 12, 10, 0.85)',
-                    steps: [
-                        {
-                            element: step.element,
-                            popover: {
-                                title: step.popover.title,
-                                description: step.popover.description,
-                                side: step.popover.side,
-                                showButtons: ['close']
-                            }
-                        }
-                    ],
-                    onDestroyStarted: () => {
-                        if (isProgrammaticDestroy || driverRef.current?.hasNextStep?.() || !driverRef.current?.isActivated) {
-                           driverRef.current.destroy();
-                        } else {
-                           stopTour(); // User clicked close
-                        }
-                    }
-                });
-                
-                driverRef.current.drive();
-                
-                // Add event listener to advance
-                const handleInteract = (e) => {
-                    // Prevent immediate destruction race conditions
-                    setTimeout(() => {
-                        el.removeEventListener(step.actionEvent || 'click', handleInteract);
-                        if (step.actionEvent === 'mouseenter') el.removeEventListener('click', handleInteract);
-                        if (step.actionEvent === 'input') el.removeEventListener('click', handleInteract);
-
-                        isProgrammaticDestroy = true;
-                        if (driverRef.current) driverRef.current.destroy();
-                        
-                        const nextStep = stepIndex + 1;
-                        if (nextStep >= steps.length) {
-                            stopTour();
-                        } else {
-                            localStorage.setItem('cigar_tour_step', nextStep.toString());
-                            // If the step action doesn't cause a route change naturally, trigger the next step manually.
-                            if (!step.causesNavigation) {
-                                setTimeout(() => runTourStep(nextStep), 600);
-                            }
-                        }
-                    }, 50);
-                };
-                
-                el.addEventListener(step.actionEvent || 'click', handleInteract);
-                if (step.actionEvent === 'mouseenter') el.addEventListener('click', handleInteract); // fallback for mobile
-                if (step.actionEvent === 'input') el.addEventListener('click', handleInteract); // if they click the search bar
-            }
-        }, 500);
-    };
-
-    // Auto-resume on route change or mount
-    useEffect(() => {
-        const needsTour = localStorage.getItem('cigar_needs_tour');
-        if (needsTour === 'true') {
-            localStorage.removeItem('cigar_needs_tour');
-            // Check if we are waiting for the PWA install success modal instead
-            if (!localStorage.getItem('cigar_needs_tour_after_install_modal')) {
-                setTimeout(() => {
-                    startTour();
-                }, 1000);
-            }
-            return;
-        }
-
-        const stepIdx = localStorage.getItem('cigar_tour_step');
-        if (stepIdx !== null && !isTourActive) {
-            setIsTourActive(true);
-            // Delay to let the new page DOM render
-            setTimeout(() => runTourStep(parseInt(stepIdx)), 500);
-        }
-    }, [pathname]);
-
-    useEffect(() => {
-        const listener = () => {
-            if (localStorage.getItem('cigar_needs_tour') === 'true') {
-                localStorage.removeItem('cigar_needs_tour');
-                startTour();
-            }
-        };
-        window.addEventListener('cigar_start_tour_now', listener);
-        return () => window.removeEventListener('cigar_start_tour_now', listener);
-    }, []);
-
-    const getTourSteps = () => {
-        const steps = [
-            {
-                element: '#tour-nav-menu',
-                popover: { title: t('menu_title'), description: t('menu_desc'), side: 'bottom' },
-                actionEvent: 'mouseenter',
-                causesNavigation: false
+        const driverObj = driver({
+            showProgress: true,
+            allowClose: true,
+            overlayColor: 'rgba(18, 12, 10, 0.85)',
+            onCloseClick: () => {
+                driverObj.destroy();
             },
-            {
-                element: '#tour-search',
-                popover: { title: t('search_title'), description: t('search_desc'), side: 'bottom' },
-                actionEvent: 'click',
-                causesNavigation: false
+            onDestroyed: () => {
+                setIsTourActive(false);
+                localStorage.setItem(`cigar_tour_${tourName}_done`, 'true');
             },
-            {
-                element: '.tour-wishlist-btn', 
-                popover: { title: t('wishlist_title'), description: t('wishlist_desc'), side: 'top' },
-                actionEvent: 'click',
-                causesNavigation: false
-            },
-            {
-                element: '.tour-view-details-btn', 
-                popover: { title: t('details_title'), description: t('details_desc'), side: 'top' },
-                actionEvent: 'click',
-                causesNavigation: true
-            },
-            {
-                element: '.tour-add-to-cart-btn', 
-                popover: { title: t('quick_add_title') || 'Quick Add', description: t('quick_add_desc') || 'Quickly add items to your cart without leaving the page.', side: 'top' },
-                actionEvent: 'click',
-                causesNavigation: false
-            },
-            {
-                element: '#tour-cart-header', 
-                popover: { title: t('cart_title'), description: t('cart_desc'), side: 'bottom' },
-                actionEvent: 'click',
-                causesNavigation: true
-            },
-            {
-                element: '#tour-account-btn', 
-                popover: { title: t('account_title'), description: t('account_desc'), side: 'bottom' },
-                actionEvent: 'click',
-                causesNavigation: !!user // Only navigates if logged in
-            }
-        ];
-
-        if (user) {
-            steps.push(
-                {
-                    element: '#tour-orders-tab', 
-                    popover: { title: t('orders_title'), description: t('orders_desc'), side: 'right' },
-                    actionEvent: 'click',
-                    causesNavigation: false
-                },
-                {
-                    element: '#tour-settings-tab', 
-                    popover: { title: t('settings_title'), description: t('settings_desc'), side: 'right' },
-                    actionEvent: 'click',
-                    causesNavigation: false
-                }
-            );
-        }
-
-        steps.push(
-            {
-                element: '#tour-floating-chat', 
-                popover: { title: t('chat_title'), description: t('chat_desc'), side: 'top' },
-                actionEvent: 'click',
-                causesNavigation: false
-            },
-            {
-                element: '#tour-scroll-top', 
-                popover: { title: t('top_title'), description: t('top_desc'), side: 'top' },
-                actionEvent: 'click',
-                causesNavigation: false
-            }
-        );
-
-        return steps;
+            steps: steps
+        });
+        
+        // Slight delay to ensure DOM is ready
+        setTimeout(() => {
+            driverObj.drive();
+        }, 1000);
     };
 
     return (
-        <TourContext.Provider value={{ startTour, stopTour, isTourActive }}>
+        <TourContext.Provider value={{ startTour, isTourActive }}>
             {children}
         </TourContext.Provider>
     );

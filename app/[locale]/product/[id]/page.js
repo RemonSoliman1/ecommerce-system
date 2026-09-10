@@ -7,6 +7,8 @@ import { useProducts } from '@/context/ProductContext';
 import { BRANDS } from '@/lib/data';
 import styles from './product.module.css';
 import { useTranslations } from 'next-intl';
+import TourTrigger from '@/components/tour/TourTrigger';
+
 import WishlistButton from '@/components/ui/WishlistButton';
 import { Star, ShieldCheck, Leaf } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
