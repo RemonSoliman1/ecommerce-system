@@ -8,6 +8,8 @@ import styles from './account.module.css';
 import OrderCard from './OrderCard';
 import UserGuide from '@/components/account/UserGuide';
 import { useTranslations } from 'next-intl';
+import TourTrigger from '@/components/tour/TourTrigger';
+
 import { useLoyalty } from '@/context/LoyaltyContext';
 import { LayoutDashboard, ShoppingBag, MapPin, Settings, LogOut, Heart, BookOpen } from 'lucide-react';
 import { usePWA } from '@/context/PWAContext';
@@ -378,10 +380,19 @@ export default function AccountPage() {
     };
 
     return (
+        <>
+
+      <TourTrigger 
+          tourName="account"
+          steps={[
+              { element: '.tour-account-sidebar', titleKey: 'account_sidebar_title', descKey: 'account_sidebar_desc', side: 'right' },
+              { element: '#account-content', titleKey: 'account_content_title', descKey: 'account_content_desc', side: 'top' }
+          ]}
+      />
         <div className={styles.container}>
             <div className={styles.dashboardGrid}>
                 {/* Sidebar */}
-                <aside className={styles.sidebar}>
+                <aside className={`${styles.sidebar} tour-account-sidebar`}>
                     <div className={styles.userBrief}>
                         <h3>{user.name || 'Member'}</h3>
                         <p>{user.email}</p>
@@ -458,5 +469,6 @@ export default function AccountPage() {
                 </main>
             </div>
         </div>
+        </>
     );
 }

@@ -2,10 +2,16 @@ const fs = require('fs');
 let file = 'app/[locale]/shop/page.js';
 let content = fs.readFileSync(file, 'utf8');
 
-content = content.replace(
-    "        </div>\n    );\n}\n\nfunction ShopProductCard",
-    "        </div>\n        </>\n    );\n}\n\nfunction ShopProductCard"
-);
+// The literal `\n` is now in the file. Let's fix that.
+content = content.replace("</div>\\n        </div>\\n        </div>\\n        </>\\n    );\\n}\\n\\nfunction ShopProductCard({ product, t, activePromos = [] }) {", 
+`</div>
+        </div>
+        </div>
+        </>
+    );
+}
+
+function ShopProductCard({ product, t, activePromos = [] }) {`);
 
 fs.writeFileSync(file, content);
-console.log("Fixed missing closing fragment");
+console.log('Fixed shop page literal \\n');

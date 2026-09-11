@@ -302,7 +302,17 @@
         "product_gift_title": "Gift Options",
         "product_gift_desc": "Buying for an aficionado? Add a premium gift box or personalized message to your order.",
         "product_promo_title": "Promotions",
-        "product_promo_desc": "If there's an active promo (like Buy 5 Get 1 Free), it will automatically display and apply right here."
+        "product_promo_desc": "If there's an active promo (like Buy 5 Get 1 Free), it will automatically display and apply right here.",
+        "home_hero_title": "Welcome to Cigar Lounge",
+        "home_hero_desc": "Discover our premium selection of handcrafted cigars, accessories, and exclusive collections.",
+        "home_featured_title": "Featured & New Arrivals",
+        "home_featured_desc": "Stay updated with our latest additions and curated recommendations hand-picked by our experts.",
+        "home_brands_title": "Explore Top Brands",
+        "home_brands_desc": "Shop directly from world-renowned makers and boutique rollers.",
+        "account_sidebar_title": "Your Dashboard",
+        "account_sidebar_desc": "Manage your orders, view your loyalty tier, and update your personal preferences all in one place.",
+        "account_content_title": "Account Details",
+        "account_content_desc": "Check your order history, save your favorite cigars to your wishlist, or adjust your settings here."
     },
     "Guide": {
         "title": "User Guide & Manual",
