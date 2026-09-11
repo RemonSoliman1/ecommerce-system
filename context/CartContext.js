@@ -17,7 +17,7 @@ export function CartProvider({ children }) {
 
     // Load from localStorage on mount
     useEffect(() => {
-        const savedCart = localStorage.getItem('cigar_cart');
+        const savedCart = sessionStorage.getItem('cigar_cart');
         if (savedCart) {
             setCart(JSON.parse(savedCart));
         }
@@ -142,7 +142,7 @@ export function CartProvider({ children }) {
 
     // Save to localStorage on change
     useEffect(() => {
-        localStorage.setItem('cigar_cart', JSON.stringify(cart));
+        sessionStorage.setItem('cigar_cart', JSON.stringify(cart));
     }, [cart]);
 
     const addToCart = (product, size, price, quantity = 1, giftOption = null) => {

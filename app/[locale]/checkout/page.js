@@ -260,7 +260,7 @@ export default function CheckoutPage() {
 
     // Logic to load saved info
     useEffect(() => {
-        const saved = localStorage.getItem('cigar_user_info');
+        const saved = sessionStorage.getItem('cigar_user_info');
         if (saved) {
             const parsed = JSON.parse(saved);
             setAddress(prev => ({ ...prev, ...parsed }));
@@ -319,7 +319,7 @@ export default function CheckoutPage() {
         }
 
         if (saveInfo) {
-            localStorage.setItem('cigar_user_info', JSON.stringify({
+            sessionStorage.setItem('cigar_user_info', JSON.stringify({
                 name: address.name,
                 phone: address.phone,
                 email: address.email,
@@ -327,7 +327,7 @@ export default function CheckoutPage() {
                 street: address.street
             }));
         } else {
-            localStorage.removeItem('cigar_user_info');
+            sessionStorage.removeItem('cigar_user_info');
         }
 
         setIsProcessing(true);

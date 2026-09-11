@@ -590,13 +590,7 @@ function ShopContent() {
                             </div>
                         </div>
                     )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ShopProductCard({ product, t, activePromos = [] }) {
+                </div>\n        </div>\n        </div>\n        </>\n    );\n}\n\nfunction ShopProductCard({ product, t, activePromos = [] }) {
     const { brands } = useProducts();
     const [showQuickAdd, setShowQuickAdd] = useState(false);
     const [isHoverExpanded, setIsHoverExpanded] = useState(false);
