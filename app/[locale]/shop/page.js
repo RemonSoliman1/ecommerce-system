@@ -6,6 +6,7 @@ import { useRouter, usePathname, Link } from "@/lib/navigation";
 import { useProducts } from "@/context/ProductContext"; // Context
 import styles from "./shop.module.css";
 import { useTranslations } from "next-intl";
+import TourTrigger from "@/components/tour/TourTrigger";
 import ShopSidebar from "@/components/ui/ShopSidebar";
 import WishlistButton from "@/components/ui/WishlistButton";
 import QuickAddModal from "@/components/ui/QuickAddModal";
