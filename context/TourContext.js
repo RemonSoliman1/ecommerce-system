@@ -72,9 +72,17 @@ export function TourProvider({ children }) {
             },
             onPopoverRender: (popover, { state }) => {
                 const stepIndex = state.activeIndex;
-                if (stepIndex === steps.length - 1 && steps[steps.length - 1].popover?.nextRoute) {
+                const currentStep = steps[stepIndex];
+                if (currentStep && currentStep.popover?.nextRoute) {
+                    localStorage.setItem('cigar_global_tour_active', 'true');
                     const nextBtn = popover.wrapper.querySelector('.driver-popover-next-btn');
-                    if (nextBtn) nextBtn.innerHTML = 'Next Page &rarr;';
+                    if (nextBtn) {
+                        if (currentStep.mustClick) {
+                            nextBtn.style.display = 'none';
+                        } else {
+                            nextBtn.innerHTML = 'Next Page &rarr;';
+                        }
+                    }
                 }
             },
             steps: steps

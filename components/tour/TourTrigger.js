@@ -23,6 +23,7 @@ export default function TourTrigger({ tourName, steps }) {
                 const translatedSteps = steps.map(step => ({
                     element: step.element,
                     isMock: step.isMock,
+                    mustClick: step.mustClick,
                     popover: {
                         title: t(step.titleKey),
                         description: t(step.descKey),

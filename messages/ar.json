@@ -310,7 +310,7 @@
         "home_search_title": "Global Search",
         "home_search_desc": "Instantly search our entire humidor catalog from here.",
         "home_shop_title": "Shop Catalog",
-        "home_shop_desc": "Click here to enter the main shop and browse all products.",
+        "home_shop_desc": "انقر على \"Shop\" للدخول إلى المتجر ومتابعة الجولة!",
         "shop_sort_title": "Sort Options",
         "shop_sort_desc": "Sort the catalog alphabetically or by price.",
         "shop_stock_title": "In-Stock Only",
@@ -336,7 +336,7 @@
         "account_settings_title": "Profile Settings",
         "account_settings_desc": "Update your personal details or change your username/password here.",
         "view_details_title": "OOOOOOO OU,UU+OO",
-        "view_details_desc": "OU,OUOUSO OU^ OU,U+U,O OU,US OU,UU+OO USOUO OOOOOOO O3OUSOO. OOOO U+U+O U,OOUSO OU,OU,USO OU,UU+OO OU,UOUU,O!"
+        "view_details_desc": "التمرير فوق المنتج يكشف عن زر الإضافة السريعة. انقر مباشرة على صورة المنتج لمتابعة الجولة إلى صفحة المنتج!"
     },
     "Guide": {
         "title": "دليل المستخدم والكتيب",

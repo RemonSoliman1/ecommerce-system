@@ -11,6 +11,9 @@ export default function UserGuide() {
         localStorage.removeItem('cigar_tour_product_done');
         localStorage.removeItem('cigar_tour_account_done');
         localStorage.removeItem('cigar_global_tour_active');
+        localStorage.removeItem('cigar_age_verified');
+        localStorage.removeItem('cigar_has_seen_tour');
+        localStorage.removeItem('cigar_needs_tour');
         window.location.href = '/';
     };
     const t = useTranslations('Guide');

@@ -320,7 +320,7 @@
         "home_search_title": "Global Search",
         "home_search_desc": "Instantly search our entire humidor catalog from here.",
         "home_shop_title": "Shop Catalog",
-        "home_shop_desc": "Click here to enter the main shop and browse all products.",
+        "home_shop_desc": "Click \"Shop\" to enter the main catalog and continue the tour!",
         "shop_sort_title": "Sort Options",
         "shop_sort_desc": "Sort the catalog alphabetically or by price.",
         "shop_stock_title": "In-Stock Only",
@@ -346,7 +346,7 @@
         "account_settings_title": "Profile Settings",
         "account_settings_desc": "Update your personal details or change your username/password here.",
         "view_details_title": "Product Actions",
-        "view_details_desc": "Hovering or tapping on a product reveals quick actions. Click here to see the full product details page!"
+        "view_details_desc": "Hovering over a product reveals the quick add button. Click directly on the product image to continue the tour to the product page!"
     },
     "Guide": {
         "title": "User Guide & Manual",
