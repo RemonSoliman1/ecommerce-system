@@ -55,7 +55,7 @@ export function TourProvider({ children }) {
                     // It's the last step
                     if (step.popover?.nextRoute) {
                         localStorage.setItem('cigar_global_tour_active', 'true');
-                        options.state.driver.destroy(); // end current tour
+                        driverObj.destroy(); // end current tour
                         setIsTourActive(false);
                         localStorage.setItem(`cigar_tour_${name}_done`, 'true');
                         router.push(step.popover.nextRoute); // go to next page
@@ -64,7 +64,7 @@ export function TourProvider({ children }) {
                         localStorage.removeItem('cigar_global_tour_active');
                     }
                 }
-                options.state.driver.moveNext();
+                driverObj.moveNext();
             },
             onPopoverRender: (popover, { state }) => {
                 const stepIndex = state.activeIndex;

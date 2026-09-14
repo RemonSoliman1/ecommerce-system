@@ -10,6 +10,7 @@ export default function UserGuide() {
         localStorage.removeItem('cigar_tour_shop_done');
         localStorage.removeItem('cigar_tour_product_done');
         localStorage.removeItem('cigar_tour_account_done');
+        localStorage.removeItem('cigar_global_tour_active');
         window.location.href = '/';
     };
     const t = useTranslations('Guide');
