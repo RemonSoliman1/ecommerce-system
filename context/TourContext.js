@@ -88,7 +88,7 @@ export function TourProvider({ children }) {
                     <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', color: '#ccc', lineHeight: '1.4' }}>
                         {t('prompt_desc') || 'Would you like a quick walkthrough of the features on this page?'}
                     </p>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '15px', marginTop: '25px', justifyContent: 'center' }}>
                         <button 
                             onClick={confirmTour}
                             style={{ 
@@ -117,9 +117,10 @@ export function TourProvider({ children }) {
                             }}
                         >
                             {t('prompt_no') || 'Skip'}
-                        </button>
+                                                </button>
                     </div>
                 </div>
+            </div>
             )}
         </TourContext.Provider>
     );
