@@ -11,7 +11,8 @@ export default function TourTrigger({ tourName, steps }) {
     useEffect(() => {
         if (!isTourActive && !hasTriggered.current) {
             // Translate the steps dynamically
-            const translatedSteps = steps.filter(step => document.querySelector(step.element)).map(step => ({
+            // Wait for translation but don't filter DOM elements yet
+            const translatedSteps = steps.map(step => ({
                 element: step.element,
                 popover: {
                     title: t(step.titleKey),
@@ -21,13 +22,14 @@ export default function TourTrigger({ tourName, steps }) {
                 }
             }));
             
-            if (translatedSteps.length === 0) return;
-            
             hasTriggered.current = true;
-            // We use a small delay to ensure the page has fully painted
             const timer = setTimeout(() => {
-                startTour(tourName, translatedSteps);
-            }, 1500);
+                // Filter right before starting to ensure DOM is ready
+                const validSteps = translatedSteps.filter(step => document.querySelector(step.element));
+                if (validSteps.length > 0) {
+                    startTour(tourName, validSteps);
+                }
+            }, 2000);
             return () => clearTimeout(timer);
         }
     }, [tourName, steps, isTourActive, startTour, t]);

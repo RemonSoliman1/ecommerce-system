@@ -5,6 +5,13 @@ import { usePWA } from '@/context/PWAContext';
 
 export default function UserGuide() {
     const { startTour } = useTour();
+    const resetTours = () => {
+        localStorage.removeItem('cigar_tour_home_done');
+        localStorage.removeItem('cigar_tour_shop_done');
+        localStorage.removeItem('cigar_tour_product_done');
+        localStorage.removeItem('cigar_tour_account_done');
+        window.location.href = '/';
+    };
     const t = useTranslations('Guide');
     const pwa = usePWA();
     return (
@@ -13,12 +20,12 @@ export default function UserGuide() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
                 <p style={{ color: '#ccc', margin: 0, flex: 1, minWidth: '300px' }}>{t('subtitle')}</p>
                 <button 
-                    onClick={startTour}
+                    onClick={resetTours}
                     className="btn" 
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    {t('start_tour')}
+                    {t('start_tour') || 'Restart Interactive Tours'}
                 </button>
             </div>
 

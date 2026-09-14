@@ -258,7 +258,7 @@ export default function Home() {
       </Link>
 
       {/* 1. Hero Slideshow */}
-      <section className={styles.sliderWrapper} style={{ position: 'relative' }}>
+      <section className={`${styles.sliderWrapper} tour-home-hero`} style={{ position: 'relative' }}>
         {slides.map((slide, index) => (
           <div key={slide.id} className={`${styles.slide} ${index === currentSlide ? styles.active : ''}`} style={{ backgroundImage: `url(${slide.bgImage})` }}>
             <Link href={slide.link} className={styles.slideOverlayLink}>
@@ -318,7 +318,7 @@ export default function Home() {
       )}
 
       {/* 3. Mosaic Tiles */}
-      <section className={styles.mosaicContainer}>
+      <section className={`${styles.mosaicContainer} tour-home-featured`}>
         <div className={styles.mosaicGrid}>
           {renderMosaic(mosaic1, defaultMosaics[0], true)}
           {renderMosaic(mosaic2, defaultMosaics[1], false)}
@@ -350,7 +350,7 @@ export default function Home() {
         )}
 
         {/* 5. Who We Are */}
-        <section className={styles.whoWeAreLayout}>
+        <section className={`${styles.whoWeAreLayout} tour-home-brands`}>
           <div className={styles.whoWeAreText}>
             <div className={styles.sectionSmallTitle} style={{fontSize: '1.2rem'}}>{t('who_we_are')}</div>
             <h2 dangerouslySetInnerHTML={{ __html: t.raw('discover_art') }}></h2>

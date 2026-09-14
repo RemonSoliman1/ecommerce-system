@@ -352,7 +352,9 @@
         "bot_commands_desc": "اضغط على زر القائمة (Menu) بجوار صندوق المحادثة لرؤية قائمة بجميع الاختصارات النشطة.",
         "bot_connect": "الاتصال بالبوت",
         "bot_connect_desc": "تفضل بالوصول إلى بوت تليجرام الخاص بنا مباشرة أدناه.",
-        "bot_open_btn": "فتح بوت تليجرام"
+        "bot_open_btn": "فتح بوت تليجرام",
+        "web_shop_now": "Shop Now Button:",
+        "web_shop_now_desc": "Click the gold SHOP NOW button in the main menu to open a detailed catalog of our categories, brands, and collections."
     },
     "Auth": {
         "login_title": "تسجيل الدخول",

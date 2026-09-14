@@ -362,7 +362,9 @@
         "bot_commands_desc": "Tap the Menu button next to your chat box to see a clean list of all active shortcuts.",
         "bot_connect": "Connect to Bot",
         "bot_connect_desc": "Access our Telegram bot directly below.",
-        "bot_open_btn": "Open Telegram Bot"
+        "bot_open_btn": "Open Telegram Bot",
+        "web_shop_now": "Shop Now Button:",
+        "web_shop_now_desc": "Click the gold SHOP NOW button in the main menu to open a detailed catalog of our categories, brands, and collections."
     },
     "Auth": {
         "login_title": "Sign In",
