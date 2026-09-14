@@ -10,9 +10,16 @@ export default function TourTrigger({ tourName, steps }) {
 
     useEffect(() => {
         if (!isTourActive && !hasTriggered.current) {
-            hasTriggered.current = true;
             
-            const timer = setTimeout(() => {
+            // Interval to check if AgeGate is gone
+            const checkAndStart = setInterval(() => {
+                if (document.querySelector('#age-gate-overlay')) {
+                    return; // Wait for AgeGate to be closed
+                }
+                
+                hasTriggered.current = true;
+                clearInterval(checkAndStart);
+                
                 const translatedSteps = steps.map(step => ({
                     element: step.element,
                     isMock: step.isMock,
@@ -25,14 +32,14 @@ export default function TourTrigger({ tourName, steps }) {
                     }
                 }));
                 
-                // Allow elements to pass if they are marked as isMock (they will be rendered when tour starts)
                 const validSteps = translatedSteps.filter(step => step.isMock || document.querySelector(step.element));
                 if (validSteps.length > 0) {
                     startTour(tourName, validSteps);
                 }
-            }, 2000);
+            }, 1000);
+            
+            return () => clearInterval(checkAndStart);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isTourActive]); 
 
     return null;

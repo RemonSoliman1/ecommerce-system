@@ -26,7 +26,11 @@ export function TourProvider({ children }) {
 
     // Auto-start if global tour is active
     useEffect(() => {
-        if (pendingTour && localStorage.getItem('cigar_global_tour_active') === 'true') {
+        if (pendingTour && (localStorage.getItem('cigar_global_tour_active') === 'true' || localStorage.getItem('cigar_needs_tour') === 'true')) {
+            if (localStorage.getItem('cigar_needs_tour') === 'true') {
+                localStorage.removeItem('cigar_needs_tour');
+                localStorage.setItem('cigar_global_tour_active', 'true');
+            }
             confirmTour();
         }
     }, [pendingTour]);

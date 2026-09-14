@@ -73,7 +73,7 @@ export default function AgeGate() {
     if (!isVisible) return null;
 
     return (
-        <div className={styles.overlay} style={{ zIndex: 9999 }}>
+        <div id="age-gate-overlay" className={styles.overlay} style={{ zIndex: 9999 }}>
             <div className={styles.modal}>
                 <div className={styles.content}>
                     
