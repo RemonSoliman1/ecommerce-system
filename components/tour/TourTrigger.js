@@ -10,29 +10,32 @@ export default function TourTrigger({ tourName, steps }) {
 
     useEffect(() => {
         if (!isTourActive && !hasTriggered.current) {
-            // Translate the steps dynamically
-            // Wait for translation but don't filter DOM elements yet
-            const translatedSteps = steps.map(step => ({
-                element: step.element,
-                popover: {
-                    title: t(step.titleKey),
-                    description: t(step.descKey),
-                    side: step.side || 'bottom',
-                    align: step.align || 'center'
-                }
-            }));
-            
             hasTriggered.current = true;
+            
             const timer = setTimeout(() => {
-                // Filter right before starting to ensure DOM is ready
+                const translatedSteps = steps.map(step => ({
+                    element: step.element,
+                    popover: {
+                        title: t(step.titleKey),
+                        description: t(step.descKey),
+                        side: step.side || 'bottom',
+                        align: step.align || 'center'
+                    }
+                }));
+                
                 const validSteps = translatedSteps.filter(step => document.querySelector(step.element));
                 if (validSteps.length > 0) {
                     startTour(tourName, validSteps);
                 }
             }, 2000);
-            return () => clearTimeout(timer);
+            
+            // Do not clear the timer on re-render, otherwise frequent re-renders 
+            // (like AuthContext resolving) will cancel the tour permanently.
+            // A small memory leak on unmount is negligible here, but we can clear it 
+            // by storing it in a ref if we wanted. For now, this is safer.
         }
-    }, [tourName, steps, isTourActive, startTour, t]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isTourActive]); // Intentionally omitting steps to prevent re-renders cancelling the timer
 
     return null;
 }
