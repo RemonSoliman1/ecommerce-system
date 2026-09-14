@@ -63,18 +63,25 @@ export function TourProvider({ children }) {
             {pendingTour && (
                 <div style={{
                     position: 'fixed',
-                    bottom: '20px',
-                    left: '20px',
-                    background: 'rgba(25, 25, 25, 0.95)',
-                    border: '1px solid var(--color-accent)',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    zIndex: 9999,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                    maxWidth: '350px',
-                    color: '#fff',
-                    backdropFilter: 'blur(10px)'
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 99999
                 }}>
+                    <div style={{
+                        background: 'rgba(25, 25, 25, 0.95)',
+                        border: '1px solid var(--color-accent)',
+                        padding: '2.5rem',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                        maxWidth: '400px',
+                        width: '90%',
+                        color: '#fff',
+                        backdropFilter: 'blur(10px)',
+                        textAlign: 'center'
+                    }}>
                     <h3 style={{ margin: '0 0 10px 0', color: 'var(--color-accent)', fontSize: '1.1rem' }}>
                         {t('prompt_title') || 'Interactive Tour'}
                     </h3>
