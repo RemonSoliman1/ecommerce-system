@@ -56,7 +56,7 @@ export function TourProvider({ children }) {
     };
 
     return (
-        <TourContext.Provider value={{ startTour, isTourActive }}>
+        <TourContext.Provider value={{ startTour, isTourActive, pendingTour }}>
             {children}
             
             {/* Skippable Tour Prompt */}

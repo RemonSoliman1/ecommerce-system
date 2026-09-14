@@ -7,6 +7,7 @@ import { useProducts } from '@/context/ProductContext';
 import { BRANDS } from '@/lib/data';
 import styles from './product.module.css';
 import { useTranslations } from 'next-intl';
+import { useTour } from '@/context/TourContext';
 import TourTrigger from '@/components/tour/TourTrigger';
 
 import WishlistButton from '@/components/ui/WishlistButton';
@@ -25,6 +26,8 @@ export default function ProductPage({ params }) {
     const { showToast } = useToast();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const router = useRouter();
+    const { isTourActive, pendingTour } = useTour();
+    const showTourMocks = isTourActive || (pendingTour && pendingTour.name === 'product');
 
     const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -356,10 +359,10 @@ export default function ProductPage({ params }) {
                     )}
 
                     {/* Tasting Notes & Profile Detail */}
-                    {(product.flavor_profile || product.description) && (
+                    {(showTourMocks || product.flavor_profile || product.description) && (
                         <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                             {/* Tasting Notes */}
-                            {product.flavor_profile && product.flavor_profile.length > 0 && (
+                            {(showTourMocks || (product.flavor_profile && product.flavor_profile.length > 0)) && (
                                   <div id="tour-tasting-notes" style={{ marginBottom: '2rem' }}>
                                     <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--color-accent)', marginBottom: '1rem' }}>
                                         {t('tasting_notes')}
@@ -443,9 +446,9 @@ export default function ProductPage({ params }) {
                                 })()}
                                 
                                 {/* Promo Badge */}
-                                {activePromos.length > 0 && (
+                                {(showTourMocks || activePromos.length > 0) && (
                                       <div id="tour-promo-banner" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
-                                        {activePromos.map(promo => (
+                                        {activePromos.length > 0 ? activePromos.map(promo => (
                                             <div key={promo.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(197, 163, 92, 0.1)', border: '1px solid var(--color-accent)', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.3s ease' }} onClick={() => setShowPromoTerms(promo)}>
                                                 <span style={{ fontSize: '1.2rem' }}>🏷️</span>
                                                 <span style={{ color: 'var(--color-accent)', fontWeight: 'bold', letterSpacing: '1px' }}>{promo.code}</span>
@@ -453,7 +456,12 @@ export default function ProductPage({ params }) {
                                                     ({promo.discount_type === 'percentage' ? `${promo.discount_value}% OFF` : `EGP ${promo.discount_value} OFF`})
                                                 </span>
                                             </div>
-                                        ))}
+                                        )) : (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(197, 163, 92, 0.1)', border: '1px solid var(--color-accent)', padding: '8px 16px', borderRadius: '4px' }}>
+                                                <span style={{ fontSize: '1.2rem' }}>🏷️</span>
+                                                <span style={{ color: 'var(--color-accent)', fontWeight: 'bold', letterSpacing: '1px' }}>TOUR_MOCK_PROMO</span>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -562,14 +570,14 @@ export default function ProductPage({ params }) {
                             </div>
 
                             {/* 3. Step 3: Presentation Style */}
-                            {product.has_gifts && !selectedModel?.disable_gifts && (
+                            {(showTourMocks || (product.has_gifts && !selectedModel?.disable_gifts)) && (
                                 <div id="tour-gift-selector" className={styles.controlGroup} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '1rem' }}>
                                     <label className={styles.label} style={{ color: 'var(--color-accent)', fontSize: '1.1rem', letterSpacing: '1px', marginBottom: '1.5rem', display: 'block' }}>Discover Your Exclusive Gifts</label>
-                                    {giftOptions.length === 0 ? (
+                                    {giftOptions.length === 0 && !showTourMocks ? (
                                         <p style={{ fontSize: '0.9rem', color: '#888' }}>Loading options...</p>
                                     ) : (
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                                            {giftOptions.map(option => {
+                                            {giftOptions.length > 0 ? giftOptions.map(option => {
                                                 const isSelected = selectedGiftOption?.id === option.id;
                                                 const meta = option.metadata || {};
                                                 const isAllowed = !selectedModel?.allowed_gifts || selectedModel.allowed_gifts.length === 0 || selectedModel.allowed_gifts.includes(option.value);
@@ -600,32 +608,24 @@ export default function ProductPage({ params }) {
                                                             opacity: isAllowed ? 1 : 0.4
                                                         }}
                                                     >
-                                                        {meta.image ? (
-                                                            <div style={{ width: '100%', height: '60px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                                <img src={meta.image} alt={option.value} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
-                                                            </div>
-                                                        ) : (
-                                                            <div style={{ width: '100%', height: '60px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                                <span style={{ fontSize: '2rem' }}>🎁</span>
+                                                        {meta.image && <img src={meta.image} alt={option.label} style={{ width: '40px', height: '40px', objectFit: 'contain', marginBottom: '0.5rem' }} />}
+                                                        <span style={{ fontWeight: 'bold', color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>{option.label}</span>
+                                                        <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)' }}>
+                                                            {finalPrice === 0 ? 'FREE' : `+EGP ${finalPrice.toLocaleString()}`}
+                                                        </div>
+                                                        {hasDiscount && (
+                                                            <div style={{ fontSize: '0.75rem', textDecoration: 'line-through', color: '#666', marginTop: '2px' }}>
+                                                                EGP {originalPrice.toLocaleString()}
                                                             </div>
                                                         )}
-                                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: isSelected ? 'var(--color-accent)' : '#fff', marginBottom: '0.25rem' }}>{option.value}</span>
-                                                        <span style={{ fontSize: '0.9rem', color: '#888', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{meta.description}</span>
-                                                        <span style={{ marginTop: 'auto', paddingTop: '1rem', fontSize: '0.9rem', fontWeight: 'bold', color: finalPrice === 0 ? 'green' : 'var(--color-accent)' }}>
-                                                            {finalPrice === 0 ? '✨ Exclusive Gift' : (
-                                                                <>
-                                                                    {hasDiscount && (
-                                                                        <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '6px', fontSize: '0.8rem' }}>
-                                                                            +EGP {originalPrice}
-                                                                        </span>
-                                                                    )}
-                                                                    + EGP {finalPrice}
-                                                                </>
-                                                            )}
-                                                        </span>
                                                     </button>
                                                 );
-                                            })}
+                                            }) : (
+                                                <button type="button" style={{ background: 'transparent', border: '1px solid #333', borderRadius: '8px', padding: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: '140px' }}>
+                                                    <span style={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Tour Mock Gift</span>
+                                                    <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)' }}>FREE</div>
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
