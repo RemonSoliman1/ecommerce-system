@@ -703,8 +703,8 @@ export default function ProductPage({ params }) {
             <div id="tour-similar-items"><RelatedProducts 
                 currentProductId={product.id} 
                 category={product.category} 
-                brandId={product.brandId || product.brand_id} 
-            />
+                brandId={product.brandId || product.brand_id}
+            /></div>
 
             {/* Auth Modal for Wishlist Shielding */}
             {
