@@ -15,27 +15,25 @@ export default function TourTrigger({ tourName, steps }) {
             const timer = setTimeout(() => {
                 const translatedSteps = steps.map(step => ({
                     element: step.element,
+                    isMock: step.isMock,
                     popover: {
                         title: t(step.titleKey),
                         description: t(step.descKey),
                         side: step.side || 'bottom',
-                        align: step.align || 'center'
+                        align: step.align || 'center',
+                        nextRoute: step.nextRoute
                     }
                 }));
                 
-                const validSteps = translatedSteps.filter(step => document.querySelector(step.element));
+                // Allow elements to pass if they are marked as isMock (they will be rendered when tour starts)
+                const validSteps = translatedSteps.filter(step => step.isMock || document.querySelector(step.element));
                 if (validSteps.length > 0) {
                     startTour(tourName, validSteps);
                 }
             }, 2000);
-            
-            // Do not clear the timer on re-render, otherwise frequent re-renders 
-            // (like AuthContext resolving) will cancel the tour permanently.
-            // A small memory leak on unmount is negligible here, but we can clear it 
-            // by storing it in a ref if we wanted. For now, this is safer.
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isTourActive]); // Intentionally omitting steps to prevent re-renders cancelling the timer
+    }, [isTourActive]); 
 
     return null;
 }

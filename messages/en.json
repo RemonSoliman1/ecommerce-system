@@ -344,7 +344,9 @@
         "account_orders_title": "Order History",
         "account_orders_desc": "Track your shipments and view past purchases.",
         "account_settings_title": "Profile Settings",
-        "account_settings_desc": "Update your personal details or change your username/password here."
+        "account_settings_desc": "Update your personal details or change your username/password here.",
+        "view_details_title": "Product Actions",
+        "view_details_desc": "Hovering or tapping on a product reveals quick actions. Click here to see the full product details page!"
     },
     "Guide": {
         "title": "User Guide & Manual",

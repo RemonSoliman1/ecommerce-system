@@ -270,12 +270,12 @@ export default function ProductPage({ params }) {
             <TourTrigger
                 tourName="product"
                 steps={[
-                    { element: '#tour-size-selector', titleKey: 'size_selector_title', descKey: 'size_selector_desc', side: 'bottom' },
-                    { element: '#tour-gift-selector', titleKey: 'gift_selector_title', descKey: 'gift_selector_desc', side: 'top' },
-                    { element: '#tour-promo-banner', titleKey: 'promo_banner_title', descKey: 'promo_banner_desc', side: 'bottom' },
-                    { element: '#tour-tasting-notes', titleKey: 'tasting_notes_title', descKey: 'tasting_notes_desc', side: 'top' },
-                    { element: '#tour-similar-items', titleKey: 'similar_items_title', descKey: 'similar_items_desc', side: 'top' }
-                ]}
+                      { element: '#tour-size-selector', titleKey: 'size_selector_title', descKey: 'size_selector_desc', side: 'bottom' },
+                      { element: '#tour-gift-selector', titleKey: 'gift_selector_title', descKey: 'gift_selector_desc', side: 'top', isMock: true },
+                      { element: '#tour-promo-banner', titleKey: 'promo_banner_title', descKey: 'promo_banner_desc', side: 'bottom', isMock: true },
+                      { element: '#tour-tasting-notes', titleKey: 'tasting_notes_title', descKey: 'tasting_notes_desc', side: 'top', isMock: true },
+                      { element: '#tour-similar-items', titleKey: 'similar_items_title', descKey: 'similar_items_desc', side: 'top' }
+                  ]}
             />
             <div className={styles.wrapper}>
                 {/* Left: Image Gallery */}

@@ -552,7 +552,7 @@ function ShopContent() {
             { element: '#tour-shop-brands', titleKey: 'shop_brands_title', descKey: 'shop_brands_desc', side: 'bottom' },
             { element: '.tour-wishlist-btn', titleKey: 'wishlist_title', descKey: 'wishlist_desc', side: 'top' },
             { element: '.quickAddBtnArea', titleKey: 'quick_add_title', descKey: 'quick_add_desc', side: 'top' },
-            { element: '#tour-scroll-top', titleKey: 'shop_scroll_title', descKey: 'shop_scroll_desc', side: 'left' }
+            { element: '.tour-view-details-btn', titleKey: 'view_details_title', descKey: 'view_details_desc', side: 'top', nextRoute: `/${locale}/product/1` }
           ]}
       />
       <div className="container">
