@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
                     } else {
                         localStorage.removeItem('cigar_user_email');
                         sessionStorage.removeItem('cigar_user_email');
+        sessionStorage.removeItem('cigar_user_info');
                     }
                 } catch (e) {
                     console.error("Session check failed", e);

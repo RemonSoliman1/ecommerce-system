@@ -546,10 +546,14 @@ function ShopContent() {
       <TourTrigger 
         tourName="shop"
         steps={[
-          { element: '#tour-shop-filters', titleKey: 'shop_filters_title', descKey: 'shop_filters_desc', side: 'right' },
-          { element: '.tour-wishlist-btn', titleKey: 'wishlist_title', descKey: 'wishlist_desc', side: 'top' },
-          { element: '.quickAddBtnArea', titleKey: 'quick_add_title', descKey: 'quick_add_desc', side: 'top' }
-        ]}
+            { element: '#tour-shop-filters', titleKey: 'shop_filters_title', descKey: 'shop_filters_desc', side: 'right' },
+            { element: '#tour-shop-sort', titleKey: 'shop_sort_title', descKey: 'shop_sort_desc', side: 'bottom' },
+            { element: '#tour-shop-stock', titleKey: 'shop_stock_title', descKey: 'shop_stock_desc', side: 'bottom' },
+            { element: '#tour-shop-brands', titleKey: 'shop_brands_title', descKey: 'shop_brands_desc', side: 'bottom' },
+            { element: '.tour-wishlist-btn', titleKey: 'wishlist_title', descKey: 'wishlist_desc', side: 'top' },
+            { element: '.quickAddBtnArea', titleKey: 'quick_add_title', descKey: 'quick_add_desc', side: 'top' },
+            { element: '#tour-scroll-top', titleKey: 'shop_scroll_title', descKey: 'shop_scroll_desc', side: 'left' }
+          ]}
       />
       <div className="container">
       <div className={styles.header}>
@@ -592,7 +596,8 @@ function ShopContent() {
                 style={{ width: "auto", padding: "2px" }}
               >
                 <button
-                  className={`${styles.pillBtn} ${inStockOnly ? styles.pillBtnActive : styles.pillBtnInactive}`}
+                  id="tour-shop-stock"
+                    className={`${styles.pillBtn} ${inStockOnly ? styles.pillBtnActive : styles.pillBtnInactive}`}
                   style={{
                     padding: "2px 6px",
                     fontSize: "0.65rem",
@@ -609,7 +614,8 @@ function ShopContent() {
           <select
             value={sortOption}
             onChange={(e) => updateParams("sort", e.target.value)}
-            className={styles.sortSelect}
+            id="tour-shop-sort"
+              className={styles.sortSelect}
             suppressHydrationWarning
           >
             <option value="featured">{t("sort.new")}</option>
@@ -623,7 +629,7 @@ function ShopContent() {
 
       {/* Brand Carousel - Show brands, filter to active brand if one is selected */}
       {
-        <div className={styles.brandCarouselSection}>
+        <div id="tour-shop-brands" className={styles.brandCarouselSection}>
           <div className={styles.brandCarouselHeader}>
             <h2>{t("top_brands")}</h2>
             <div style={{ display: "flex", gap: "10px" }}>

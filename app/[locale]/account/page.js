@@ -385,9 +385,11 @@ export default function AccountPage() {
       <TourTrigger 
           tourName="account"
           steps={[
-              { element: '.tour-account-sidebar', titleKey: 'account_sidebar_title', descKey: 'account_sidebar_desc', side: 'right' },
-              { element: '#account-content', titleKey: 'account_content_title', descKey: 'account_content_desc', side: 'top' }
-          ]}
+                { element: '.tour-account-sidebar', titleKey: 'account_sidebar_title', descKey: 'account_sidebar_desc', side: 'right' },
+                { element: '#tour-overview-tab', titleKey: 'account_overview_title', descKey: 'account_overview_desc', side: 'right' },
+                { element: '#tour-orders-tab', titleKey: 'account_orders_title', descKey: 'account_orders_desc', side: 'right' },
+                { element: '#tour-settings-tab', titleKey: 'account_settings_title', descKey: 'account_settings_desc', side: 'right' }
+            ]}
       />
         <div className={styles.container}>
             <div className={styles.dashboardGrid}>
@@ -399,7 +401,8 @@ export default function AccountPage() {
                     </div>
                     <nav className={styles.nav}>
                         <button
-                            className={`${styles.navBtn} ${activeTab === 'overview' ? styles.activeBtn : ''}`}
+                            id="tour-overview-tab"
+                              className={`${styles.navBtn} ${activeTab === 'overview' ? styles.activeBtn : ''}`}
                             onClick={() => {
                                 setActiveTab('overview');
                                 if (window.innerWidth <= 768) document.getElementById('account-content')?.scrollIntoView({ behavior: 'smooth' });

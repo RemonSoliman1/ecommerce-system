@@ -251,7 +251,18 @@ export default function Home() {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   return (
-    <div className={styles.home}>
+    <>
+      <TourTrigger 
+          tourName="home"
+          steps={[
+              { element: '#tour-search', titleKey: 'home_search_title', descKey: 'home_search_desc', side: 'bottom' },
+              { element: '#tour-shop', titleKey: 'home_shop_title', descKey: 'home_shop_desc', side: 'bottom' },
+              { element: '.tour-home-hero', titleKey: 'home_hero_title', descKey: 'home_hero_desc', side: 'bottom' },
+              { element: '.tour-home-featured', titleKey: 'home_featured_title', descKey: 'home_featured_desc', side: 'top' },
+              { element: '.tour-home-brands', titleKey: 'home_brands_title', descKey: 'home_brands_desc', side: 'top' }
+          ]}
+      />
+      <div className={styles.home}>
       {/* Mobile Only Shop Now Button */}
       <Link href="/shop" className={styles.mobileShopBtn}>
         {t('shop_now') || 'Shop Now'}

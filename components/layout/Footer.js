@@ -109,6 +109,7 @@ export default function Footer() {
                             <li><Link href="/wishlist">{t('lounge_reserve')}</Link></li>
                             <li><Link href="/loyalty">{t('lounge_loyalty')}</Link></li>
                             <li><Link href="/about">{t('lounge_curator')}</Link></li>
+                            <li><Link href="/help">Help &amp; FAQ</Link></li>
                         </ul>
                     </div>
 

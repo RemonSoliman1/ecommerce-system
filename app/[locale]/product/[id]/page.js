@@ -264,6 +264,16 @@ export default function ProductPage({ params }) {
 
     return (
         <div className="container">
+            <TourTrigger
+                tourName="product"
+                steps={[
+                    { element: '#tour-size-selector', titleKey: 'size_selector_title', descKey: 'size_selector_desc', side: 'bottom' },
+                    { element: '#tour-gift-selector', titleKey: 'gift_selector_title', descKey: 'gift_selector_desc', side: 'top' },
+                    { element: '#tour-promo-banner', titleKey: 'promo_banner_title', descKey: 'promo_banner_desc', side: 'bottom' },
+                    { element: '#tour-tasting-notes', titleKey: 'tasting_notes_title', descKey: 'tasting_notes_desc', side: 'top' },
+                    { element: '#tour-similar-items', titleKey: 'similar_items_title', descKey: 'similar_items_desc', side: 'top' }
+                ]}
+            />
             <div className={styles.wrapper}>
                 {/* Left: Image Gallery */}
                 <div className={styles.imageSection}>
@@ -350,7 +360,7 @@ export default function ProductPage({ params }) {
                         <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                             {/* Tasting Notes */}
                             {product.flavor_profile && product.flavor_profile.length > 0 && (
-                                <div style={{ marginBottom: '2rem' }}>
+                                  <div id="tour-tasting-notes" style={{ marginBottom: '2rem' }}>
                                     <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--color-accent)', marginBottom: '1rem' }}>
                                         {t('tasting_notes')}
                                     </h3>
@@ -434,7 +444,7 @@ export default function ProductPage({ params }) {
                                 
                                 {/* Promo Badge */}
                                 {activePromos.length > 0 && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
+                                      <div id="tour-promo-banner" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
                                         {activePromos.map(promo => (
                                             <div key={promo.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(197, 163, 92, 0.1)', border: '1px solid var(--color-accent)', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.3s ease' }} onClick={() => setShowPromoTerms(promo)}>
                                                 <span style={{ fontSize: '1.2rem' }}>🏷️</span>
@@ -482,7 +492,7 @@ export default function ProductPage({ params }) {
                                     {/* 1. Select Format (Size) */}
                                     <div className={styles.controlGroup} style={{ flex: 1, minWidth: '200px' }}>
                                         <label className={styles.label}>Size</label>
-                                        <div className={styles.sizeOptions}>
+                                        <div id="tour-size-selector" className={styles.sizeOptions}>
                                             {sizes.map(size => {
                                                 const displaySize = size.includes('-') ? size.split('-')[0].trim() : size;
                                                 return (
@@ -553,7 +563,7 @@ export default function ProductPage({ params }) {
 
                             {/* 3. Step 3: Presentation Style */}
                             {product.has_gifts && !selectedModel?.disable_gifts && (
-                                <div className={styles.controlGroup} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '1rem' }}>
+                                <div id="tour-gift-selector" className={styles.controlGroup} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', marginTop: '1rem' }}>
                                     <label className={styles.label} style={{ color: 'var(--color-accent)', fontSize: '1.1rem', letterSpacing: '1px', marginBottom: '1.5rem', display: 'block' }}>Discover Your Exclusive Gifts</label>
                                     {giftOptions.length === 0 ? (
                                         <p style={{ fontSize: '0.9rem', color: '#888' }}>Loading options...</p>
@@ -690,7 +700,7 @@ export default function ProductPage({ params }) {
             </div>
 
             {/* Related Products Section */}
-            <RelatedProducts 
+            <div id="tour-similar-items"><RelatedProducts 
                 currentProductId={product.id} 
                 category={product.category} 
                 brandId={product.brandId || product.brand_id} 
