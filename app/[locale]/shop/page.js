@@ -551,10 +551,10 @@ function ShopContent() {
               { element: '#tour-shop-stock', titleKey: 'shop_stock_title', descKey: 'shop_stock_desc', side: 'bottom' },
               { element: '#tour-shop-brands', titleKey: 'shop_brands_title', descKey: 'shop_brands_desc', side: 'bottom' },
               { element: '.tour-wishlist-btn', titleKey: 'wishlist_title', descKey: 'wishlist_desc', side: 'top' },
-              { element: '.quickAddBtnArea', titleKey: 'quick_add_title', descKey: 'quick_add_desc', side: 'top' },
-              { element: '.tour-shop-card', titleKey: 'view_details_title', descKey: 'view_details_desc', side: 'top', nextRoute: typeof window !== 'undefined' && filteredProducts[0] ? '/' + window.location.pathname.split('/')[1] + '/product/' + filteredProducts[0].id : '/en/shop', mustClick: true }
+              { element: '.tour-shop-card', titleKey: 'hover_item_title', descKey: 'hover_item_desc', side: 'top', mustHover: true },
+              { element: '.quickAddBtnArea', titleKey: 'quick_add_title', descKey: 'quick_add_desc', side: 'top', nextRoute: typeof window !== 'undefined' && filteredProducts[0] ? '/' + window.location.pathname.split('/')[1] + '/product/' + filteredProducts[0].id : '/en/shop', mustClick: true }
             ]}
-      />
+        />
       <div className="container">
       <div className={styles.header}>
         <h1>{t("title")}</h1>

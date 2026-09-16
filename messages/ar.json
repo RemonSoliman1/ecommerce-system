@@ -336,7 +336,9 @@
         "account_settings_title": "Profile Settings",
         "account_settings_desc": "Update your personal details or change your username/password here.",
         "view_details_title": "OOOOOOO OU,UU+OO",
-        "view_details_desc": "التمرير فوق المنتج يكشف عن زر الإضافة السريعة. انقر مباشرة على صورة المنتج لمتابعة الجولة إلى صفحة المنتج!"
+        "view_details_desc": "انقر مباشرة على صورة المنتج لمتابعة الجولة إلى صفحة المنتج!",
+        "hover_item_title": "بطاقات المنتجات التفاعلية",
+        "hover_item_desc": "مرر الماوس فوق بطاقة المنتج هذه للكشف عن المزيد من الخيارات!"
     },
     "Guide": {
         "title": "دليل المستخدم والكتيب",

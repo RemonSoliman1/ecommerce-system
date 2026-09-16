@@ -26,11 +26,8 @@ export function TourProvider({ children }) {
 
     // Auto-start if global tour is active
     useEffect(() => {
-        if (pendingTour && (localStorage.getItem('cigar_global_tour_active') === 'true' || localStorage.getItem('cigar_needs_tour') === 'true')) {
-            if (localStorage.getItem('cigar_needs_tour') === 'true') {
-                localStorage.removeItem('cigar_needs_tour');
-                localStorage.setItem('cigar_global_tour_active', 'true');
-            }
+        if (pendingTour && localStorage.getItem('cigar_global_tour_active') === 'true') {
+            
             confirmTour();
         }
     }, [pendingTour]);
@@ -77,7 +74,16 @@ export function TourProvider({ children }) {
                     localStorage.setItem('cigar_global_tour_active', 'true');
                     const nextBtn = popover.wrapper.querySelector('.driver-popover-next-btn');
                     if (nextBtn) {
-                        if (currentStep.mustClick) {
+                        if (currentStep.mustHover) {
+                            nextBtn.style.display = 'none';
+                            const el = document.querySelector(currentStep.element);
+                            if (el && !el.dataset.hoverBound) {
+                                el.dataset.hoverBound = 'true';
+                                el.addEventListener('mouseenter', () => {
+                                    setTimeout(() => driverObj.moveNext(), 300);
+                                }, { once: true });
+                            }
+                        } else if (currentStep.mustClick) {
                             nextBtn.style.display = 'none';
                         } else {
                             nextBtn.innerHTML = 'Next Page &rarr;';
@@ -136,7 +142,7 @@ export function TourProvider({ children }) {
                         </p>
                         <div style={{ display: 'flex', gap: '15px', marginTop: '25px', justifyContent: 'center' }}>
                             <button 
-                                onClick={confirmTour}
+                                onClick={() => { localStorage.removeItem('cigar_needs_tour'); localStorage.setItem('cigar_global_tour_active', 'true'); confirmTour(); }}
                                 style={{ 
                                     flex: 1, 
                                     padding: '8px', 
@@ -151,7 +157,7 @@ export function TourProvider({ children }) {
                                 {t('prompt_yes') || 'Start Tour'}
                             </button>
                             <button 
-                                onClick={skipTour}
+                                onClick={() => { localStorage.removeItem('cigar_needs_tour'); skipTour(); }}
                                 style={{ 
                                     flex: 1, 
                                     padding: '8px', 

@@ -259,9 +259,10 @@ export default function Home() {
               { element: '.tour-home-featured', titleKey: 'home_featured_title', descKey: 'home_featured_desc', side: 'top' },
               { element: '.tour-home-brands', titleKey: 'home_brands_title', descKey: 'home_brands_desc', side: 'top' },
               { element: '#tour-search', titleKey: 'home_search_title', descKey: 'home_search_desc', side: 'bottom' },
-              { element: '#tour-shop', titleKey: 'home_shop_title', descKey: 'home_shop_desc', side: 'bottom', nextRoute: typeof window !== 'undefined' ? '/' + window.location.pathname.split('/')[1] + '/shop' : '/en/shop', mustClick: true }
+              { element: '#tour-shop', titleKey: 'home_shop_hover_title', descKey: 'home_shop_hover_desc', side: 'bottom', mustHover: true },
+              { element: '.desktopShopNav', titleKey: 'home_shop_title', descKey: 'home_shop_desc', side: 'bottom', nextRoute: typeof window !== 'undefined' ? '/' + window.location.pathname.split('/')[1] + '/shop' : '/en/shop', mustClick: true }
           ]}
-      />
+        />
       <div className={styles.home}>
       {/* Mobile Only Shop Now Button */}
       <Link href="/shop" className={styles.mobileShopBtn}>
