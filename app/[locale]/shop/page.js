@@ -673,29 +673,32 @@ function ShopContent() {
                     className={styles.brandItem}
                     onClick={() => updateParams("brand", brand.id)}
                   >
-                                        <div 
+                                         <div 
                       className={styles.brandLogo}
                       style={{ background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(245,240,232,1) 100%)" }}
                     >
                       {brandDomains[brand.name] ? (
                         <>
                           <img
-                            src={`https://logo.clearbit.com/${brandDomains[brand.name]}`}
+                            src={`https://logo.tomba.io/${brandDomains[brand.name]}?size=256`}
                             alt={brand.name}
                             className="w-full h-full object-contain p-4"
                             onError={(e) => {
                               e.target.style.display = "none";
+                              // flip circle to dark so the gold monogram reads as luxury
+                              const circle = e.target.closest('.' + styles.brandLogo);
+                              if (circle) circle.style.background = "radial-gradient(circle, #2a1f0e 0%, #1a1008 100%)";
                               if (e.target.nextElementSibling) {
                                 e.target.nextElementSibling.style.display = "flex";
                               }
                             }}
                           />
-                          <span style={{ display: 'none', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#111', padding: '4px', wordBreak: 'break-word', lineHeight: '1.2' }}>
+                          <span style={{ display: 'none', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.8rem', fontWeight: '600', color: '#c5a35c', fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.05em', padding: '6px', wordBreak: 'break-word', lineHeight: '1.3', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
                             {brand.name}
                           </span>
                         </>
                       ) : (
-                        <span style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#111', padding: '4px', wordBreak: 'break-word', lineHeight: '1.2' }}>
+                        <span style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.8rem', fontWeight: '600', color: '#c5a35c', fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.05em', padding: '6px', wordBreak: 'break-word', lineHeight: '1.3', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
                           {brand.name}
                         </span>
                       )}
