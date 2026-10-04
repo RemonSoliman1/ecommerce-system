@@ -349,6 +349,7 @@ function ShopContent() {
           return (b.new ? 1 : 0) - (a.new ? 1 : 0);
       }
     });
+    return sorted;
   }, [
     visibleProducts,
     searchParams,
@@ -672,27 +673,32 @@ function ShopContent() {
                     className={styles.brandItem}
                     onClick={() => updateParams("brand", brand.id)}
                   >
-                    <div className={styles.brandLogo}>
-                      {brand.logo ? (
-                        <img
-                          src={brand.logo}
-                          alt={brand.name}
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            e.target.nextSibling.style.display = "block";
-                          }}
-                        />
-                      ) : null}
-                      <span
-                        style={{
-                          display: brand.logo ? "none" : "block",
-                          color: "#000",
-                          fontWeight: "bold",
-                          fontSize: "1.2rem",
-                        }}
-                      >
-                        {brand.name.charAt(0)}
-                      </span>
+                                        <div 
+                      className={styles.brandLogo}
+                      style={{ background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(245,240,232,1) 100%)" }}
+                    >
+                      {brandDomains[brand.name] ? (
+                        <>
+                          <img
+                            src={`https://logo.clearbit.com/${brandDomains[brand.name]}`}
+                            alt={brand.name}
+                            className="w-full h-full object-contain p-4"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              if (e.target.nextElementSibling) {
+                                e.target.nextElementSibling.style.display = "flex";
+                              }
+                            }}
+                          />
+                          <span style={{ display: 'none', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#111', padding: '4px', wordBreak: 'break-word', lineHeight: '1.2' }}>
+                            {brand.name}
+                          </span>
+                        </>
+                      ) : (
+                        <span style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#111', padding: '4px', wordBreak: 'break-word', lineHeight: '1.2' }}>
+                          {brand.name}
+                        </span>
+                      )}
                     </div>
                     <span className={styles.brandName}>{brand.name}</span>
                   </div>
@@ -1363,6 +1369,32 @@ function ShopProductCard({ product, t, activePromos = [] }) {
     </div>
   );
 }
+
+const brandDomains = {
+  "20 Acre Farm": "drewestate.com",
+  "ACID": "drewestate.com",
+  "Alec Bradley": "alecbradley.com",
+  "Arturo Fuente": "arturofuente.com",
+  "Ashton": "ashtoncigar.com",
+  "Audew": "audew.com",
+  "AVO": "davidoffgeneva.com",
+  "Blackened": "drewestate.com",
+  "Camacho": "camachocigars.com",
+  "CAO": "caocigars.com",
+  "Chateau Diadem": "chateaudiadem.com",
+  "Cohiba": "cohiba.com",
+  "Davidoff": "davidoff.com",
+  "Deadwood": "drewestate.com",
+  "Drew Estate": "drewestate.com",
+  "E.P. Carrillo": "carrillocigars.com",
+  "Oliva": "olivacigar.com",
+  "Liga Privada": "drewestate.com",
+  "Montecristo": "montecristocigars.com",
+  "My Father": "myfathercigars.com",
+  "Padrón": "padron.com",
+  "Rocky Patel": "rockypatel.com",
+  "Romeo y Julieta": "romeoyjulietacigars.com"
+};
 
 export default function ShopPage() {
   return (
