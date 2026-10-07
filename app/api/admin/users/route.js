@@ -1,49 +1,49 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
-
-const getSupabaseAdmin = () => {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-    if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing');
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        serviceKey,
-        {
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false
-            }
-        }
-    );
-};
 
 export async function GET(request) {
     const auth = await requireAdmin(request);
     if (auth.error) return auth.error;
 
     try {
-        const supabase = getSupabaseAdmin();
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('id, name, email, role, verified, created_at, activity_status, last_active_at')
-            .order('created_at', { ascending: false });
+        const supabase = supabaseAdmin;
+        
+        // PERF-1: Fetch all required data concurrently
+        const [
+            { data: users, error },
+            { data: customers },
+            { data: orders }
+        ] = await Promise.all([
+            supabase.from('users').select('id, name, email, role, verified, created_at, activity_status, last_active_at').order('created_at', { ascending: false }),
+            supabase.from('customers').select('id, email, points, tier, phone, address_street, address_city, requires_receipt'),
+            supabase.from('orders').select('id, user_email, total_amount, status, created_at')
+        ]);
 
         if (error) throw error;
 
-        // Fetch related customer and order data
-        const { data: customers } = await supabase
-            .from('customers')
-            .select('id, email, points, tier, phone, address_street, address_city, requires_receipt');
-        
-        const { data: orders } = await supabase
-            .from('orders')
-            .select('id, user_email, total_amount, status, created_at');
+        // PERF-1: Build O(1) lookup maps instead of O(N*M) array finds
+        const customerMap = new Map();
+        (customers || []).forEach(c => {
+            if (c.email) customerMap.set(c.email.toLowerCase(), c);
+        });
+
+        const orderMap = new Map();
+        (orders || []).forEach(o => {
+            if (o.user_email) {
+                const key = o.user_email.toLowerCase();
+                if (!orderMap.has(key)) orderMap.set(key, []);
+                orderMap.get(key).push(o);
+            }
+        });
 
         const enrichedUsers = users.map(u => {
-            const customerData = (customers || []).find(c => c.email?.toLowerCase() === u.email?.toLowerCase()) || {};
-            const userOrders = (orders || []).filter(o => o.user_email?.toLowerCase() === u.email?.toLowerCase()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            const emailKey = u.email?.toLowerCase();
+            const customerData = customerMap.get(emailKey) || {};
+            const userOrders = (orderMap.get(emailKey) || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            
             return {
                 ...u,
                 customer_id: customerData.id,
@@ -77,7 +77,7 @@ export async function PUT(request) {
             return NextResponse.json({ success: false, error: 'Missing userId or role' }, { status: 400 });
         }
 
-        const supabase = getSupabaseAdmin();
+        const supabase = supabaseAdmin;
         const { error } = await supabase
             .from('users')
             .update({ role })

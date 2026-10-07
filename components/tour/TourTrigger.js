@@ -20,20 +20,27 @@ export default function TourTrigger({ tourName, steps }) {
                 hasTriggered.current = true;
                 clearInterval(checkAndStart);
                 
-                const translatedSteps = steps.map(step => ({
-                    element: step.element,
-                    isMock: step.isMock,
-                    mustClick: step.mustClick,
-                    popover: {
-                        title: t(step.titleKey),
-                        description: t(step.descKey),
-                        side: step.side || 'bottom',
-                        align: step.align || 'center',
-                        nextRoute: step.nextRoute
-                    }
-                }));
+                const isMobile = window.innerWidth <= 768;
                 
-                const validSteps = translatedSteps.filter(step => step.isMock || document.querySelector(step.element));
+                const translatedSteps = steps.map(step => {
+                    const targetElement = (isMobile && step.mobileElement) ? step.mobileElement : step.element;
+                    return {
+                        element: targetElement,
+                        isMock: step.isMock,
+                        mustClick: step.mustClick,
+                        mustHover: step.mustHover,
+                        dynamic: step.dynamic,
+                        popover: {
+                            title: t(step.titleKey),
+                            description: t(step.descKey),
+                            side: (isMobile && step.mobileSide) ? step.mobileSide : (step.side || 'bottom'),
+                            align: step.align || 'center',
+                            nextRoute: step.nextRoute
+                        }
+                    };
+                });
+                
+                const validSteps = translatedSteps.filter(step => step.isMock || step.dynamic || document.querySelector(step.element));
                 if (validSteps.length > 0) {
                     startTour(tourName, validSteps);
                 }

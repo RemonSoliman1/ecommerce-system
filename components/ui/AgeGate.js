@@ -5,6 +5,7 @@ import styles from './AgeGate.module.css';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { usePWA } from '@/context/PWAContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AgeGate() {
     const [isVisible, setIsVisible] = useState(false);
@@ -14,6 +15,12 @@ export default function AgeGate() {
     const router = useRouter();
     const t = useTranslations('AgeGate');
     const pwa = usePWA();
+    const { user, loading } = useAuth();
+
+
+    useEffect(() => {
+        if (user) setIsVisible(false);
+    }, [user]);
 
     useEffect(() => {
         const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;

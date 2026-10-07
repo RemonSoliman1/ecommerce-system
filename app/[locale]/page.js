@@ -184,10 +184,10 @@ export default function Home() {
   const sponsors = promotions.filter(p => p.metadata?.position === 'sponsored_by');
 
   const defaultMosaics = [
-    { title: 'CHATEAU COLLECTION', img: '/images/mockups/category_boxes_1775244000386.png', link: '/shop?type=cigar' },
-    { title: 'VINTAGE DOMINIC', img: '/images/mockups/category_samplers_1775244026153.png', link: '/shop?type=sampler' },
-    { title: 'PREMIUM', img: '/images/mockups/category_accessories_1775244042649.png', link: '/shop?type=accessory' }
-  ];
+      { title: 'CUBAN COLLECTION', img: '/images/cigars/cohiba-behike.png', link: '/shop?origin=Cuba' },
+      { title: 'VINTAGE SAMPLERS', img: '/images/cigars/habanos-sampler-.jpg', link: '/shop?type=sampler' },
+      { title: 'PREMIUM ACCESSORIES', img: '/images/cigars/elie-bleu-humidor-.jpg', link: '/shop?type=accessory' }
+    ];
 
   const renderMosaic = (promo, defaultData, isWide) => {
       if (promo) {
@@ -223,10 +223,10 @@ export default function Home() {
   } else {
       // Fallback
       const heroBackgrounds = [
-        '/images/mockups/hero_banner_2_1775244061348.png', 
-        '/images/mockups/hero_banner_1_1775243968234.png',
-        '/images/mockups/category_boxes_1775244000386.png'
-      ];
+          '/images/cigars/cohiba-cohiba.jpg', 
+          '/images/cigars/opusx.png',
+          '/images/cigars/davido-winston.png'
+        ];
       slides = arrivals.slice(0, 3).map((product, index) => {
         return {
           id: product.id,
@@ -252,20 +252,22 @@ export default function Home() {
   const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   return (
     <>
+      <h1 className="visually-hidden" style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}>CigarLounge - Premium Cigars & Accessories</h1>
       <TourTrigger 
           tourName="home"
           steps={[
               { element: '.tour-home-hero', titleKey: 'home_hero_title', descKey: 'home_hero_desc', side: 'bottom' },
               { element: '.tour-home-featured', titleKey: 'home_featured_title', descKey: 'home_featured_desc', side: 'top' },
               { element: '.tour-home-brands', titleKey: 'home_brands_title', descKey: 'home_brands_desc', side: 'top' },
+              { element: '.tour-home-beloved', titleKey: 'home_beloved_title', descKey: 'home_beloved_desc', side: 'top' },
+              { element: '.tour-home-offers', titleKey: 'home_offers_title', descKey: 'home_offers_desc', side: 'top' },
               { element: '#tour-search', titleKey: 'home_search_title', descKey: 'home_search_desc', side: 'bottom' },
-              { element: '#tour-shop', titleKey: 'home_shop_hover_title', descKey: 'home_shop_hover_desc', side: 'bottom', mustHover: true },
-              { element: '.desktopShopNav', titleKey: 'home_shop_title', descKey: 'home_shop_desc', side: 'bottom', nextRoute: typeof window !== 'undefined' ? '/' + window.location.pathname.split('/')[1] + '/shop' : '/en/shop', mustClick: true }
-          ]}
-        />
+              { element: '#tour-shop', mobileElement: '#tour-mobile-shop', mobileSide: 'top', titleKey: 'home_shop_title', descKey: 'home_shop_desc', side: 'bottom', nextRoute: typeof window !== 'undefined' ? '/' + window.location.pathname.split('/')[1] + '/shop' : '/en/shop', mustClick: true }
+            ]}
+          />
       <div className={styles.home}>
       {/* Mobile Only Shop Now Button */}
-      <Link href="/shop" className={styles.mobileShopBtn}>
+      <Link id="tour-mobile-shop" href="/shop" className={styles.mobileShopBtn}>
         {t('shop_now') || 'Shop Now'}
       </Link>
 
@@ -276,7 +278,7 @@ export default function Home() {
             <Link href={slide.link} className={styles.slideOverlayLink}>
               <div className={styles.slideOverlay}>
                 {slide.image && <img src={slide.image} alt={slide.title} className={styles.slideHeroImage} />}
-                <h1 className={styles.slideTitle}>{slide.title}</h1>
+                <h2 className={styles.slideTitle}>{slide.title}</h2>
                 <p className={styles.slideSubtitle}>{slide.sub}</p>
                 {slide.btnText && <div className="btn" style={{marginTop: '1rem', background: 'rgba(255,255,255,0.1)', border: '1px solid var(--color-accent)', color: '#fff'}}>{slide.btnText}</div>}
               </div>
@@ -323,9 +325,12 @@ export default function Home() {
             </section>
         </Link>
       ) : (
-        <section className={styles.promoBanner}>
-          <h2 dangerouslySetInnerHTML={{ __html: t.raw('first_order_promo') }} />
-          <div className={styles.promoSub} dangerouslySetInnerHTML={{ __html: t.raw('code_firstpuff', { className: styles.promoCode }) }} />
+        <section className={styles.promoBanner} style={{ backgroundImage: "url('/images/cigars/padron-padron-1.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '200px' }}>
+          <div className={styles.promoOverlay} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1 }}></div>
+          <div style={{ position: 'relative', zIndex: 2 }}>
+          <h2 dangerouslySetInnerHTML={{ __html: t.raw('first_order_promo') }} style={{ color: '#fff' }} />
+            <div className={styles.promoSub} dangerouslySetInnerHTML={{ __html: t.raw('code_firstpuff', { className: styles.promoCode }) }} style={{ color: '#fff', fontWeight: 'bold' }} />
+          </div>
         </section>
       )}
 
@@ -342,8 +347,8 @@ export default function Home() {
       <div className={styles.mainSections}>
         
         {/* 4. Our Beloved Products */}
-        <div className={styles.sectionContainer}>
-          <div className={styles.sectionSmallTitle}>{t('try_now')}</div>
+        <div className={`${styles.sectionContainer} tour-home-beloved`}>
+            <div className={styles.sectionSmallTitle}>{t('try_now')}</div>
           <h2 className={styles.sectionTitle}>{t('beloved_products')}</h2>
           <div className={styles.belovedGrid}>
             {topDeals.map(p => <ProductSimpleCard key={p.id} product={p} activePromos={activePromos} />)}
@@ -352,7 +357,7 @@ export default function Home() {
 
         {/* 4.5. Special Offers (Discounted/Promos) */}
         {specialOffers.length > 0 && (
-          <div className={styles.sectionContainer}>
+          <div className={`${styles.sectionContainer} tour-home-offers`}>
             <div className={styles.sectionSmallTitle}>{(t('special_offers') && !t('special_offers').includes('special_offers')) ? t('special_offers') : 'Don\'t Miss Out'}</div>
             <h2 className={styles.sectionTitle}>{(t('promotions') && !t('promotions').includes('promotions')) ? t('promotions') : 'Discounted & Promoted'}</h2>
             <div className={styles.arrivalsGrid}>
@@ -369,7 +374,7 @@ export default function Home() {
             <p>{t('who_we_are_text')}</p>
             <Link href="/about" className="btn" style={{background: '#111', color: '#fff', borderRadius: '2px'}}>{t('discover_more_btn')}</Link>
           </div>
-          <div className={styles.whoWeAreImage} style={{ backgroundImage: "url('/images/mockups/who_we_are_1775243983842.png')" }}></div>
+          <div className={styles.whoWeAreImage} style={{ backgroundImage: "url('/images/cigars/arturo-fuente-fuente-o.jpg')" }}></div>
         </section>
 
         {/* 6. New Arrivals */}

@@ -2,10 +2,15 @@ const fs = require('fs');
 let file = 'components/tour/TourTrigger.js';
 let content = fs.readFileSync(file, 'utf8');
 
-const oldLogic = "            const translatedSteps = steps.map(step => ({\n                element: step.element,\n                popover: {\n                    title: t(step.titleKey),\n                    description: t(step.descKey),\n                    side: step.side || 'bottom',\n                    align: step.align || 'center'\n                }\n            }));";
+content = content.replace(
+    /mustClick: step.mustClick,/,
+    `mustClick: step.mustClick,\n                    dynamic: step.dynamic,`
+);
 
-const newLogic = "            const translatedSteps = steps.filter(step => document.querySelector(step.element)).map(step => ({\n                element: step.element,\n                popover: {\n                    title: t(step.titleKey),\n                    description: t(step.descKey),\n                    side: step.side || 'bottom',\n                    align: step.align || 'center'\n                }\n            }));\n            \n            if (translatedSteps.length === 0) return;";
+content = content.replace(
+    /const validSteps = translatedSteps.filter\(step => step.isMock \|\| document.querySelector\(step.element\)\);/,
+    `const validSteps = translatedSteps.filter(step => step.isMock || step.dynamic || document.querySelector(step.element));`
+);
 
-content = content.replace(oldLogic, newLogic);
 fs.writeFileSync(file, content);
-console.log('Fixed TourTrigger missing elements');
+console.log('Fixed TourTrigger to allow dynamic elements');

@@ -1,11 +1,15 @@
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export async function POST(request) {
     try {
         const { email, favorite_profiles, favorite_brands, most_smoked_cigar, weekend_start_day, preferred_engagement_time } = await request.json();
 
-        if (!email) {
-            return Response.json({ success: false, error: 'Missing email' }, { status: 400 });
+        if (!email || !isValidEmail(email)) {
+            return Response.json({ success: false, error: 'Valid email is required' }, { status: 400 });
         }
 
         const { data: user, error: userError } = await supabaseAdmin

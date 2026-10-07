@@ -1,7 +1,7 @@
-
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/adminAuth';
 import { sendPushNotification } from '@/lib/push';
 import { broadcastTelegramMessage, broadcastTelegramMediaGroup } from '@/lib/telegram';
 
@@ -92,11 +92,10 @@ export async function POST(request) {
         }
 
         // 1. Authorization Check
-        if (body.admin_secret !== 'admin@129') {
-            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-        }
+        const auth = await requireAdmin(request);
+        if (auth.error) return auth.error;
 
-        // Remove secret from payload
+        // Remove secret from payload if it was accidentally included
         delete body.admin_secret;
 
         // 2. Use Admin Client to Insert (Bypasses RLS)
@@ -305,9 +304,8 @@ export async function DELETE(request) {
         const id = searchParams.get('id');
         const adminSecret = searchParams.get('admin_secret');
 
-        if (adminSecret !== 'admin@129') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const auth = await requireAdmin(request);
+        if (auth.error) return auth.error;
 
         if (!id) {
             return NextResponse.json({ error: 'Product ID required' }, { status: 400 });

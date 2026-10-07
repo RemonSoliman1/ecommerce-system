@@ -9,8 +9,13 @@ export default function AdminAttributesTab({
     attributeMetadata, setAttributeMetadata,
     newAttributeForm, setNewAttributeForm,
     autoHideStock, setAutoHideStock,
-    products
+    products, dynamicOptions, allFlavorOptions,
+    setEditingBrand, giftOptionForm, setGiftOptionForm,
+    uploadingGiftImage, handleGiftImageUpload, handleSaveGiftOption,
+    editingGiftId, setEditingGiftId, setEditingGiftOldName,
+    checkoutCustomerSearch, setCheckoutCustomerSearch, adminUsers
 }) {
+    const [uploadingImage, setUploadingImage] = React.useState(false);
     return (
                     <div className={styles.content}>
                         <div style={{ width: '100%', margin: '0 auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>

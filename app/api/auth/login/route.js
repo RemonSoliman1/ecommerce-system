@@ -19,12 +19,32 @@ export async function POST(request) {
         }
         email = email.trim().toLowerCase();
 
-        // 1. Get User — use separate .eq() calls instead of string-interpolated .or()
-        const { data: user, error } = await supabase
+        // 1. Get User — securely use parameterized .eq()
+        let { data: user, error } = await supabase
             .from('users')
             .select('*')
-            .or(`email.eq.${email},name.eq.${email},phone.eq.${email}`)
+            .eq('email', email)
             .maybeSingle();
+
+        if (!user && !error) {
+            const { data: userByName, error: errName } = await supabase
+                .from('users')
+                .select('*')
+                .eq('name', email)
+                .maybeSingle();
+            user = userByName;
+            error = errName;
+        }
+
+        if (!user && !error) {
+            const { data: userByPhone, error: errPhone } = await supabase
+                .from('users')
+                .select('*')
+                .eq('phone', email)
+                .maybeSingle();
+            user = userByPhone;
+            error = errPhone;
+        }
 
         if (error && error.code !== 'PGRST116') {
             console.error('Supabase Login Error:', error);

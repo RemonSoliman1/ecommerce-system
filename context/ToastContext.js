@@ -21,9 +21,7 @@ export function ToastProvider({ children }) {
         <ToastContext.Provider value={{ showToast }}>
             {children}
             <div style={{
-                position: 'fixed',
-                top: '20px',
-                right: '20px',
+                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
                 zIndex: 9999,
                 display: 'flex',
                 flexDirection: 'column',
@@ -47,8 +45,8 @@ export function ToastProvider({ children }) {
                 ))}
                 <style jsx>{`
             @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+                from { transform: scale(0.9); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
             }
           `}</style>
             </div>

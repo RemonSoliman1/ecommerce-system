@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, Link } from '@/lib/navigation';
 import { useTranslations } from 'next-intl';
+import TourTrigger from '@/components/tour/TourTrigger';
 
 export default function RegisterPage() {
     const [name, setName] = useState('');
@@ -81,10 +82,12 @@ export default function RegisterPage() {
     };
 
     return (
+        <>
+            <TourTrigger tourName="register" steps={[{ element: '#tour-register-form', titleKey: 'login_tour_title', descKey: 'login_tour_desc', side: 'top' }]} />
         <div className="container" style={{ maxWidth: '400px', margin: '6rem auto', padding: '2rem', border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)' }}>
             <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>{t('register_title')}</h1>
             {error && <p style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form id="tour-register-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                     type="text"
                     placeholder={t('fullname_placeholder')}
@@ -157,5 +160,6 @@ export default function RegisterPage() {
                 {t('have_account')} <Link href="/login" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('login_btn')}</Link>
             </p>
         </div>
+        </>
     );
 }

@@ -1,18 +1,18 @@
 import { supabase } from '@/lib/supabaseClient';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { verifySession } from '@/lib/session';
 
 export async function GET(request) {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
+    const userId = verifySession(request);
 
-    if (!email) {
+    if (!userId) {
         return Response.json({ user: null });
     }
 
     const { data: user, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email', email)
+        .eq('id', userId)
         .single();
 
     if (error || !user) {

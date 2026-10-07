@@ -65,23 +65,22 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const checkSession = async () => {
-            const storedEmail = localStorage.getItem('cigar_user_email') || sessionStorage.getItem('cigar_user_email');
-            if (storedEmail) {
-                try {
-                    const res = await fetch(`/api/auth/me?email=${encodeURIComponent(storedEmail)}`);
-                    const data = await res.json();
-                    if (data.user) {
-                        setUser(data.user);
-                        // Auto-subscribe to push notifications quietly or ask permission
-                        subscribeToPushNotifications(data.user.id);
-                    } else {
-                        localStorage.removeItem('cigar_user_email');
-                        sessionStorage.removeItem('cigar_user_email');
-        sessionStorage.removeItem('cigar_user_info');
-                    }
-                } catch (e) {
-                    console.error("Session check failed", e);
+            try {
+                const res = await fetch(`/api/auth/me`);
+                const data = await res.json();
+                if (data.user) {
+                    setUser(data.user);
+                    // Keep localStorage in sync so AgeGate knows we are logged in
+                    localStorage.setItem('cigar_user_email', data.user.email);
+                    // Auto-subscribe to push notifications quietly or ask permission
+                    subscribeToPushNotifications(data.user.id);
+                } else {
+                    localStorage.removeItem('cigar_user_email');
+                    sessionStorage.removeItem('cigar_user_email');
+                    sessionStorage.removeItem('cigar_user_info');
                 }
+            } catch (e) {
+                console.error("Session check failed", e);
             }
             setLoading(false);
         };
@@ -164,7 +163,12 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch(e) {
+            console.error('Logout failed', e);
+        }
         setUser(null);
         localStorage.removeItem('cigar_user_email');
         sessionStorage.removeItem('cigar_user_email');

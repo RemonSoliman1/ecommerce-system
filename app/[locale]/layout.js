@@ -38,9 +38,25 @@ const allura = Allura({
 });
 
 export const metadata = {
+  metadataBase: new URL('https://cigar-lounge-one.vercel.app'),
   title: 'CigarLounge - Premium Cigars & Accessories',
   description: 'The finest selection of hand-rolled cigars and luxury accessories.',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'CigarLounge - Premium Cigars & Accessories',
+    description: 'The finest selection of hand-rolled cigars and luxury accessories.',
+    url: '/',
+    siteName: 'CigarLounge',
+    images: [
+      {
+        url: '/images/hero.png',
+        width: 1200,
+        height: 630,
+        alt: 'CigarLounge - Premium Cigars & Accessories',
+      },
+    ],
+    type: 'website',
+  },
   appleWebApp: {
     capable: true,
     title: 'CigarLounge',

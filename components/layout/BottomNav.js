@@ -33,6 +33,7 @@ export default function BottomNav() {
                     <Link 
                         key={item.label} 
                         href={item.href} 
+                        id={"tour-mobile-" + item.label.toLowerCase()}
                         className={`${styles.navItem} ${isActive ? styles.active : ''}`}
                     >
                         <div className={styles.iconWrapper}>

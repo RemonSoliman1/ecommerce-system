@@ -27,8 +27,8 @@ export async function POST(request) {
         if (!isValidEmail(email)) {
             return Response.json({ success: false, error: 'Please enter a valid email address' }, { status: 400 });
         }
-        if (password.length < 8) {
-            return Response.json({ success: false, error: 'Password must be at least 8 characters long' }, { status: 400 });
+        if (password.length < 6) {
+            return Response.json({ success: false, error: 'Password must be at least 6 characters long' }, { status: 400 });
         }
 
         // SEC-1: Hash the password before storing

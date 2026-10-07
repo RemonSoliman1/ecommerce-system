@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase Client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/lib/supabaseClient';
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
@@ -41,18 +36,6 @@ export async function GET(request) {
             total: o.total_amount || o.total_price || 0,
             items: o.order_items || []
         }));
-
-        return NextResponse.json({ orders: formattedOrders });
-
-        // 3. (Optional) Get Order Items if needed, but for list view, 
-        // we might not need full details yet, or we can fetch them here.
-        // For simplicity and performance, let's return the order structure 
-        // that matches what the frontend expects.
-
-        // Transform to match frontend OrderCard expectation if needed
-        // Frontend expects: { id, date, status, total, items: [...] }
-        // We might need to fetch items for each order or just store a summary.
-        // Let's assume for now we just return the orders and refine if items are missing.
 
         return NextResponse.json({ orders: formattedOrders });
     } catch (error) {

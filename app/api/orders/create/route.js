@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { sendTelegramMessage } from '@/lib/telegram';
-import { createClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { sendPushNotification } from '@/lib/push';
+import { supabase } from '@/lib/supabaseClient';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Initialize Supabase Client for API Route
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Simple In-Memory Rate Limiting
 const rateLimitMap = new Map();
@@ -412,18 +407,20 @@ export async function POST(request) {
             // For now, we will send to the admin (remonsabry44) as a notification, 
             // and try to send to customer if possible (or log warning).
 
-            const adminEmail = 'remonsabry44@gmail.com'; // Verified sender/receiver on free tier usually
+            const adminEmailsStr = process.env.ADMIN_NOTIFY_EMAIL || 'admin@cigarlounge.com,remonsabry44@gmail.com';
+            const adminEmailsArr = adminEmailsStr.split(',').map(e => e.trim());
+            const primaryAdminEmail = adminEmailsArr[0]; // Used for Resend TO field (usually the verified one)
 
             // 1. Send Admin Notification
             await resend.emails.send({
                 from: 'Cigar Lounge Orders <onboarding@resend.dev>',
-                to: adminEmail,
+                to: primaryAdminEmail,
                 subject: `New Order Received #${dbOrderId}`,
                 html: `<p>New Order from ${customer.name} (${customer.email})</p>` + emailHtml,
             });
 
             // 2. Try to send to Customer (Might fail on free tier if not verified)
-            if (customer.email !== adminEmail) {
+            if (customer.email !== primaryAdminEmail) {
                 await resend.emails.send({
                     from: 'Cigar Lounge <onboarding@resend.dev>',
                     to: customer.email,
@@ -452,7 +449,7 @@ export async function POST(request) {
                     body: `Order #${dbOrderId} - EGP ${finalTotal.toLocaleString()}`,
                     url: '/admin',
                     targetType: 'specific',
-                    targetEmails: ['admin@cigarlounge.com', 'remonsabry44@gmail.com'] // Adjust to actual admin emails
+                    targetEmails: adminEmailsArr // Uses all admin emails defined in env
                 });
             } catch (pushErr) {
                 console.error("[API] Push Notification Error:", pushErr);

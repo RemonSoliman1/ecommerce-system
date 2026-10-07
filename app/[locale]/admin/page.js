@@ -12,6 +12,9 @@ import AdminPromotions from './AdminPromotions';
 import AdminManualOrder from './AdminManualOrder';
 import AdminMarketing from './AdminMarketing';
 import AdminPromoCodes from './AdminPromoCodes';
+import AdminOrdersTab from './components/AdminOrdersTab';
+import AdminUsersTab from './components/AdminUsersTab';
+import AdminAttributesTab from './components/AdminAttributesTab';
 import { useTranslations } from 'next-intl';
 
 export default function AdminPage() {
@@ -738,29 +741,60 @@ const handleSaveGiftOption = async () => {
 
         try {
             for (const file of files) {
-                // Validations
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`Skipped ${file.name}: File size must be less than 5MB`);
+                const isVideo = file.type.startsWith('video/');
+
+                if (!isVideo && file.size > 5 * 1024 * 1024) {
+                    alert(`Skipped ${file.name}: Image size must be less than 5MB`);
                     continue;
                 }
-                if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
-                    alert(`Skipped ${file.name}: Only JPG, PNG, WEBP, GIF allowed`);
+                
+                if (isVideo && file.size > 100 * 1024 * 1024) {
+                    alert(`Skipped ${file.name}: Video size must be less than 100MB`);
                     continue;
                 }
 
-                const formData = new FormData();
-                formData.append('file', file);
+                if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'].includes(file.type)) {
+                    alert(`Skipped ${file.name}: Unsupported format`);
+                    continue;
+                }
 
-                const res = await fetch('/api/admin/upload-image', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    uploadedUrls.push(data.url);
+                if (isVideo) {
+                    const res = await fetch('/api/admin/upload-url', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fileName: file.name, fileType: file.type })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        const uploadRes = await fetch(data.signedUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': file.type },
+                            body: file
+                        });
+                        if (uploadRes.ok) {
+                            uploadedUrls.push(data.publicUrl);
+                        } else {
+                            alert(`Failed to upload video ${file.name} to storage bucket.`);
+                        }
+                    } else {
+                        alert(`Failed to get signed URL for ${file.name}: ` + (data.error || 'Unknown error'));
+                    }
                 } else {
-                    alert(`Failed to upload ${file.name}: ` + (data.error || 'Unknown error'));
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const res = await fetch('/api/admin/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        uploadedUrls.push(data.url);
+                    } else {
+                        alert(`Failed to upload ${file.name}: ` + (data.error || 'Unknown error'));
+                    }
                 }
             }
 
@@ -873,8 +907,7 @@ const handleSaveGiftOption = async () => {
                 ...formData,
                 id: targetId,
                 price: formData.models[0]?.price || 0,
-                rating: formData.rating === '' ? null : formData.rating,
-                admin_secret: 'admin@129'
+                rating: formData.rating === '' ? null : formData.rating
             };
 
             console.log('Submitting Payload:', payload);
@@ -1111,7 +1144,7 @@ const handleSaveGiftOption = async () => {
             const res = await fetch('/api/admin/broadcast-collection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ admin_secret: 'admin@129' })
+                body: JSON.stringify({ })
             });
             const data = await res.json();
             
@@ -1351,10 +1384,10 @@ const handleSaveGiftOption = async () => {
                             {/* Upload & Add URL Buttons */}
                             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                                 <div className={styles.fileUploadWrapper}>
-                                    <span className={styles.fileUploadLabel}>[ 📁 UPLOAD IMAGES ]</span>
+                                    <span className={styles.fileUploadLabel}>[ 📁 UPLOAD MEDIA ]</span>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,video/mp4,video/webm,video/quicktime"
                                         multiple
                                         onChange={handleImageUpload}
                                         className={styles.hiddenFileInput}
@@ -1371,7 +1404,11 @@ const handleSaveGiftOption = async () => {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
                                 {(formData.images || []).map((img, idx) => (
                                     <div key={idx} draggable onDragStart={() => handleImageDragStart(idx)} onDragOver={handleImageDragOver} onDrop={() => handleImageDrop(idx)} style={{ position: 'relative', border: formData.image === img ? '2px solid var(--color-accent)' : '1px solid #333', borderRadius: '4px', overflow: 'hidden', aspectRatio: '1/1', background: '#000', cursor: 'grab' }}>
-                                        <img src={img} alt={`Img ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }} onClick={() => setPreviewImage(img)} />
+                                        {img.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+                                            <video src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} onClick={() => setPreviewImage(img)} />
+                                        ) : (
+                                            <img src={img} alt={`Img ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }} onClick={() => setPreviewImage(img)} />
+                                        )}
                                         
                                         {/* Delete Badge */}
                                         <button
@@ -1429,7 +1466,11 @@ const handleSaveGiftOption = async () => {
                         {previewImage && (
                             <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setPreviewImage(null)}>
                                 <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
-                                    <img src={previewImage} style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
+                                    {previewImage.match(/\.(mp4|webm|mov)(\?.*)?$/i) ? (
+                                        <video src={previewImage} controls autoPlay style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
+                                    ) : (
+                                        <img src={previewImage} style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }} />
+                                    )}
                                     <button
                                         onClick={() => setPreviewImage(null)}
                                         style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -1979,7 +2020,7 @@ const handleSaveGiftOption = async () => {
                                                             fetch('/api/products/visibility', {
                                                                 method: 'PUT',
                                                                 headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible, admin_secret: 'admin@129' })
+                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible })
                                                             }).then(async res => {
                                                                 if (!res.ok) {
                                                                     const data = await res.json();
@@ -2037,7 +2078,7 @@ const handleSaveGiftOption = async () => {
                                                         onClick={async () => {
                                                             if (!confirm('Are you sure you want to delete this product?')) return;
                                                             try {
-                                                                const res = await fetch(`/api/products?id=${p.id}&admin_secret=admin@129`, { method: 'DELETE' });
+                                                                const res = await fetch(`/api/products?id=${p.id}`, { method: 'DELETE' });
                                                                 const data = await res.json(); // Get error message if any
                                                                 if (res.ok) {
                                                                     await refreshProducts();
@@ -2075,942 +2116,50 @@ const handleSaveGiftOption = async () => {
             )
             }
 
-            {
-                activeTab === 'orders' && (() => {
-                    const filteredAdminOrders = adminOrders.filter(o => {
-                        const searchLower = orderSearch.toLowerCase();
-                        const matchesSearch = !orderSearch ||
-                            String(o.id).toLowerCase().includes(searchLower) ||
-                            (o.userEmail || '').toLowerCase().includes(searchLower) ||
-                            (o.address || '').toLowerCase().includes(searchLower) ||
-                            (o.items || []).some(i => (i.name || '').toLowerCase().includes(searchLower) || (i.size || '').toLowerCase().includes(searchLower));
+            {activeTab === 'orders' && (
+                <AdminOrdersTab
+                    adminOrders={adminOrders} setAdminOrders={setAdminOrders}
+                    orderSearch={orderSearch} setOrderSearch={setOrderSearch}
+                    orderStatusFilter={orderStatusFilter} setOrderStatusFilter={setOrderStatusFilter}
+                    orderDateFilter={orderDateFilter} setOrderDateFilter={setOrderDateFilter}
+                    expandedOrderId={expandedOrderId} setExpandedOrderId={setExpandedOrderId}
+                    handleConfirmOrder={handleConfirmOrder} handleCancelOrder={handleCancelOrder}
+                    confirmingOrder={confirmingOrder}
+                    user={user}
+                />
+            )}
 
-                        const matchesStatus = orderStatusFilter === 'All' || o.status === orderStatusFilter;
+            {activeTab === 'attributes' && (
+                <AdminAttributesTab
+                    persistentAttributes={persistentAttributes} setPersistentAttributes={setPersistentAttributes}
+                    hiddenAttributes={hiddenAttributes} setHiddenAttributes={setHiddenAttributes}
+                    attributeMetadata={attributeMetadata} setAttributeMetadata={setAttributeMetadata}
+                    newAttributeForm={newAttributeForm} setNewAttributeForm={setNewAttributeForm}
+                    autoHideStock={globalAutoHide} setAutoHideStock={() => {}}
+                    products={products}
+                    dynamicOptions={dynamicOptions}
+                    allFlavorOptions={allFlavorOptions}
+                    setEditingBrand={setEditingBrand}
+                    giftOptionForm={giftOptionForm}
+                    setGiftOptionForm={setGiftOptionForm}
+                    uploadingGiftImage={uploadingGiftImage}
+                    handleGiftImageUpload={handleGiftImageUpload}
+                    handleSaveGiftOption={handleSaveGiftOption}
+                    editingGiftId={editingGiftId}
+                    setEditingGiftId={setEditingGiftId}
+                    setEditingGiftOldName={setEditingGiftOldName}
+                    checkoutCustomerSearch={checkoutCustomerSearch}
+                    setCheckoutCustomerSearch={setCheckoutCustomerSearch}
+                    adminUsers={adminUsers}
+                />
+            )}
 
-                        const matchesDate = !orderDateFilter || new Date(o.date).toLocaleDateString('en-CA') === orderDateFilter; // matches YYYY-MM-DD
-
-                        return matchesSearch && matchesStatus && matchesDate;
-                    });
-
-                    return (
-                        <div className={styles.content}>
-                            <div style={{ width: '100%', margin: '0 auto', overflowX: 'auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                                <h2>Manual POS / Telegram Orders</h2>
-                                <AdminManualOrder onOrderCreated={(newOrder) => {
-                                    setAdminOrders([newOrder, ...adminOrders]);
-                                    alert('Manual Order created successfully!');
-                                }} />
-                                
-                                <hr style={{ margin: '3rem 0', borderColor: '#333' }} />
-
-                                <h2>Platform Orders ({filteredAdminOrders.length})</h2>
-
-                                {/* Filters UI */}
-                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                                    <input
-                                        type="text"
-                                        placeholder="Search by ID, Customer, Address, or Item..."
-                                        value={orderSearch}
-                                        onChange={(e) => setOrderSearch(e.target.value)}
-                                        className={styles.input}
-                                        style={{ padding: '0.5rem', minWidth: '250px', flex: 1 }}
-                                    />
-                                    <select
-                                        value={orderStatusFilter}
-                                        onChange={(e) => setOrderStatusFilter(e.target.value)}
-                                        className={styles.select}
-                                        style={{ padding: '0.5rem', width: '150px' }}
-                                    >
-                                        <option value="All">All Statuses</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Confirmed">Confirmed</option>
-                                    </select>
-                                    <input
-                                        type="date"
-                                        value={orderDateFilter}
-                                        onChange={(e) => setOrderDateFilter(e.target.value)}
-                                        className={styles.input}
-                                        style={{ padding: '0.5rem', width: '150px' }}
-                                    />
-                                    <button
-                                        onClick={() => { setOrderSearch(''); setOrderStatusFilter('All'); setOrderDateFilter(''); }}
-                                        style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #555', color: '#ccc', borderRadius: '4px', cursor: 'pointer' }}
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-
-                                {filteredAdminOrders.length === 0 ? (
-                                    <p>No orders match the selected filters.</p>
-                                ) : (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', marginTop: '1rem', background: '#121110' }}>
-                                        <thead>
-                                            <tr style={{ background: '#121110', color: 'var(--color-accent)' }}>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Order ID</th>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Date</th>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Customer</th>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Status</th>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Total (EGP)</th>
-                                                <th style={{ padding: '10px', borderBottom: '1px solid #444' }}>Items</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredAdminOrders.map(order => (
-                                                <React.Fragment key={order.id}>
-                                                    <tr
-                                                        style={{ borderBottom: '1px solid #333', cursor: 'pointer', transition: 'background 0.2s' }}
-                                                        onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                                                        onMouseOver={(e) => e.currentTarget.style.background = '#2a2a2a'}
-                                                        onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                                                    >
-                                                        <td style={{ padding: '10px' }}>#{order.id}</td>
-                                                        <td style={{ padding: '10px', color: '#bbb' }}>
-                                                            <div>{new Date(order.date).toLocaleDateString()}</div>
-                                                            {order.updated_at && order.updated_at !== order.date && (
-                                                                <div style={{ fontSize: '0.8rem', marginTop: '4px' }}><span style={{color: '#888'}}>Upd:</span> {new Date(order.updated_at).toLocaleDateString()}</div>
-                                                            )}
-                                                        </td>
-                                                        <td style={{ padding: '10px' }}>{order.userEmail}</td>
-                                                        <td style={{ padding: '10px' }}>
-                                                            <span style={{
-                                                                background: order.status.toLowerCase() === 'pending' ? 'rgba(212, 175, 55, 0.2)' : (order.status.toLowerCase() === 'cancelled' ? 'rgba(255, 0, 0, 0.1)' : 'rgba(76, 175, 80, 0.2)'),
-                                                                color: order.status.toLowerCase() === 'pending' ? '#d4af37' : (order.status.toLowerCase() === 'cancelled' ? '#ff4d4d' : '#4CAF50'),
-                                                                fontWeight: order.status === 'Pending' ? 'normal' : 'bold',
-                                                                padding: '2px 8px',
-                                                                borderRadius: '4px',
-                                                                fontSize: '0.8rem',
-                                                                textTransform: 'capitalize'
-                                                            }}>
-                                                                {order.status}
-                                                            </span>
-                                                        </td>
-                                                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{Number(order.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                                        <td style={{ padding: '10px', fontSize: '0.85rem', color: '#ccc' }}>
-                                                            {order.items.map((i, idx) => (
-                                                                <div key={idx}>
-                                                                    - {i.quantity}x {i.name} {i.size && <span style={{ color: '#888', fontStyle: 'italic' }}>({i.size})</span>}
-                                                                    {i.giftOption && <span style={{ color: '#d4af37', display: 'block', paddingLeft: '10px' }}>&nbsp;└ 🎁 {i.giftOption.name}</span>}
-                                                                </div>
-                                                            ))}
-                                                        </td>
-                                                    </tr>
-                                                    {expandedOrderId === order.id && (
-                                                        <tr style={{ background: '#111' }}>
-                                                            <td colSpan="6" style={{ padding: '20px', borderBottom: '1px solid #333' }}>
-                                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-                                                                    <div>
-                                                                        <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Payment & Shipping</h4>
-                                                                        <div style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Payment Details:</strong>
-                                                                            {order.paymentMethod ? (
-                                                                                <div style={{ marginTop: '5px', paddingLeft: '10px', borderLeft: '2px solid #444' }}>
-                                                                                    {order.paymentMethod.split(' | ').map((part, i) => {
-                                                                                        if (part.startsWith('IMG:')) return <div key={i}><a href={part.replace('IMG:', '')} target="_blank" rel="noreferrer" style={{ color: '#c6a87c', textDecoration: 'underline' }}>View Receipt Image ↗</a></div>;
-                                                                                        if (part.startsWith('REF:')) return <div key={i}><strong>Ref:</strong> {part.replace('REF:', '')}</div>;
-                                                                                        if (part.startsWith('TG:')) return <div key={i} style={{ color: '#888', fontSize: '0.85rem' }}><strong>Telegram User ID:</strong> {part.replace('TG:', '')}</div>;
-                                                                                        return <div key={i} style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>{part}</div>;
-                                                                                    })}
-                                                                                </div>
-                                                                            ) : <span style={{ marginLeft: '5px' }}>N/A</span>}
-                                                                        </div>
-                                                                        <p style={{ margin: '15px 0 5px 0' }}><strong style={{ color: '#888' }}>Address:</strong> {order.address || 'N/A'}</p>
-                                                                    </div>
-                                                                    <div>
-                                                                        <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Customer Details</h4>
-                                                                        <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>ID:</strong> {order.userId || 'N/A'}</p>
-                                                                        <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Email:</strong> {order.userEmail}</p>
-
-                                                                        <h4 style={{ color: 'var(--color-accent)', margin: '20px 0 10px 0' }}>Audit Trail</h4>
-                                                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', fontSize: '0.9rem', color: '#ccc' }}>
-                                                                            <li style={{ marginBottom: '5px' }}>
-                                                                                <strong style={{ color: '#888' }}>Placed:</strong> {new Date(order.date).toLocaleString()} by <span style={{color: '#fff'}}>Customer</span>
-                                                                            </li>
-                                                                            
-                                                                            {order.confirmed_at && (
-                                                                                <li style={{ marginBottom: '5px', color: '#4CAF50' }}>
-                                                                                    <strong style={{ color: '#888' }}>Confirmed:</strong> {new Date(order.confirmed_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
-                                                                                </li>
-                                                                            )}
-                                                                            {order.status.toLowerCase() === 'confirmed' && !order.confirmed_at && (
-                                                                                <li style={{ marginBottom: '5px', color: '#4CAF50' }}>
-                                                                                    <strong style={{ color: '#888' }}>Confirmed:</strong> <span>(Legacy record - timestamp missing)</span> by <span style={{color: '#fff'}}>Admin</span>
-                                                                                </li>
-                                                                            )}
-
-                                                                            {order.cancelled_at && (
-                                                                                <li style={{ marginBottom: '5px', color: '#ff4d4d' }}>
-                                                                                    <strong style={{ color: '#888' }}>Cancelled:</strong> {new Date(order.cancelled_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
-                                                                                </li>
-                                                                            )}
-                                                                            {order.status.toLowerCase() === 'cancelled' && !order.cancelled_at && (
-                                                                                <li style={{ marginBottom: '5px', color: '#ff4d4d' }}>
-                                                                                    <strong style={{ color: '#888' }}>Cancelled:</strong> <span>(Legacy record - timestamp missing)</span> by <span style={{color: '#fff'}}>Admin</span>
-                                                                                </li>
-                                                                            )}
-
-                                                                            {order.updated_at && !order.confirmed_at && !order.cancelled_at && (
-                                                                                <li style={{ marginBottom: '5px' }}>
-                                                                                    <strong style={{ color: '#888' }}>Last Edited:</strong> {new Date(order.updated_at).toLocaleString()} by <span style={{textTransform:'capitalize', color: '#fff'}}>{order.processed_by || 'Admin'}</span>
-                                                                                </li>
-                                                                            )}
-                                                                        </ul>
-                                                                    </div>
-                                                                    {(() => {
-                                                                        const sub = order.items.reduce((acc, curr) => acc + (Number(curr.price || 0) * curr.quantity), 0);
-                                                                        const ship = Number(order.total) - sub;
-                                                                        return (
-                                                                            <div>
-                                                                                <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Price Breakdown</h4>
-                                                                                <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #333' }}>
-                                                                                    {order.items.map((i, idx) => (
-                                                                                        <div key={`breakdown-${idx}`} style={{ margin: '5px 0', fontSize: '0.85rem' }}>
-                                                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                                                <span style={{ color: '#ccc' }}>{i.quantity}x {i.name} {i.size ? `(${i.size})` : ''}</span>
-                                                                                                <span style={{ color: '#999' }}>EGP {(Number(i.price || 0) * i.quantity).toLocaleString()}</span>
-                                                                                            </div>
-                                                                                            {i.giftOption && (
-                                                                                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '15px', color: '#d4af37' }}>
-                                                                                                    <span>└ 🎁 {i.giftOption.name}</span>
-                                                                                                    <span>EGP {(Number(i.giftOption.price || 0) * i.quantity).toLocaleString()}</span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                                <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}><strong style={{ color: '#888' }}>Items Subtotal:</strong> <span>EGP {sub.toLocaleString()}</span></p>
-                                                                                
-                                                                                {order.promoCode && (
-                                                                                    <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}>
-                                                                                        <strong style={{ color: '#888' }}>Promo Used ({order.promoCode}):</strong> 
-                                                                                        <span style={{ color: '#4CAF50' }}>- EGP {Number(order.discount || 0).toLocaleString()}</span>
-                                                                                    </p>
-                                                                                )}
-
-                                                                                {ship > 0 && <p style={{ margin: '5px 0', display: 'flex', justifyContent: 'space-between' }}><strong style={{ color: '#888' }}>Shipping/Fees:</strong> <span>EGP {ship.toLocaleString()}</span></p>}
-                                                                                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #444', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                                                                                    <span style={{ color: 'var(--color-accent)' }}>Total Paid:</span>
-                                                                                    <span>EGP {Number(order.total).toLocaleString()}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    })()}
-                                                                </div>
-                                                                <div style={{ marginTop: '20px', borderTop: '1px solid #333', paddingTop: '15px' }}>
-                                                                <div style={{ display: 'flex', gap: '10px' }}>
-                                                                    {order.status === 'Pending' && (
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); handleConfirmOrder(order.id); }}
-                                                                            disabled={confirmingOrder === order.id}
-                                                                            style={{ background: 'var(--color-accent)', color: '#000', padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                                                                        >
-                                                                            {confirmingOrder === order.id ? 'Loading...' : 'Confirm Order'}
-                                                                        </button>
-                                                                    )}
-                                                                    {order.status !== 'cancelled' && (
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); handleCancelOrder(order.id); }}
-                                                                            disabled={confirmingOrder === order.id}
-                                                                            style={{ background: '#333', color: '#ff4d4d', padding: '8px 16px', border: '1px solid #ff4d4d', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                                                                        >
-                                                                            {confirmingOrder === order.id ? 'Loading...' : 'Cancel & Revert Stock'}
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    )}
-                                                </React.Fragment>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })()
-            }
-            {
-                activeTab === 'attributes' && (
-                    <div className={styles.content}>
-                        <div style={{ width: '100%', margin: '0 auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                            <h2>Manage Persistent Attributes</h2>
-
-                            {/* Brand Addition Form (Phase 5 SVG Support) */}
-                            <div style={{ background: '#222', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', marginTop: '1rem' }}>
-                                <h3 style={{ marginBottom: '1rem', color: 'var(--color-accent)' }}>Add New Brand (SVG Logo)</h3>
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'end', flexWrap: 'wrap' }}>
-                                    <div style={{ flex: 1, minWidth: '200px' }}>
-                                        <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '0.3rem' }}>Brand Name</label>
-                                        <input
-                                            type="text"
-                                            className={styles.input}
-                                            value={newAttributeForm.value}
-                                            onChange={(e) => setNewAttributeForm({ ...newAttributeForm, value: e.target.value })}
-                                            placeholder="e.g. Montecristo"
-                                        />
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                        <div className={styles.fileUploadWrapper}>
-                                            <span className={styles.fileUploadLabel}>[ 🖼️ UPLOAD SVG ]</span>
-                                            <input
-                                                type="file"
-                                                accept=".svg, image/svg+xml"
-                                                onChange={async (e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (!file) return;
-                                                    if (!file.name.toLowerCase().endsWith('.svg') && !file.type.includes('svg')) {
-                                                        alert('Please upload an SVG file for crisp brand rendering.');
-                                                        return;
-                                                    }
-                                                    setUploadingImage(true);
-                                                    const fb = new FormData();
-                                                    fb.append('file', file);
-                                                    try {
-                                                        const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fb });
-                                                        const data = await res.json();
-                                                        if (data.url) {
-                                                            setNewAttributeForm(prev => ({ ...prev, image: data.url }));
-                                                        }
-                                                    } catch (err) {
-                                                        alert('Upload failed: ' + err.message);
-                                                    }
-                                                    setUploadingImage(false);
-                                                }}
-                                                className={styles.hiddenFileInput}
-                                                disabled={uploadingImage}
-                                                title="Upload SVG Logo"
-                                            />
-                                        </div>
-                                        {newAttributeForm.image && (
-                                            <div style={{ width: '40px', height: '40px', background: '#000', borderRadius: '4px', padding: '4px' }}>
-                                                <img src={newAttributeForm.image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <button
-                                            onClick={async () => {
-                                                if (!newAttributeForm.value || newAttributeForm.value.trim() === '') {
-                                                    alert('Brand name is required.');
-                                                    return;
-                                                }
-                                                const cleanedVal = newAttributeForm.value.trim();
-                                                try {
-                                                    const metadata = newAttributeForm.image ? { image: newAttributeForm.image } : {};
-                                                    const res = await fetch('/api/admin/attributes', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ category: 'brand', value: cleanedVal, metadata })
-                                                    });
-                                                    if (res.ok) {
-                                                        const data = await res.json();
-                                                        setPersistentAttributes(prev => ({
-                                                            ...prev,
-                                                            brand: [...(prev.brand || []), cleanedVal].sort()
-                                                        }));
-                                                        if (metadata.image) {
-                                                            setAttributeMetadata(prev => ({
-                                                                ...prev,
-                                                                [cleanedVal]: { ...(prev[cleanedVal] || {}), image: metadata.image, id: data.data?.id }
-                                                            }));
-                                                        }
-                                                        setNewAttributeForm({ category: 'brand', value: '', image: '' });
-                                                    } else {
-                                                        const errData = await res.json();
-                                                        alert('Failed to add brand: ' + (errData.error || 'Unknown Error'));
-                                                    }
-                                                } catch (e) {
-                                                    alert('Error adding brand: ' + e.message);
-                                                }
-                                            }}
-                                            style={{ background: 'var(--color-accent)', color: '#000', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                                        >
-                                            Save Brand
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginTop: '1rem' }}>
-                                {Object.keys(persistentAttributes).length === 0 ? (
-                                    <p style={{ color: '#888' }}>No persistent attributes found.</p>
-                                ) : null}
-                                {(() => {
-                                    const combinedAttributesList = {
-                                        brand: Array.from(new Set([...BRANDS.map(b => b.id), ...(persistentAttributes.brand || []), ...products.map(p => p.brandId || p.brand_id).filter(Boolean)])).filter(v => !hiddenAttributes.brand?.includes(v)).sort(),
-                                        origin: dynamicOptions.allOrigins?.filter(v => !hiddenAttributes.origin?.includes(v)),
-                                        size: dynamicOptions.allSizes?.filter(v => !hiddenAttributes.size?.includes(v)),
-                                        variant: dynamicOptions.allVariants?.filter(v => !hiddenAttributes.variant?.includes(v)),
-                                        dimension: dynamicOptions.allDimensions?.filter(v => !hiddenAttributes.dimension?.includes(v)),
-                                        category: Array.from(new Set(['cigar', 'cigarillo', 'accessory', 'sampler', 'bundle', ...(persistentAttributes.category || []), ...products.map(p => p.category).filter(Boolean)])).filter(v => !hiddenAttributes.category?.includes(v)).sort(),
-                                        flavor: allFlavorOptions?.filter(v => !hiddenAttributes.flavor?.includes(v)),
-                                        gift_option: persistentAttributes.gift_option || [],
-                                        series: dynamicOptions.allSeries?.filter(v => !hiddenAttributes.series?.includes(v))
-                                    };
-
-                                    return Object.entries(combinedAttributesList).map(([category, values]) => (
-                                        <div key={category} style={{ background: '#121110', padding: '1rem', borderRadius: '8px', border: '1px solid #333' }}>
-                                            <h3 style={{ textTransform: 'capitalize', color: 'var(--color-accent)', marginBottom: '1rem' }}>{category}</h3>
-                                            {(!values || values.length === 0) ? (
-                                                <p style={{ color: '#888', fontSize: '0.9rem' }}>No {category}s found.</p>
-                                            ) : (
-                                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '0.5rem', maxHeight: '250px', overflowY: 'auto', alignContent: 'flex-start' }}>
-                                                    {values.map(val => {
-                                                        const isPersistent = persistentAttributes[category]?.includes(val);
-                                                        return (
-                                                            <li key={val} style={{ background: isPersistent ? '#333' : '#444', padding: '0.3rem 0.8rem', borderRadius: '20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                                {val}
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        if (category === 'brand') {
-                                                                            setEditingBrand({
-                                                                                category, 
-                                                                                oldVal: val, 
-                                                                                value: val, 
-                                                                                image: attributeMetadata[val]?.image || '',
-                                                                                isPersistent: isPersistent, 
-                                                                                id: attributeMetadata[val]?.id
-                                                                            });
-                                                                            return;
-                                                                        }
-                                                                        const newVal = prompt(`Edit ${category} "${val}":`, val);
-                                                                        if (!newVal || newVal.trim() === '' || newVal === val) return;
-                                                                        const cleanedVal = newVal.trim();
-                                                                        try {
-                                                                            const attrMeta = attributeMetadata[val];
-                                                                            if (attrMeta && attrMeta.id) {
-                                                                                // Persistent attribute with known ID -> PUT
-                                                                                const res = await fetch('/api/admin/attributes', {
-                                                                                    method: 'PUT',
-                                                                                    headers: { 'Content-Type': 'application/json' },
-                                                                                    body: JSON.stringify({ id: attrMeta.id, category, value: cleanedVal, metadata: attrMeta })
-                                                                                });
-                                                                                if (!res.ok) {
-                                                                                    const err = await res.json();
-                                                                                    throw new Error(err.error || 'Failed to update');
-                                                                                }
-                                                                                // Update state
-                                                                                setPersistentAttributes(prev => ({
-                                                                                    ...prev,
-                                                                                    [category]: prev[category].map(v => v === val ? cleanedVal : v)
-                                                                                }));
-                                                                                setAttributeMetadata(prev => {
-                                                                                    const next = { ...prev };
-                                                                                    next[cleanedVal] = { ...next[val], id: attrMeta.id };
-                                                                                    delete next[val];
-                                                                                    return next;
-                                                                                });
-                                                                            } else {
-                                                                                // Dynamic attribute -> Create Custom & Hide Old
-                                                                                const resAdd = await fetch('/api/admin/attributes', {
-                                                                                    method: 'POST',
-                                                                                    headers: { 'Content-Type': 'application/json' },
-                                                                                    body: JSON.stringify({ category, value: cleanedVal, metadata: {} })
-                                                                                });
-                                                                                if (!resAdd.ok) throw new Error('Failed to create new attribute.');
-
-                                                                                const resHide = await fetch('/api/admin/attributes', {
-                                                                                    method: 'POST',
-                                                                                    headers: { 'Content-Type': 'application/json' },
-                                                                                    body: JSON.stringify({ category, value: val, metadata: { hidden: true } })
-                                                                                });
-                                                                                if (!resHide.ok) throw new Error('Failed to hide old attribute.');
-
-                                                                                setPersistentAttributes(prev => ({
-                                                                                    ...prev,
-                                                                                    [category]: [...(prev[category] || []), cleanedVal]
-                                                                                }));
-                                                                                setHiddenAttributes(prev => ({
-                                                                                    ...prev,
-                                                                                    [category]: [...(prev[category] || []), val]
-                                                                                }));
-                                                                            }
-                                                                        } catch (e) {
-                                                                            alert('Error editing attribute: ' + e.message);
-                                                                        }
-                                                                    }}
-                                                                    style={{ background: 'none', border: 'none', color: '#ffb347', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem', display: 'flex', alignItems: 'center', marginLeft: 'auto' }}
-                                                                    title="Edit"
-                                                                >
-                                                                    ✎
-                                                                </button>
-                                                                {true && (
-                                                                    <button
-                                                                        onClick={async () => {
-                                                                            if (!confirm(`Delete ${category} "${val}"?`)) return;
-                                                                            try {
-                                                                                if (isPersistent) {
-                                                                                    const res = await fetch(`/api/admin/attributes?category=${category}&value=${encodeURIComponent(val)}`, { method: 'DELETE' });
-                                                                                    if (res.ok) {
-                                                                                        setPersistentAttributes(prev => ({
-                                                                                            ...prev,
-                                                                                            [category]: prev[category].filter(v => v !== val)
-                                                                                        }));
-                                                                                    } else {
-                                                                                        const errData = await res.json();
-                                                                                        alert('Failed to delete attribute: ' + (errData.error || 'Unknown Error'));
-                                                                                    }
-                                                                                } else {
-                                                                                    const res = await fetch('/api/admin/attributes', {
-                                                                                        method: 'POST',
-                                                                                        headers: { 'Content-Type': 'application/json' },
-                                                                                        body: JSON.stringify({ category, value: val, metadata: { hidden: true } })
-                                                                                    });
-                                                                                    if (res.ok) {
-                                                                                        setHiddenAttributes(prev => ({
-                                                                                            ...prev,
-                                                                                            [category]: [...(prev[category] || []), val]
-                                                                                        }));
-                                                                                    } else {
-                                                                                        const errData = await res.json();
-                                                                                        alert('Failed to hide attribute: ' + (errData.error || 'Unknown Error'));
-                                                                                    }
-                                                                                }
-                                                                            } catch (e) {
-                                                                                alert('Error deleting attribute: ' + e.message);
-                                                                            }
-                                                                        }}
-                                                                        style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontWeight: 'bold' }}
-                                                                    >×</button>
-                                                                )}
-                                                            </li>
-                                                        );
-                                                    })}
-                                                </ul>
-                                            )}
-                                            {/* Inline Add Button for Category */}
-                                            <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-                                                <button
-                                                    onClick={async () => {
-                                                        const newVal = prompt(`Add new ${category}:`);
-                                                        if (!newVal || newVal.trim() === '') return;
-                                                        const cleanedVal = newVal.trim();
-                                                        try {
-                                                            const res = await fetch('/api/admin/attributes', {
-                                                                method: 'POST',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ category, value: cleanedVal, metadata: {} })
-                                                            });
-                                                            if (res.ok) {
-                                                                setPersistentAttributes(prev => ({
-                                                                    ...prev,
-                                                                    [category]: [...(prev[category] || []), cleanedVal]
-                                                                }));
-                                                            } else {
-                                                                const errData = await res.json();
-                                                                alert('Failed to add attribute: ' + (errData.error || 'Unknown Error'));
-                                                            }
-                                                        } catch (e) {
-                                                            alert('Error adding attribute: ' + e.message);
-                                                        }
-                                                    }}
-                                                    style={{ background: 'var(--color-accent)', color: '#000', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}
-                                                >
-                                                    + Add {category}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ));
-                                })()}
-                            </div>
-
-                            <hr style={{ borderColor: '#333', margin: '3rem 0' }} />
-
-                            <h2>Gift Packaging Options</h2>
-                            <p style={{ color: '#888', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                                Define global gift options that users can select when purchasing items that have &quot;Include Gift Packaging Options&quot; checked.
-                            </p>
-
-                            {/* Create Gift Option Form */}
-                            <div style={{ background: '#121110', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333', marginBottom: '2rem' }}>
-                                <h3 style={{ marginBottom: '1rem', color: 'var(--color-accent)' }}>Add New Gift Option</h3>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'end' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '0.3rem' }}>Option Name</label>
-                                        <input
-                                            type="text"
-                                            className={styles.input}
-                                            value={giftOptionForm.name}
-                                            onChange={(e) => setGiftOptionForm(prev => ({ ...prev, name: e.target.value }))}
-                                            placeholder="e.g. Premium Cedar Box"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '0.3rem' }}>Extra Price (EGP)</label>
-                                        <input
-                                            type="number"
-                                            className={styles.input}
-                                            value={giftOptionForm.price}
-                                            onChange={(e) => setGiftOptionForm(prev => ({ ...prev, price: e.target.value }))}
-                                            placeholder="150"
-                                        />
-                                    </div>
-                                    <div style={{ gridColumn: '1 / -1' }}>
-                                        <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '0.3rem' }}>Brief Description</label>
-                                        <input
-                                            type="text"
-                                            className={styles.input}
-                                            value={giftOptionForm.description}
-                                            onChange={(e) => setGiftOptionForm(prev => ({ ...prev, description: e.target.value }))}
-                                            placeholder="A beautifully crafted..."
-                                        />
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                        <input type="file" accept="image/*" onChange={handleGiftImageUpload} className="file:bg-white file:text-[#120C0A] file:px-4 file:py-2 file:rounded-full file:border-none file:font-semibold file:cursor-pointer hover:file:bg-[#C5A35C] transition-all" disabled={uploadingGiftImage} title="Upload Image" />
-                                        {giftOptionForm.image && (
-                                            <img src={giftOptionForm.image} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <button onClick={handleSaveGiftOption} style={{ background: 'var(--color-accent)', color: '#000', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%' }}>
-                                            {editingGiftId ? 'Update Gift Option' : 'Save Gift Option'}
-                                        </button>
-                                        {editingGiftId && (
-                                            <button onClick={() => { setEditingGiftId(null); setEditingGiftOldName(null); setGiftOptionForm({ name: '', price: '', description: '', image: '' }); }} style={{ background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%', marginTop: '5px' }}>
-                                                Cancel Edit
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Existing Gift Options List */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                                {!(persistentAttributes.gift_option && persistentAttributes.gift_option.length > 0) ? (
-                                    <p style={{ color: '#888' }}>No gift options created yet.</p>
-                                ) : (
-                                    persistentAttributes.gift_option.map(optionName => {
-                                        const meta = attributeMetadata[optionName] || {};
-                                        return (
-                                            <div key={optionName} style={{ background: '#121110', borderRadius: '8px', overflow: 'hidden', border: '1px solid #333', display: 'flex', flexDirection: 'column' }}>
-                                                {meta.image && (
-                                                    <div style={{ height: '140px', background: '#000' }}>
-                                                        <img src={meta.image} alt={optionName} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
-                                                    </div>
-                                                )}
-                                                <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                        <h4 style={{ margin: 0, color: '#fff' }}>{optionName}</h4>
-                                                        <strong style={{ color: 'var(--color-accent)' }}>+ EGP {meta.price || 0}</strong>
-                                                    </div>
-                                                    {meta.description && <p style={{ fontSize: '0.85rem', color: '#aaa', margin: 0, flex: 1 }}>{meta.description}</p>}
-
-                                                    <div style={{ display: 'flex', gap: '8px', marginTop: '0.5rem' }}>
-                                                        <button
-                                                            onClick={async () => {
-                                                                if (!confirm(`Delete gift option "${optionName}"?`)) return;
-                                                                try {
-                                                                    const res = await fetch(`/api/admin/attributes?category=gift_option&value=${encodeURIComponent(optionName)}`, { method: 'DELETE' });
-                                                                    if (res.ok) {
-                                                                        setPersistentAttributes(prev => ({
-                                                                            ...prev,
-                                                                            gift_option: prev.gift_option.filter(v => v !== optionName)
-                                                                        }));
-                                                                    } else {
-                                                                        alert('Failed to delete.');
-                                                                    }
-                                                                } catch (e) {
-                                                                    console.error(e);
-                                                                }
-                                                            }}
-                                                            style={{ background: 'rgba(255, 0, 0, 0.1)', color: '#ff4d4d', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', flex: 1, fontWeight: 'bold' }}
-                                                        >
-                                                            Remove
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingGiftId(meta.id);
-                                                                setEditingGiftOldName(optionName);
-                                                                setGiftOptionForm({
-                                                                    name: optionName,
-                                                                    price: meta.price || 0,
-                                                                    description: meta.description || '',
-                                                                    image: meta.image || ''
-                                                                });
-                                                                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                                                            }}
-                                                            style={{ background: 'transparent', color: 'var(--color-accent)', border: '1px solid var(--color-accent)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', flex: 1, fontWeight: 'bold' }}
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Checkout Settings Section */}
-                        <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #333' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <div>
-                                    <h2>Checkout Settings</h2>
-                                    <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>
-                                        Configure store-wide settings for the checkout process.
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div style={{ background: '#121110', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Require Payment Receipts (Instapay/Vodafone)</label>
-                                <select 
-                                    value={(() => {
-                                        let mode = 'none';
-                                        try {
-                                            const settings = JSON.parse(persistentAttributes.checkout_settings || '{}');
-                                            mode = settings.receipt_requirement_mode || 'none';
-                                        } catch(e) {
-                                            if (typeof persistentAttributes.checkout_settings === 'string') {
-                                                mode = persistentAttributes.checkout_settings;
-                                            }
-                                        }
-                                        return mode;
-                                    })()}
-                                    onChange={async (e) => {
-                                        const newMode = e.target.value;
-                                        try {
-                                            const metadata = { receipt_requirement_mode: newMode };
-                                            const res = await fetch('/api/admin/attributes', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ category: 'checkout_settings', value: JSON.stringify(metadata) })
-                                            });
-                                            if (res.ok) {
-                                                setPersistentAttributes(prev => ({ ...prev, checkout_settings: JSON.stringify(metadata) }));
-                                                alert('Settings updated successfully.');
-                                            } else {
-                                                alert('Failed to update settings.');
-                                            }
-                                        } catch(error) {
-                                            alert('Error updating settings.');
-                                        }
-                                    }}
-                                    className="inputField"
-                                    style={{ width: '100%', maxWidth: '400px' }}
-                                >
-                                    <option value="none">None (Optional for all)</option>
-                                    <option value="all">All (Strictly required for everyone)</option>
-                                    <option value="specific">Specific Customers</option>
-                                </select>
-                                <p style={{ fontSize: '0.85rem', color: '#888', marginTop: '1rem', lineHeight: '1.5' }}>
-                                    If set to <strong>None</strong>, users will only see a gentle notification asking them to upload, but they can skip it. <br/>
-                                    If set to <strong>All</strong>, users cannot place an order with Instapay/Vodafone without uploading the receipt image. <br/>
-                                    If set to <strong>Specific Customers</strong>, the strict block only applies to the users you select below.
-                                </p>
-
-                                {(() => {
-                                    let settings = {};
-                                    try {
-                                        settings = JSON.parse(persistentAttributes.checkout_settings || '{}');
-                                    } catch(e) {
-                                        if (typeof persistentAttributes.checkout_settings === 'string') {
-                                            settings = { receipt_requirement_mode: persistentAttributes.checkout_settings };
-                                        }
-                                    }
-                                    const mode = settings.receipt_requirement_mode || 'none';
-                                    const restrictedEmails = settings.restricted_emails || [];
-
-                                    if (mode === 'specific') {
-                                        return (
-                                            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #333' }}>
-                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Targeted Customers</label>
-                                                <input 
-                                                    type="text" 
-                                                    placeholder="Search customers by name or email..." 
-                                                    value={checkoutCustomerSearch} 
-                                                    onChange={e => setCheckoutCustomerSearch(e.target.value)}
-                                                    className="inputField"
-                                                    style={{ width: '100%', maxWidth: '400px', marginBottom: '0.5rem' }}
-                                                />
-                                                <div style={{ maxWidth: '600px', maxHeight: '200px', overflowX: 'hidden', overflowY: 'auto', background: '#222', border: '1px solid #333', borderRadius: '4px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    {adminUsers.filter(c => c.name?.toLowerCase().includes(checkoutCustomerSearch.toLowerCase()) || c.email?.toLowerCase().includes(checkoutCustomerSearch.toLowerCase())).map(c => (
-                                                        <label key={c.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', width: '100%', padding: '12px 16px', cursor: 'pointer', background: restrictedEmails.includes(c.email) ? 'rgba(197, 163, 92, 0.2)' : 'transparent', borderBottom: '1px solid #444', fontSize: '0.9rem' }}>
-                                                            <span style={{ textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#fff' }}>{c.name || 'N/A'} ({c.email})</span>
-                                                            <input 
-                                                                type="checkbox" 
-                                                                checked={restrictedEmails.includes(c.email)} 
-                                                                onChange={async () => {
-                                                                    const newEmails = restrictedEmails.includes(c.email) 
-                                                                        ? restrictedEmails.filter(email => email !== c.email)
-                                                                        : [...restrictedEmails, c.email];
-                                                                        
-                                                                    const metadata = { ...settings, restricted_emails: newEmails };
-                                                                    
-                                                                    try {
-                                                                        const res = await fetch('/api/admin/attributes', {
-                                                                            method: 'POST',
-                                                                            headers: { 'Content-Type': 'application/json' },
-                                                                            body: JSON.stringify({ category: 'checkout_settings', value: JSON.stringify(metadata) })
-                                                                        });
-                                                                        if (res.ok) {
-                                                                            setPersistentAttributes(prev => ({ ...prev, checkout_settings: JSON.stringify(metadata) }));
-                                                                        }
-                                                                    } catch(err) {
-                                                                        console.error(err);
-                                                                        alert('Failed to update targeted customer list');
-                                                                    }
-                                                                }}
-                                                                style={{ justifySelf: 'end', cursor: 'pointer', transform: 'scale(1.2)' }}
-                                                            />
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        );
-                                    }
-                                    return null;
-                                })()}
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-            {
-                activeTab === 'users' && (
-                    <div className={styles.content}>
-                        <div style={{ width: '100%', margin: '0 auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                            <h2>Manage Users & Admins</h2>
-                            <p style={{ color: '#888', marginBottom: '2rem' }}>Promote users to Admins to give them access to this dashboard.</p>
-
-                            {adminUsers.length === 0 ? (
-                                <p style={{ color: '#888' }}>No users found.</p>
-                            ) : (
-                                <div className={styles.tableContainer}>
-                                    <table className={styles.table}>
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Activity Status</th>
-                                                <th>Current Role</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {adminUsers.map(u => (
-                                                <React.Fragment key={u.id}>
-                                                <tr style={{ cursor: 'pointer', transition: 'background 0.2s', borderBottom: '1px solid #333' }}
-                                                    onClick={() => setExpandedUserId(expandedUserId === u.id ? null : u.id)}
-                                                    onMouseOver={(e) => e.currentTarget.style.background = '#2a2a2a'}
-                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                                                >
-                                                    <td style={{ padding: '10px' }}>{u.name || 'N/A'}</td>
-                                                    <td style={{ padding: '10px' }}>{u.email}</td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            padding: '2px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '0.8rem',
-                                                            fontWeight: 'bold',
-                                                            backgroundColor: u.activity_status === 'Active' ? 'rgba(76, 175, 80, 0.2)' : u.activity_status === 'Slipping' ? 'rgba(255, 193, 7, 0.2)' : 'rgba(244, 67, 54, 0.2)',
-                                                            color: u.activity_status === 'Active' ? '#4caf50' : u.activity_status === 'Slipping' ? '#ffc107' : '#f44336'
-                                                        }}>
-                                                            {u.activity_status === 'Active' ? '🟢 Active' : u.activity_status === 'Slipping' ? '🟡 Slipping' : '🔴 Dormant'}
-                                                        </span>
-                                                        {u.last_active_at && (
-                                                            <div style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>
-                                                                Last: {new Date(u.last_active_at).toLocaleDateString()}
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td style={{ padding: '10px', color: u.role === 'admin' ? 'var(--color-accent)' : '#fff', fontWeight: u.role === 'admin' ? 'bold' : 'normal' }}>
-                                                        {u.role === 'admin' ? 'Admin' : 'User'}
-                                                    </td>
-                                                    <td style={{ padding: '10px' }}>
-                                                        <button
-                                                            onClick={async (e) => {
-                                                                e.stopPropagation();
-                                                                const newRole = u.role === 'admin' ? 'user' : 'admin';
-                                                                if (!confirm(`Are you sure you want to change ${u.email} to ${newRole}?`)) return;
-                                                                try {
-                                                                    const res = await fetch('/api/admin/users', {
-                                                                        method: 'PUT',
-                                                                        headers: { 'Content-Type': 'application/json' },
-                                                                        body: JSON.stringify({ userId: u.id, role: newRole })
-                                                                    });
-                                                                    const data = await res.json();
-                                                                    if (data.success) {
-                                                                        setAdminUsers(prev => prev.map(user => user.id === u.id ? { ...user, role: newRole } : user));
-                                                                    } else {
-                                                                        alert('Failed to update role');
-                                                                    }
-                                                                } catch (err) {
-                                                                    alert('Error updating role: ' + err.message);
-                                                                }
-                                                            }}
-                                                            style={{
-                                                                background: u.role === 'admin' ? '#333' : 'var(--color-accent)',
-                                                                color: u.role === 'admin' ? '#fff' : '#000',
-                                                                border: 'none',
-                                                                padding: '6px 12px',
-                                                                borderRadius: '4px',
-                                                                cursor: 'pointer',
-                                                                fontWeight: 'bold',
-                                                                fontSize: '0.8rem'
-                                                            }}
-                                                        >
-                                                            {u.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                {expandedUserId === u.id && (
-                                                    <tr style={{ background: '#111' }}>
-                                                        <td colSpan="4" style={{ padding: '20px', borderBottom: '1px solid #333' }}>
-                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-                                                                <div>
-                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Customer Info</h4>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>ID:</strong> {u.customer_id || 'N/A'}</p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Phone:</strong> {u.phone || 'N/A'}</p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>DOB:</strong> {u.dob || 'N/A'}</p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Address:</strong> {u.address || 'N/A'}</p>
-                                                                </div>
-                                                                <div>
-                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Loyalty & Spending</h4>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Tier:</strong> <span style={{ color: u.tier === 'Platinum' ? '#e5e4e2' : u.tier === 'Gold' ? '#ffd700' : '#c0c0c0', fontWeight: 'bold' }}>{u.tier}</span></p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Points:</strong> {u.points?.toLocaleString() || 0}</p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Spent:</strong> EGP {u.total_spent?.toLocaleString() || 0}</p>
-                                                                    <p style={{ margin: '5px 0' }}><strong style={{ color: '#888' }}>Total Orders:</strong> {u.orders_count || 0}</p>
-                                                                    
-
-                                                                </div>
-                                                                <div>
-                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Recent Orders</h4>
-                                                                    {u.recent_orders && u.recent_orders.length > 0 ? (
-                                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                                            {u.recent_orders.map(ro => (
-                                                                                <div key={ro.id} style={{ fontSize: '0.85rem', padding: '8px', background: '#222', borderRadius: '4px' }}>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                                                                        <span>#{String(ro.id).substring(0, 8)}...</span>
-                                                                                        <span style={{ color: ro.status?.toLowerCase() === 'cancelled' ? '#ff4d4d' : ro.status?.toLowerCase() === 'pending' ? '#d4af37' : '#4CAF50' }}>{ro.status}</span>
-                                                                                    </div>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
-                                                                                        <span>EGP {Number(ro.total_amount || 0).toLocaleString()}</span>
-                                                                                        <span>{new Date(ro.created_at).toLocaleDateString()}</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <p style={{ color: '#888' }}>No recent orders.</p>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                                </React.Fragment>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )
-            }
+            {activeTab === 'users' && (
+                <AdminUsersTab
+                    adminUsers={adminUsers} setAdminUsers={setAdminUsers}
+                    expandedUserId={expandedUserId} setExpandedUserId={setExpandedUserId}
+                />
+            )}
             {
                 activeTab === 'promotions' && (
                     <AdminPromotions products={products} brands={BRANDS} />

@@ -1,26 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { sendPushNotification } from '@/lib/push';
 import { requireAdmin } from '@/lib/adminAuth';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
-
-const getSupabaseAdmin = () => {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-    if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing');
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        serviceKey,
-        {
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false
-            }
-        }
-    );
-};
 
 // Initialize Resend with the provided ENV key or stub
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -38,7 +23,7 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
         }
 
-        const supabase = getSupabaseAdmin();
+        const supabase = supabaseAdmin;
 
         // 1. Fetch User Data
         const { data: orderData, error: orderError } = await supabase

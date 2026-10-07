@@ -25,8 +25,8 @@ const getSupabaseAdmin = () => {
 };
 
 export async function GET(request) {
-    const auth = await requireAdmin(request);
-    if (auth.error) return auth.error;
+    // Note: GET is public for fetching attributes like gift options and settings on the frontend.
+    // We only protect POST/DELETE.
 
     try {
         const { searchParams } = new URL(request.url);

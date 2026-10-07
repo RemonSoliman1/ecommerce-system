@@ -68,7 +68,22 @@ export default function Header() {
         }
     };
 
+
+    const trackSearch = (q) => {
+        if (!q || q.trim() === '') return;
+        fetch('/api/tracking/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: user?.id || null,
+                event_type: 'search',
+                target_id: q.trim(),
+            })
+        }).catch(() => {});
+    };
+
     // Close search on click outside
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (!event.target.closest(`.${styles.searchContainer}`)) {
@@ -178,17 +193,14 @@ export default function Header() {
                                     handleSearch(e);
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        setSearchResults([]);
-                                        router.push(`/shop?q=${encodeURIComponent(searchQuery)}`);
-                                    }
+                                    if (e.key === 'Enter') { setSearchResults([]); trackSearch(searchQuery); router.push(`/shop?q=${encodeURIComponent(searchQuery)}`); }
                                 }}
                             />
                             <button
                                 className={styles.searchSubmitBtn}
                                 onClick={() => {
                                     setSearchResults([]);
-                                    if (searchQuery) router.push(`/shop?q=${encodeURIComponent(searchQuery)}`);
+                                    if (searchQuery) { trackSearch(searchQuery); router.push(`/shop?q=${encodeURIComponent(searchQuery)}`); }
                                 }}
                                 aria-label="Search"
                             >
@@ -231,11 +243,11 @@ export default function Header() {
                     {/* DESKTOP ACTIONS (HIDDEN ON MOBILE) */}
                     <div className={`${styles.actions} ${styles.desktopOnly}`}>
                         {user ? (
-                            <Link href="/account" id="tour-account-btn" className={styles.iconBtn} aria-label="Account" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
+                            <Link href="/account" id="tour-account-btn" className={styles.iconBtn} aria-label="Account" >
                                 <User size={24} />
                             </Link>
                         ) : (
-                            <Link href="/login" id="tour-account-btn" className={styles.iconBtn} aria-label="Login" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
+                            <Link href="/login" id="tour-account-btn" className={styles.iconBtn} aria-label="Login" >
                                 <User size={24} />
                             </Link>
                         )}
@@ -247,7 +259,7 @@ export default function Header() {
                             </Link>
                         )}
 
-                        <Link href="/wishlist" className={styles.iconBtn} aria-label="Wishlist" onClick={(e) => { if (isTourActive) e.preventDefault(); }}>
+                        <Link href="/wishlist" className={styles.iconBtn} aria-label="Wishlist" >
                             <Heart size={24} />
                         </Link>
 

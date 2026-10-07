@@ -3,8 +3,9 @@
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useRouter, Link } from '@/lib/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import TourTrigger from '@/components/tour/TourTrigger';
 
 export default function LoginPage() {
     const [identifier, setIdentifier] = useState('');
@@ -12,12 +13,16 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
-    const { login } = useAuth();
+    const { login, user } = useAuth();
     const { showToast } = useToast();
     const router = useRouter();
     const t = useTranslations('Auth');
 
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (user) router.push('/account');
+    }, [user, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,7 +31,11 @@ export default function LoginPage() {
         if (res.success) {
             const firstName = res.username && res.username !== 'Aficionado' ? res.username.split(' ')[0] : '';
             showToast(`Welcome back, Aficionado ${firstName}`.trim() + '!');
-            router.push('/');
+            if (localStorage.getItem('cigar_global_tour_active') === 'true') {
+                router.push('/account');
+            } else {
+                router.push('/');
+            }
         } else {
             setError(res.error || 'Login failed');
             showToast(res.error || 'Login failed', 'error');
@@ -35,10 +44,12 @@ export default function LoginPage() {
     };
 
     return (
+        <>
+            <TourTrigger tourName="login" steps={[{ element: '#tour-login-form', titleKey: 'login_tour_title', descKey: 'login_tour_desc', side: 'top' }]} />
         <div className="container" style={{ maxWidth: '400px', margin: '6rem auto', padding: '2rem', border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)' }}>
             <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>{t('login_title')}</h1>
             {error && <p style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form id="tour-login-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                     type="text"
                     placeholder={t('email_placeholder')}
@@ -100,5 +111,6 @@ export default function LoginPage() {
                 {t('no_account')} <Link href="/register" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('register')}</Link>
             </p>
         </div>
+        </>
     );
 }

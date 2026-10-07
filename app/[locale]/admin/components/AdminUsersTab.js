@@ -136,6 +136,7 @@ export default function AdminUsersTab({
                                                                     )}
                                                                 </div>
                                                             </div>
+<UserActivity userId={u.id} />
                                                         </td>
                                                     </tr>
                                                 )}

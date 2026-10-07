@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { requireAdmin } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,9 +9,8 @@ export async function PUT(request) {
         const body = await request.json();
         const { id, is_visible, admin_secret } = body;
 
-        if (admin_secret !== 'admin@129') {
-            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-        }
+        const auth = await requireAdmin(request);
+        if (auth.error) return auth.error;
 
         if (!supabaseAdmin) {
             throw new Error('Server misconfiguration: Admin client not available');

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styles from './QuickAddModal.module.css';
+import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { useTranslations } from 'next-intl';
@@ -73,11 +74,13 @@ export default function QuickAddModal({ product, onClose }) {
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <button className={styles.closeBtn} onClick={onClose}>&times;</button>
                 <div className={styles.header}>
-                    <img src={product.image} alt={product.name} className={styles.productImg} />
-                    <div>
-                        <h3 className={styles.title}>{product.name}</h3>
-                        <p className={styles.price}>EGP {priceToDisplay.toLocaleString()}</p>
-                    </div>
+                    <Link href={`/product/${product.id}`} className="tour-quickadd-link" style={{ display: 'flex', gap: '15px', textDecoration: 'none', color: 'inherit', alignItems: 'center' }}>
+                        <img src={product.image} alt={product.name} className={styles.productImg} />
+                        <div>
+                            <h3 className={styles.title}>{product.name}</h3>
+                            <p className={styles.price}>EGP {priceToDisplay.toLocaleString()}</p>
+                        </div>
+                    </Link>
                 </div>
 
                 <div className={styles.body}>

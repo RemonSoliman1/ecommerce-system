@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import ProductCard from '@/components/ui/ProductCard';
 
-export default function RelatedProducts({ currentProductId, category, brandId }) {
+export default function RelatedProducts({ currentProductId, category, brandId, showTourMocks }) {
     const [related, setRelated] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -44,7 +44,14 @@ export default function RelatedProducts({ currentProductId, category, brandId })
         }
     }, [currentProductId, category, brandId]);
 
-    if (loading || related.length === 0) return null;
+    if ((loading || related.length === 0) && !showTourMocks) return null;
+    
+    // Mock data for tour if needed
+    const displayProducts = (related.length === 0 && showTourMocks) ? [
+        { id: 'cohiba-behike', name: 'Cohiba Behike', image: '/images/cigars/cohiba-behike.png', price: 850, models: [{ price: 850, stock: 10 }] },
+        { id: 'opusx', name: 'Arturo Fuente OpusX', image: '/images/cigars/opusx.png', price: 450, models: [{ price: 450, stock: 5 }] },
+        { id: 'davidoff-winston', name: 'Davidoff Winston Churchill', image: '/images/cigars/davido-winston.png', price: 320, models: [{ price: 320, stock: 20 }] }
+    ] : related;
 
     return (
         <div style={{ marginTop: '5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '3rem', width: '100%' }}>
@@ -59,7 +66,7 @@ export default function RelatedProducts({ currentProductId, category, brandId })
                 maxWidth: '1300px', 
                 margin: '0 auto' 
             }}>
-                {related.map(product => (
+                {displayProducts.map(product => (
                     <ProductCard key={product.id} product={product} />
                 ))}
             </div>

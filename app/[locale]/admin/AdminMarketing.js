@@ -52,7 +52,7 @@ export default function AdminMarketing() {
             else if(data.brands) setBrands(data.brands);
         });
         // Fetch Users
-        fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer admin@129' } }).then(res => res.json()).then(data => {
+        fetch('/api/admin/users', { headers: { } }).then(res => res.json()).then(data => {
             if(data.users) setCustomers(data.users);
             else if(Array.isArray(data)) setCustomers(data);
         });
@@ -70,7 +70,7 @@ export default function AdminMarketing() {
         try {
             const res = await fetch('/api/admin/upload-image', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer admin@129' },
+                headers: { },
                 body: formData
             });
             const data = await res.json();
@@ -107,8 +107,7 @@ export default function AdminMarketing() {
             const res = await fetch('/api/admin/push', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer admin@129'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     title,
@@ -333,12 +332,12 @@ export default function AdminMarketing() {
                     try {
                         await fetch('/api/admin/settings', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ key: 'birthday_automation', value: bdayVal })
                         });
                         await fetch('/api/admin/settings', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ key: 'upcoming_birthday_automation', value: upBdayVal })
                         });
                         alert('Birthday settings saved successfully!');

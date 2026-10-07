@@ -879,7 +879,7 @@ export default function AdminProductsTab({
                                                             fetch('/api/products/visibility', {
                                                                 method: 'PUT',
                                                                 headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible, admin_secret: 'admin@129' })
+                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible })
                                                             }).then(async res => {
                                                                 if (!res.ok) {
                                                                     const data = await res.json();
@@ -937,7 +937,7 @@ export default function AdminProductsTab({
                                                         onClick={async () => {
                                                             if (!confirm('Are you sure you want to delete this product?')) return;
                                                             try {
-                                                                const res = await fetch(`/api/products?id=${p.id}&admin_secret=admin@129`, { method: 'DELETE' });
+                                                                const res = await fetch(`/api/products?id=${p.id}`, { method: 'DELETE' });
                                                                 const data = await res.json(); // Get error message if any
                                                                 if (res.ok) {
                                                                     await refreshProducts();

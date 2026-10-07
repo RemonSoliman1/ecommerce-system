@@ -3,12 +3,17 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireAdmin } from '@/lib/adminAuth';
 
 export async function GET(request) {
-    const auth = await requireAdmin(request);
-    if (auth.error) return auth.error;
+    // GET is public to allow frontend access to global settings (like maintenance mode, etc).
 
     try {
         const { data, error } = await supabaseAdmin.from('system_settings').select('*');
-        if (error) throw error;
+        if (error) {
+            // If table doesn't exist, just return empty settings
+            if (error.code === '42P01') {
+                return NextResponse.json({ success: true, settings: {} });
+            }
+            throw error;
+        }
         
         const settings = {};
         data.forEach(item => {

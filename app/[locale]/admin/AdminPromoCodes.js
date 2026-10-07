@@ -53,7 +53,7 @@ export default function AdminPromoCodes() {
 
     const fetchPromos = async () => {
         try {
-            const res = await fetch('/api/admin/promos', { headers: { 'Authorization': 'Bearer admin@129' } });
+            const res = await fetch('/api/admin/promos', { headers: { } });
             const data = await res.json();
             if (data.success) setPromotions(data.promotions);
         } catch (e) {
@@ -70,7 +70,7 @@ export default function AdminPromoCodes() {
             if(Array.isArray(data)) setBrands(data);
             else if(data.brands) setBrands(data.brands);
         });
-        fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer admin@129' } }).then(res => res.json()).then(data => {
+        fetch('/api/admin/users', { headers: { } }).then(res => res.json()).then(data => {
             if(data.users) setCustomers(data.users);
             else if(Array.isArray(data)) setCustomers(data);
         });
@@ -109,7 +109,7 @@ export default function AdminPromoCodes() {
 
             const res = await fetch('/api/admin/promos', {
                 method: editingId ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bodyPayload)
             });
 
@@ -130,7 +130,7 @@ export default function AdminPromoCodes() {
         try {
             await fetch('/api/admin/promos', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin@129' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, active: !currentActive })
             });
             fetchPromos();
@@ -202,7 +202,7 @@ export default function AdminPromoCodes() {
         try {
             await fetch(`/api/admin/promos?id=${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': 'Bearer admin@129' }
+                headers: { }
             });
             fetchPromos();
         } catch (e) {

@@ -873,8 +873,7 @@ const handleSaveGiftOption = async () => {
                 ...formData,
                 id: targetId,
                 price: formData.models[0]?.price || 0,
-                rating: formData.rating === '' ? null : formData.rating,
-                admin_secret: 'admin@129'
+                rating: formData.rating === '' ? null : formData.rating
             };
 
             console.log('Submitting Payload:', payload);
@@ -1111,7 +1110,7 @@ const handleSaveGiftOption = async () => {
             const res = await fetch('/api/admin/broadcast-collection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ admin_secret: 'admin@129' })
+                body: JSON.stringify({ })
             });
             const data = await res.json();
             
@@ -1979,7 +1978,7 @@ const handleSaveGiftOption = async () => {
                                                             fetch('/api/products/visibility', {
                                                                 method: 'PUT',
                                                                 headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible, admin_secret: 'admin@129' })
+                                                                body: JSON.stringify({ id: p.id, is_visible: newVisible })
                                                             }).then(async res => {
                                                                 if (!res.ok) {
                                                                     const data = await res.json();
@@ -2037,7 +2036,7 @@ const handleSaveGiftOption = async () => {
                                                         onClick={async () => {
                                                             if (!confirm('Are you sure you want to delete this product?')) return;
                                                             try {
-                                                                const res = await fetch(`/api/products?id=${p.id}&admin_secret=admin@129`, { method: 'DELETE' });
+                                                                const res = await fetch(`/api/products?id=${p.id}`, { method: 'DELETE' });
                                                                 const data = await res.json(); // Get error message if any
                                                                 if (res.ok) {
                                                                     await refreshProducts();
