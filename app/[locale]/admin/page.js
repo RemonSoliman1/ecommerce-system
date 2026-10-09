@@ -14,6 +14,7 @@ import AdminMarketing from './AdminMarketing';
 import AdminPromoCodes from './AdminPromoCodes';
 import AdminOrdersTab from './components/AdminOrdersTab';
 import AdminUsersTab from './components/AdminUsersTab';
+import AdminAnalyticsTab from './components/AdminAnalyticsTab';
 import AdminAttributesTab from './components/AdminAttributesTab';
 import { useTranslations } from 'next-intl';
 
@@ -34,7 +35,8 @@ export default function AdminPage() {
         { id: 'users', labelKey: 'tabs_users' },
         { id: 'promotions', labelKey: 'tabs_promotions' },
         { id: 'promos', labelKey: 'tabs_promos' },
-        { id: 'marketing', labelKey: 'tabs_marketing' }
+        { id: 'marketing', labelKey: 'tabs_marketing' },
+        { id: 'analytics', labelKey: 'tabs_analytics' }
     ];
 
     const [adminTabsOrder, setAdminTabsOrder] = useState(defaultTabs);

@@ -499,7 +499,8 @@
     "tabs_promos": "Promo Codes",
     "tabs_marketing": "Marketing",
     "back_to_shop": "Back to Shop",
-    "add_edit_product": "Add / Edit Product"
+    "add_edit_product": "Add / Edit Product",
+    "tabs_analytics": "Analytics"
   },
   "AgeGate": {
     "auth_title": "Welcome to CigarLounge",

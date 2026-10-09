@@ -488,7 +488,8 @@
     "tabs_promos": "أكواد الخصم",
     "tabs_marketing": "التسويق",
     "back_to_shop": "العودة للمتجر",
-    "add_edit_product": "إضافة / تعديل منتج"
+    "add_edit_product": "إضافة / تعديل منتج",
+    "tabs_analytics": "التحليلات"
   },
   "AgeGate": {
     "auth_title": "مرحباً بك في CigarLounge",

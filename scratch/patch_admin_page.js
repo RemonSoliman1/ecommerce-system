@@ -2,43 +2,29 @@ const fs = require('fs');
 const file = 'app/[locale]/admin/page.js';
 let content = fs.readFileSync(file, 'utf8');
 
-// import AdminAnalyticsTab
-content = content.replace(
-    "import AdminProductsTab from './components/AdminProductsTab';",
-    "import AdminProductsTab from './components/AdminProductsTab';\nimport AdminAnalyticsTab from './components/AdminAnalyticsTab';"
-);
-
-// Add Tab Button
-const tabsMapRegex = /<button[^>]*onClick=\{\(\) => setActiveTab\('settings'\)\}[^>]*>\s*Settings\s*<\/button>/;
-const settingsBtnMatch = content.match(tabsMapRegex);
-if (settingsBtnMatch) {
-    const analyticsBtn = `
-                <button
-                    onClick={() => setActiveTab('analytics')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        background: activeTab === 'analytics' ? '#c5a35c' : '#222',
-                        color: activeTab === 'analytics' ? '#111' : '#fff',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        borderRadius: '4px'
-                    }}
-                >
-                    Analytics
-                </button>
-    `;
-    content = content.replace(tabsMapRegex, settingsBtnMatch[0] + analyticsBtn);
+// 1. Add import
+if (!content.includes('AdminAnalyticsTab')) {
+    content = content.replace(
+        "import AdminUsersTab from './components/AdminUsersTab';",
+        "import AdminUsersTab from './components/AdminUsersTab';\nimport AdminAnalyticsTab from './components/AdminAnalyticsTab';"
+    );
 }
 
-// Render Content
-const renderContentBody = `
-            {activeTab === 'analytics' && <AdminAnalyticsTab />}`;
+// 2. Add to defaultTabs
+if (!content.includes("{ id: 'analytics'")) {
+    content = content.replace(
+        "{ id: 'marketing', labelKey: 'tabs_marketing' }",
+        "{ id: 'marketing', labelKey: 'tabs_marketing' },\n        { id: 'analytics', labelKey: 'tabs_analytics' }"
+    );
+}
 
-content = content.replace(
-    "{activeTab === 'settings' && <AdminSettingsTab />}",
-    "{activeTab === 'settings' && <AdminSettingsTab />}\n" + renderContentBody
-);
+// 3. Render content
+if (!content.includes("activeTab === 'analytics'")) {
+    content = content.replace(
+        "            {\n                activeTab === 'marketing' && (",
+        "            {\n                activeTab === 'analytics' && <AdminAnalyticsTab />\n            }\n            {\n                activeTab === 'marketing' && ("
+    );
+}
 
 fs.writeFileSync(file, content);
 console.log('Success');

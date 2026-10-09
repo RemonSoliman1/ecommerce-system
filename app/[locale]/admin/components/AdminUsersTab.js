@@ -1,4 +1,5 @@
 
+import UserActivity from './UserActivity';
 import React from 'react';
 import styles from '../admin.module.css';
 
