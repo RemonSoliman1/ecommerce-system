@@ -2173,6 +2173,9 @@ const handleSaveGiftOption = async () => {
                 )
             }
             {
+                activeTab === 'analytics' && <AdminAnalyticsTab />
+            }
+            {
                 activeTab === 'marketing' && (
                     <AdminMarketing />
                 )
