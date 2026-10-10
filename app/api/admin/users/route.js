@@ -19,7 +19,7 @@ export async function GET(request) {
         ] = await Promise.all([
             supabase.from('users').select('id, name, email, role, verified, created_at, activity_status, last_active_at').order('created_at', { ascending: false }),
             supabase.from('customers').select('id, email, points, tier, phone, address_street, address_city, requires_receipt'),
-            supabase.from('orders').select('id, user_email, total_amount, status, created_at')
+            supabase.from('orders').select('id, user_email, total_amount, status, created_at, items, payment_method, processed_by')
         ]);
 
         if (error) throw error;
@@ -54,7 +54,7 @@ export async function GET(request) {
                 dob: 'N/A',
                 total_spent: userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0),
                 orders_count: userOrders.length,
-                recent_orders: userOrders.slice(0, 3),
+                recent_orders: userOrders, // Return all orders
                 requires_receipt: customerData.requires_receipt || false
             };
         });

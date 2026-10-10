@@ -7,6 +7,46 @@ export default function AdminUsersTab({
     adminUsers, setAdminUsers,
     expandedUserId, setExpandedUserId
 }) {
+    const exportCustomerOrders = (user) => {
+        if (!user.recent_orders || user.recent_orders.length === 0) return;
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Order ID,Date,Status,Total Amount,Payment Method,Processed By,Item Name,Size/Vitola,Quantity,Price\n";
+        
+        user.recent_orders.forEach(ro => {
+            let itemsArr = [];
+            try {
+                itemsArr = Array.isArray(ro.items) ? ro.items : (typeof ro.items === 'string' ? JSON.parse(ro.items) : []);
+            } catch(e) {}
+            
+            const dateStr = new Date(ro.created_at).toLocaleDateString();
+            const orderIdStr = String(ro.id);
+            const status = ro.status || '';
+            const payment = ro.payment_method || '';
+            const processed = ro.processed_by || '';
+            
+            if (itemsArr.length === 0) {
+                csvContent += `"${orderIdStr}","${dateStr}","${status}",${ro.total_amount},"${payment}","${processed}","","","",\n`;
+            } else {
+                itemsArr.forEach(item => {
+                    const itemName = (item.name || item.product_name || '').replace(/"/g, '""');
+                    const size = (item.selectedSize || item.size || '').replace(/"/g, '""');
+                    const qty = item.quantity || 1;
+                    const price = item.price || 0;
+                    csvContent += `"${orderIdStr}","${dateStr}","${status}",${ro.total_amount},"${payment}","${processed}","${itemName}","${size}",${qty},${price}\n`;
+                });
+            }
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${user.email || 'customer'}_purchase_history.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
                     <div className={styles.content}>
                         <div style={{ width: '100%', margin: '0 auto', background: '#121110', padding: '2rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
@@ -116,21 +156,46 @@ export default function AdminUsersTab({
 
                                                                 </div>
                                                                 <div>
-                                                                    <h4 style={{ color: 'var(--color-accent)', marginBottom: '10px' }}>Recent Orders</h4>
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                        <h4 style={{ color: 'var(--color-accent)' }}>Purchase History</h4>
+                                                                        {u.recent_orders && u.recent_orders.length > 0 && (
+                                                                            <button 
+                                                                                onClick={() => exportCustomerOrders(u)}
+                                                                                style={{ background: 'transparent', border: '1px solid #444', color: '#ccc', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+                                                                                title="Export Purchase Analytics"
+                                                                            >
+                                                                                Export CSV
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
                                                                     {u.recent_orders && u.recent_orders.length > 0 ? (
-                                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                                            {u.recent_orders.map(ro => (
-                                                                                <div key={ro.id} style={{ fontSize: '0.85rem', padding: '8px', background: '#222', borderRadius: '4px' }}>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
+                                                                            {u.recent_orders.map(ro => {
+                                                                                let itemsArr = [];
+                                                                                try {
+                                                                                    itemsArr = Array.isArray(ro.items) ? ro.items : (typeof ro.items === 'string' ? JSON.parse(ro.items) : []);
+                                                                                } catch(e) {}
+                                                                                return (
+                                                                                <details key={ro.id} style={{ fontSize: '0.85rem', padding: '8px', background: '#222', borderRadius: '4px' }}>
+                                                                                    <summary style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', cursor: 'pointer', outline: 'none' }}>
                                                                                         <span>#{String(ro.id).substring(0, 8)}...</span>
-                                                                                        <span style={{ color: ro.status?.toLowerCase() === 'cancelled' ? '#ff4d4d' : ro.status?.toLowerCase() === 'pending' ? '#d4af37' : '#4CAF50' }}>{ro.status}</span>
-                                                                                    </div>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
                                                                                         <span>EGP {Number(ro.total_amount || 0).toLocaleString()}</span>
-                                                                                        <span>{new Date(ro.created_at).toLocaleDateString()}</span>
+                                                                                        <span style={{ color: ro.status?.toLowerCase() === 'cancelled' ? '#ff4d4d' : ro.status?.toLowerCase() === 'pending' ? '#d4af37' : '#4CAF50' }}>{ro.status}</span>
+                                                                                    </summary>
+                                                                                    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #444', color: '#ccc' }}>
+                                                                                        <div style={{ marginBottom: '4px' }}><strong>Date:</strong> {new Date(ro.created_at).toLocaleDateString()}</div>
+                                                                                        {ro.payment_method && <div style={{ marginBottom: '4px' }}><strong>Payment:</strong> {ro.payment_method}</div>}
+                                                                                        {ro.processed_by && <div style={{ marginBottom: '4px' }}><strong>Processed By:</strong> {ro.processed_by}</div>}
+                                                                                        <div style={{ marginTop: '8px', fontWeight: 'bold' }}>Items:</div>
+                                                                                        {itemsArr.length > 0 ? itemsArr.map((item, idx) => (
+                                                                                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dotted #333' }}>
+                                                                                                <span style={{flex: 1, paddingRight: '8px'}}>{item.quantity || 1}x {item.name || item.product_name} {item.selectedSize || item.size ? `(${item.selectedSize || item.size})` : ''}</span>
+                                                                                                <span>EGP {Number(item.price || 0) * Number(item.quantity || 1)}</span>
+                                                                                            </div>
+                                                                                        )) : <div style={{color:'#888'}}>No items details</div>}
                                                                                     </div>
-                                                                                </div>
-                                                                            ))}
+                                                                                </details>
+                                                                            )})}
                                                                         </div>
                                                                     ) : (
                                                                         <p style={{ color: '#888' }}>No recent orders.</p>
